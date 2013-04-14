@@ -1,6 +1,4 @@
-var undefined = void 0
-  , q = true
-  , v = null
+var v = null
   , x = false
 
 function setter_factory(key) {
@@ -61,7 +59,7 @@ function Ja(e) {
     if (Ka.hasOwnProperty(e)) {
         var k = Ka[e];
         delete Ka[e];
-        eb[e] = q;
+        eb[e] = true;
         fb.apply(undefined, k)
     }
     if (!$.hasOwnProperty(e) && !eb.hasOwnProperty(e))
@@ -100,13 +98,13 @@ fb = function(e, k, j, g) {
             if (a = Cb(k[b], g), f = a.Rd, "require" === f)
                 d[b] = Db.Wf(e);
             else if ("exports" === f)
-                d[b] = Db.c(e), h = q;
+                d[b] = Db.c(e), h = true;
             else if ("module" === f)
                 c = d[b] = Db.Rf(e);
             else if ($.hasOwnProperty(f) || Ka.hasOwnProperty(f) || eb.hasOwnProperty(f))
                 d[b] = Ja(f);
             else if (a.ie)
-                a.ie.load(a.Tf, qa(g, q), ta(f), {}), d[b] = $[f];
+                a.ie.load(a.Tf, qa(g, true), ta(f), {}), d[b] = $[f];
             else
                 throw Error(e + " missing " + f);
         k = j.apply($[e], d);
@@ -139,7 +137,7 @@ define = function(e, k, j) {
     k.splice || (j = k, k = []);
     Ka[e] = [e, k, j]
 };
-define.lg = {tg: q};
+define.lg = {tg: true};
 define("5/14", function() {
 });
 define("0/a", ["require", "exports", "module"], function(e, k, j) {
@@ -390,11 +388,11 @@ define("0/9", ["require", "exports", "module"], function(e, k, j) {
             if (!a || !b)
                 return x;
             if (a == b)
-                return q;
+                return true;
             for (var d = 0; d < a.length; d++)
                 if (Math.abs(a[d] - b[d]) >= g.precision)
                     return x;
-            return q
+            return true
         },Sc: function(a) {
             a = a.slice(0);
             if (a[0] == Math.PI / 2 || a[0] == -Math.PI / 2)
@@ -587,7 +585,7 @@ define("0/c", ["require", "exports", "module", "./9"], function(e, k, j) {
             c = document.createElement("div"), c.classList.add(this.a.Ge), h.K.appendChild(c));
             this.Qc[a] = h;
             this.R[a] = c;
-            this.Xb[a] = q;
+            this.Xb[a] = true;
             return c
         },detach: function(a) {
             var d = this.R[a];
@@ -595,7 +593,7 @@ define("0/c", ["require", "exports", "module", "./9"], function(e, k, j) {
             delete this.Yb[a];
             delete this.Zb[a];
             d && (this.pd[a].lf(d), this.Qc[a].bb.push(d), c(d, f.scale(0, 0, 0)));
-            this.Xb[a] = q
+            this.Xb[a] = true
         },fc: function(a) {
             this.a.ea = a
         },ka: function(a) {
@@ -719,11 +717,11 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(e, k, j) 
             return this.Dc = new c(a)
         },pb: function(a) {
             for (n in a)
-                a.hasOwnProperty(n) && (this.Y[n] = a[n], this.wa = q)
+                a.hasOwnProperty(n) && (this.Y[n] = a[n], this.wa = true)
         },h: function(a) {
-            0 > this.classList.indexOf(a) && (this.classList.push(a), this.wa = q)
+            0 > this.classList.indexOf(a) && (this.classList.push(a), this.wa = true)
         },T: function(a) {
-            this.content != a && (this.content = a, this.wa = q)
+            this.content != a && (this.content = a, this.wa = true)
         },Ve: function(a) {
             for (var b in this.D)
                 this.D.hasOwnProperty(b) && a.addEventListener(b, this.Jb);
@@ -783,7 +781,7 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(e, k, j) 
             return [0, 0]
         },ka: function(a) {
             this.size = a.slice(0, 2);
-            this.wa = q
+            this.wa = true
         }};
     j.c = g
 });
@@ -795,7 +793,7 @@ define("0/2", "require exports module ./c ./b ./a".split(" "), function(e, k, j)
         this.Ib = document.createElement("div");
         this.Ib.appendChild(this.K);
         this.V = new c(this.K, {size: this.size});
-        this.wa = q;
+        this.wa = true;
         this.Eb = undefined
     }
     var c = e("./c"), f = e("./b"), a = e("./a");
@@ -943,7 +941,7 @@ define("0/d", ["require", "exports", "module", "./9", "./e"], function(e, k, j) 
             return this.qa.Tb() ? c.jf(g.Ze(this.qa.get())) : 
             this.Hc
         },setTransform: function(a, b, d) {
-            b ? (this.Gd && (this.qa.set(g.zd(c.fa(this.Hc))), this.Gd = x), this.qa.set(g.zd(c.fa(a)), b, d)) : (this.qa.n(), this.Gd = q);
+            b ? (this.Gd && (this.qa.set(g.zd(c.fa(this.Hc))), this.Gd = x), this.qa.set(g.zd(c.fa(a)), b, d)) : (this.qa.n(), this.Gd = true);
             this.Hc = a
         },Jc: function() {
             return this.ac.get()
@@ -1027,7 +1025,7 @@ define("1/g", ["require", "exports", "module", "0/9", "0/e"], function(e, k, j) 
             return c.multiply(a, b, h, d, a)
         },u: function(a) {
             a || (a = []);
-            return {transform: this.ab(),target: a,group: q}
+            return {transform: this.ab(),target: a,group: true}
         },jb: function() {
             return this.Qa.Tb() || this.Ca.Tb()
         },n: function() {
@@ -1125,9 +1123,9 @@ define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
         this.a.cd || 
         (this.a.cd = 500);
         this.a.z || (this.a.z = c);
-        this.a.$c || (this.a.$c = q);
+        this.a.$c || (this.a.$c = true);
         this.a.Me || (this.a.Me = this.a.$c);
-        this.a.jd || (this.a.jd = q);
+        this.a.jd || (this.a.jd = true);
         this.a.Ee || (this.a.Ee = this.a.jd);
         this.a.Pa || (this.a.Pa = x);
         this.a.gd || (this.a.gd = x);
@@ -1204,7 +1202,7 @@ define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
                 var c = this.a.re, d = c * (a - this.ha), c = -c * (b - this.ia);
                 this.a.gd && (Math.abs(d) > Math.abs(c) && (c = 0), Math.abs(c) > Math.abs(d) && (d = 0));
                 this.l.rotate([-c, -d, 0]);
-                this.se = q;
+                this.se = true;
                 var f = (new Date).getTime();
                 this.Ya = d / (f - this.G);
                 this.Za = c / (f - this.G);
@@ -1249,7 +1247,7 @@ define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
                 var c = this.a.Ae, d = c * (a - this.ha), c = -c * (b - this.ia);
                 this.a.nd && (Math.abs(d) > Math.abs(c) && (c = 0), Math.abs(c) > Math.abs(d) && (d = 0));
                 this.l.p([-c, -d, 0]);
-                this.Ce = q;
+                this.Ce = true;
                 var f = (new Date).getTime();
                 this.Ya = d / (f - this.G);
                 this.Za = c / (f - this.G);
@@ -1506,7 +1504,7 @@ define("1/m", ["require", "exports", "module", "./i", "0/e"], function(e, k, j) 
     g.prototype = {move: function(a, b, d) {
             var c = this.e.F(), c = [c[0], c[1], c[2] + 300], c = Math.max(Math.sqrt(c[0] * c[0] + c[2] * c[2]), 300), f = a[0] / c;
             c < this.a.I && (f = -f);
-            b === q && (b = this.a.ad);
+            b === true && (b = this.a.ad);
             this.l.p([0, f, 0], b);
             this.l.move([0, a[1] + this.a.Xa * f, a[2]], b, d)
         },rotate: function(a, 
@@ -1574,7 +1572,7 @@ define("1/k", ["require", "exports", "module", "0/9", "0/e"], function(e, k, j) 
 define("3/v", ["require", "exports", "module", "0/e"], function(e, k, j) {
     function g(f, a) {
         "undefined" == typeof f && (f = 0);
-        "undefined" == typeof a && (a = q);
+        "undefined" == typeof a && (a = true);
         this.ra = new c(f);
         this.vb = a
     }
@@ -1597,7 +1595,7 @@ define("3/v", ["require", "exports", "module", "0/e"], function(e, k, j) {
 });
 define("3/w", ["require", "exports", "module", "0/9", "0/e"], function(e, k, j) {
     function g(a) {
-        "undefined" == typeof a && (a = q);
+        "undefined" == typeof a && (a = true);
         this.Fd = 0;
         this.ra = new f(0);
         this.vb = a;
@@ -1623,11 +1621,11 @@ define("3/x", ["require", "exports", "module", "0/e"], function(e, k, j) {
     }
     e("0/e");
     g.prototype = {enable: function() {
-            this.enabled = q
+            this.enabled = true
         },disable: function() {
             this.enabled = x
         },update: function() {
-            !this.ib && (this.enabled && this.Yd) && (new Date).getTime() - this.Mf > this.timeout && (this.ib = q, this.Yd.call(this))
+            !this.ib && (this.enabled && this.Yd) && (new Date).getTime() - this.Mf > this.timeout && (this.ib = true, this.Yd.call(this))
         },reset: function() {
             this.Mf = (new Date).getTime();
             this.ib = x
@@ -1695,7 +1693,7 @@ define("3/10", "require exports module 0/9 0/e 0/d".split(" "), function(e, k, j
         },Jc: function(a) {
             return this.v[a].Jc()
         },Vb: function(a) {
-            this.Oc[a] = q
+            this.Oc[a] = true
         },mc: function(a) {
             this.Oc[a] = x
         },$d: function(a) {
@@ -1738,7 +1736,7 @@ define("6/19", ["require", "exports", "module", "0/9"], function(e, k, j) {
                 d = 0; d < b.length; d++)
                     0 > f.indexOf(b[d]) && f.push(b[d]);
             for (var e = this.gc, g = [], b = [], a = 0; a < this.$a.length; a++)
-                d = this.$a[a], 0 > f.indexOf(d) && (b.push(d), e.modify(d, c.translate(0, 0, this.vc[d]), q), e.mc(d));
+                d = this.$a[a], 0 > f.indexOf(d) && (b.push(d), e.modify(d, c.translate(0, 0, this.vc[d]), true), e.mc(d));
             for (a = 0; a < f.length; a++)
                 0 > this.$a.indexOf(f[a]) && g.push(f[a]);
             b = [0, 0, 0];
@@ -1761,7 +1759,7 @@ define("6/19", ["require", "exports", "module", "0/9"], function(e, k, j) {
                         var f = g[a];
                         d.vc[f] = 1800 * Math.pow(1 - b / k, 2) + 200;
                         e.Vb(f);
-                        e.modify(f, c.translate(0, 0, -d.vc[f]), q)
+                        e.modify(f, c.translate(0, 0, -d.vc[f]), true)
                     }, 3 * b)
                 }).call(this, a, d)
             }
@@ -1781,11 +1779,11 @@ define("6/1b", ["require", "exports", "module", "0/9", "0/e"], function(e, k, j)
         this.Jf = a;
         this.duration = b;
         this.Ic = d;
-        this.enabled = q
+        this.enabled = true
     }
     var c = e("0/9"), f = e("0/e");
     g.prototype = {enable: function() {
-            this.enabled = q
+            this.enabled = true
         },disable: function() {
             if (this.enabled) {
                 this.enabled = x;
@@ -1946,7 +1944,7 @@ define("2/s", ["require", "exports", "module"], function(e, k, j) {
                     this.B, c), d = 0 < this.B ? 1 : -1;
                 else {
                     var e = f(this.x, this.Mc, c), g = f(this.x, -this.Mc, c), b = Math.max(e, g), d = e > g ? 1 : -1;
-                    0 >= e && 0 >= g && (this.ua = q)
+                    0 >= e && 0 >= g && (this.ua = true)
                 }
                 e = this.B;
                 e = 0.5 * e * e + b;
@@ -1983,14 +1981,14 @@ define("2/t", ["require", "exports", "module", "0/9", "./s"], function(e, k, j) 
         this.D = {};
         this.o = new f({position: 0});
         this.mf = this.We();
-        this.dc = q;
+        this.dc = true;
         this.W = x;
         this.ta = [];
         this.tc = 0;
         this.zf = f.Nb(this.a.Nb);
         this.qf = f.Gb(this.a.Gb);
-        this.ag(this.a.M, q);
-        this.we(this.a.N, q);
+        this.ag(this.a.M, true);
+        this.we(this.a.N, true);
         this.Fc = [];
         this.Bd = this.t = this.qc = 0;
         this.Zf();
@@ -2029,11 +2027,11 @@ define("2/t", ["require", "exports", "module", "0/9", "./s"], function(e, k, j) 
             }
             if (!this.W || 0 <= this.ta.indexOf("edge"))
                 if (b < this.a.M || b > this.a.N)
-                    this.Hb || (this.o.kd([]), this.Hb = q), this.od && (b < this.a.M && 0 >= d) && (this.o.C(this.od), this.dc && (this.b("pullDown"), this.dc = x)), this.Cc && (b > this.a.N && 0 <= d) && this.o.C(this.Cc);
+                    this.Hb || (this.o.kd([]), this.Hb = true), this.od && (b < this.a.M && 0 >= d) && (this.o.C(this.od), this.dc && (this.b("pullDown"), this.dc = x)), this.Cc && (b > this.a.N && 0 <= d) && this.o.C(this.Cc);
             this.b("render", {position: b,Eg: d});
-            0 == b && (this.dc = q);
+            0 == b && (this.dc = true);
             return {transform: "x" == this.dir ? 
-                c.translate(-b, 0) : c.translate(0, -b),target: a,group: q}
+                c.translate(-b, 0) : c.translate(0, -b),target: a,group: true}
         },We: function() {
             var a = this, b = {};
             return {b: function(c, f) {
@@ -2065,7 +2063,7 @@ define("2/t", ["require", "exports", "module", "0/9", "./s"], function(e, k, j) 
                         }
                 }}
         },disable: function() {
-            this.disabled = q
+            this.disabled = true
         },enable: function() {
             this.disabled = x
         },F: function() {
@@ -2116,7 +2114,7 @@ define("2/t", ["require", "exports", "module", "0/9", "./s"], function(e, k, j) 
             b || (b = []);
             this.W && this.Md();
             0 > a.indexOf("flow") && this.n();
-            this.W = q;
+            this.W = true;
             this.ta = a;
             this.sa = 
             b;
@@ -2159,7 +2157,7 @@ define("4/13", ["require", "exports", "module"], function(e, k, j) {
         this.a || (this.a = {});
         this.a.Ne || (this.a.Ne = 300);
         this.a.Wd || (this.a.Wd = 300);
-        "undefined" == typeof this.a.Pe && (this.a.Pe = q);
+        "undefined" == typeof this.a.Pe && (this.a.Pe = true);
         this.Pd = []
     }
     g.prototype = {pa: function(c) {
@@ -2220,7 +2218,7 @@ define("4/12", ["require", "exports", "module"], function(e, k, j) {
             for (var f = 0; f < c.changedTouches.length; f++) {
                 var a = c.changedTouches[f];
                 this.Ea[a.identifier] = {x: a.pageX,y: a.pageY};
-                "undefined" == typeof this.la ? this.la = a.identifier : "undefined" == typeof this.ma && (this.ma = a.identifier, this.Lb = q)
+                "undefined" == typeof this.la ? this.la = a.identifier : "undefined" == typeof this.ma && (this.ma = a.identifier, this.Lb = true)
             }
             this.timestamp = (new Date).getTime();
             this.cb = this.vd(this.Ea[this.la], this.Ea[this.ma]);
@@ -2319,8 +2317,8 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
         u.n();
         z.Hf();
         var e = {duration: 1E3,q: M.w.Ja};
-        3 == J ? (z.Wa(g, e, b), z.Va(1, e), u.s([0, 0, 700], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), F.qb([-5E3, 5E3], e), F.rb([-3E3, 3E3], e), F.sb([-5E3, 5E3], e), X.setTransform(p.translate(120, 0, 0), q), d && s("periodic table")) : 1 == J ? (u.s([0, 0, 700], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), z.Wa(c, e, b), z.Va(1, e), F.qb([-5E3, 5E3], e), F.rb([-3E3, 3E3], e), F.sb([-5E3, 5E3], e), X.setTransform(p.translate(0, 0, 0), q), d && s("helix")) : 2 == J ? (u.s([0, 0, -500], e), u.A([0, 
-            0, 0], e), u.J([0, 0, 0], e), z.Wa(f, e, b), z.Va(1, e), F.qb([-5E3, 5E3], e), F.rb([-3E3, 3E3], e), F.sb([-5E3, 5E3], e), X.setTransform(p.translate(60, 0, 0), q), d && s("wall of fame")) : 0 == J ? (u.s([0, 0, 800], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), z.Wa(j, e, b), z.Va(1, e), F.qb([-5E3, 5E3], e), F.rb([-3E3, 3E3], e), F.sb([-5E3, 5E3], e), X.setTransform(p.translate(-60, 0, 0), q), d && s("sphere")) : 4 == J && (u.s([0, 0, -600], e), u.A([0, -Math.PI / 11, 0], e), u.J([0, 0, 0], e), z.Wa(k, e, b), z.Va(1, e), X.setTransform(p.translate(-120, 0, 0), q), d && s("paraflow"));
+        3 == J ? (z.Wa(g, e, b), z.Va(1, e), u.s([0, 0, 700], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), F.qb([-5E3, 5E3], e), F.rb([-3E3, 3E3], e), F.sb([-5E3, 5E3], e), X.setTransform(p.translate(120, 0, 0), true), d && s("periodic table")) : 1 == J ? (u.s([0, 0, 700], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), z.Wa(c, e, b), z.Va(1, e), F.qb([-5E3, 5E3], e), F.rb([-3E3, 3E3], e), F.sb([-5E3, 5E3], e), X.setTransform(p.translate(0, 0, 0), true), d && s("helix")) : 2 == J ? (u.s([0, 0, -500], e), u.A([0, 
+            0, 0], e), u.J([0, 0, 0], e), z.Wa(f, e, b), z.Va(1, e), F.qb([-5E3, 5E3], e), F.rb([-3E3, 3E3], e), F.sb([-5E3, 5E3], e), X.setTransform(p.translate(60, 0, 0), true), d && s("wall of fame")) : 0 == J ? (u.s([0, 0, 800], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), z.Wa(j, e, b), z.Va(1, e), F.qb([-5E3, 5E3], e), F.rb([-3E3, 3E3], e), F.sb([-5E3, 5E3], e), X.setTransform(p.translate(-60, 0, 0), true), d && s("sphere")) : 4 == J && (u.s([0, 0, -600], e), u.A([0, -Math.PI / 11, 0], e), u.J([0, 0, 0], e), z.Wa(k, e, b), z.Va(1, e), X.setTransform(p.translate(-120, 0, 0), true), d && s("paraflow"));
         4 == J ? Y.enable() : 
         Y.disable();
         Z.Aa(J)
@@ -2400,18 +2398,18 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
         ea.T("");
         ka.show();
         la.Ua(1);
-        la.setTransform(p.P, q);
+        la.setTransform(p.P, true);
         Qa.Na();
         T.Aa(2)
     }
     function w() {
         ka.Na();
-        la.setTransform(p.move(p.scale(0.0010, 0.0010, 0.0010), [-0.5 * window.innerWidth, 0, 0]), q, function() {
+        la.setTransform(p.move(p.scale(0.0010, 0.0010, 0.0010), [-0.5 * window.innerWidth, 0, 0]), true, function() {
             la.Ua(0)
         });
         Qa.show();
         T.Aa(0);
-        t = q
+        t = true
     }
     if (!("WebKitCSSMatrix" in window) || !("m11" in new WebKitCSSMatrix))
         window.location.pathname = 
@@ -2448,10 +2446,10 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
         u.s([0, 0, 5E3]);
         u.A([0, 0, 0]);
         u.J([0, -3 * Math.PI, 0]);
-        var F = new Jb(u), Sb = new Ra(u), Tb = new Gb(u, {I: 700,U: 2 * Math.PI,S: 2 * Math.PI,ed: 200,md: 200,gd: q,nd: q,Pa: q}), Ub = new Hb(u, {Pa: q}), Vb = new Ra(u, {I: 900,z: fa,ad: {duration: 2E3,q: M.w.sf},Pa: q}), Wb = new Ra(u, {I: 700,Xa: 200 / Math.PI,z: fa,Pa: q});
+        var F = new Jb(u), Sb = new Ra(u), Tb = new Gb(u, {I: 700,U: 2 * Math.PI,S: 2 * Math.PI,ed: 200,md: 200,gd: true,nd: true,Pa: true}), Ub = new Hb(u, {Pa: true}), Vb = new Ra(u, {I: 900,z: fa,ad: {duration: 2E3,q: M.w.sf},Pa: true}), Wb = new Ra(u, {I: 700,Xa: 200 / Math.PI,z: fa,Pa: true});
         r && (ma = Ib);
         var Xb = 
-        new ma(u), pb = new ma(u, {p: q}), Yb = new ma(u, {I: 700,Xa: 200 / Math.PI,p: q,Q: q,z: fa}), Zb = new ma(u, {I: 900,p: q,z: fa}), $b = new wa(u, {va: q}), qb = new wa(u, {va: q,p: q}), ac = new wa(u, {va: q,I: 700,Xa: 200 / Math.PI,p: q,Q: q,z: fa}), bc = new wa(u, {va: q,I: 900,p: q,z: fa}), ia = new Lb(function() {
+        new ma(u), pb = new ma(u, {p: true}), Yb = new ma(u, {I: 700,Xa: 200 / Math.PI,p: true,Q: true,z: fa}), Zb = new ma(u, {I: 900,p: true,z: fa}), $b = new wa(u, {va: true}), qb = new wa(u, {va: true,p: true}), ac = new wa(u, {va: true,I: 700,Xa: 200 / Math.PI,p: true,Q: true,z: fa}), bc = new wa(u, {va: true,I: 900,p: true,z: fa}), ia = new Lb(function() {
             function b() {
                 d.ib && setTimeout(function cc() {
                     if (d.ib) {
@@ -2559,10 +2557,10 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
         var ua = new na;
         Da.m(new P);
         Da.g("click", function() {
-            t && (ka.show(), ua.show(), T.Aa(1), window._gaq && _gaq.push(["_trackEvent", "sign-up", "info", , , q]))
+            t && (ka.show(), ua.show(), T.Aa(1), window._gaq && _gaq.push(["_trackEvent", "sign-up", "info", , , true]))
         });
         sessionStorage.getItem("signedUp") ? 
-        (t = q, G.Pc(w)) : (t = x, G.Pc(m));
+        (t = true, G.Pc(w)) : (t = x, G.Pc(m));
         var wb = new A([600, 400], "<h3>Fun Things to Do</h3><ul><li>One finger to scroll</li><li>Two fingers to pinch zoom</li><li>Three fingers to plane in 3D</li><li>Touch any object to navigate to that object in 3D space</li><li>Touch-hold an object to disassemble any shape</li></ul><ul><li>Space key to shapeshift</li><li>WASD keys to move forward, left, backward, and right</li><li>Shift + W/S keys to move up/down</li><li>Arrow keys to rotate or spin</li><li>Hold Ctrl to enable mouse rotation</li></ul>");
         wb.h("info");
         var $a = new va([new P]);
@@ -2603,7 +2601,7 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
             }
             a = document.location.href.split("/");
             b.referrerId = 2 <= a.length && "r" == a[a.length - 2] ? a[a.length - 1] : "";
-            window._gaq && _gaq.push(["_trackEvent", "sign-up", "submit", , 1, q]);
+            window._gaq && _gaq.push(["_trackEvent", "sign-up", "submit", , 1, true]);
             a = new XMLHttpRequest;
             a.open("POST", "/developers");
             a.setRequestHeader("Content-Type", "application/json");
@@ -2612,9 +2610,9 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
                     if (200 == this.status) {
                         var a = JSON.parse(this.responseText);
                         "OK" == a.status ? (ea.T(""), ab.T("<p><strong>Success!</strong> We just sent you an email with some more information. We'll send you updates soon.</p>" + 
-                        ('<div class="tweet-button">' + D("Tweet", a.socialId) + "</div>")), Ga.T(C(a.socialId)), sessionStorage.setItem("signedUp", q), window._gaq && _gaq.push(["_trackEvent", "sign-up", "success", , , x])) : ea.T(a.msg)
+                        ('<div class="tweet-button">' + D("Tweet", a.socialId) + "</div>")), Ga.T(C(a.socialId)), sessionStorage.setItem("signedUp", true), window._gaq && _gaq.push(["_trackEvent", "sign-up", "success", , , x])) : ea.T(a.msg)
                     } else
-                        ea.T("Ooops! Something went wrong. Try again."), window._gaq && _gaq.push(["_trackEvent", "sign-up", "error", , , q])
+                        ea.T("Ooops! Something went wrong. Try again."), window._gaq && _gaq.push(["_trackEvent", "sign-up", "error", , , true])
             };
             a.send(JSON.stringify(b))
         });
@@ -2637,7 +2635,7 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
         Ha.h("jobs-button");
         Ha.h("overlay-text");
         Ha.g("click", function() {
-            window._gaq && _gaq.push(["_trackEvent", "sign-up", "jobs", , , q])
+            window._gaq && _gaq.push(["_trackEvent", "sign-up", "jobs", , , true])
         });
         var Ga = new A([60, 60], C());
         Ga.h("shape-button");
