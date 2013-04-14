@@ -1,5 +1,3 @@
-var x = false
-
 function setter_factory(key) {
     return function(value) {
         this[key] = value
@@ -385,12 +383,12 @@ define("0/9", ["require", "exports", "module"], function(e, k, j) {
             return g.move(g.multiply(b, d, h), a.translate)
         },Qd: function(a, b) {
             if (!a || !b)
-                return x;
+                return false;
             if (a == b)
                 return true;
             for (var d = 0; d < a.length; d++)
                 if (Math.abs(a[d] - b[d]) >= g.precision)
-                    return x;
+                    return false;
             return true
         },Sc: function(a) {
             a = a.slice(0);
@@ -574,7 +572,7 @@ define("0/c", ["require", "exports", "module", "./9"], function(e, k, j) {
             this.R[a] || this.ef(a, h);
             k = this.R[a];
             if (j.wa || this.Xb[a])
-                j.bg(k), this.Xb[a] = x;
+                j.bg(k), this.Xb[a] = false;
             d = this.Ue(j.Kc(), d, g);
             f.Qd(d, this.Yb[a]) || (this.Yb[a] = d, h ? (h = f.move(d, [0, 0, -this.a.Rb]), c(k, h)) : c(k, this.ud(d, g)));
             e != this.Zb[a] && (this.Zb[a] = e, k.style.opacity = 0.999999 < e ? 0.999999 : e)
@@ -682,7 +680,7 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(e, k, j) 
         this.D = {};
         this.Y = {};
         this.content = "";
-        this.wa = x;
+        this.wa = false;
         this.classList = [];
         this.sc = [];
         var d = this;
@@ -748,7 +746,7 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(e, k, j) 
                 a.classList.add(b[d]);
             this.Ld(a);
             this.Ve(a);
-            this.wa = x;
+            this.wa = false;
             this.xb = a
         },lf: function(a) {
             this.bd();
@@ -940,7 +938,7 @@ define("0/d", ["require", "exports", "module", "./9", "./e"], function(e, k, j) 
             return this.qa.Tb() ? c.jf(g.Ze(this.qa.get())) : 
             this.Hc
         },setTransform: function(a, b, d) {
-            b ? (this.Gd && (this.qa.set(g.zd(c.fa(this.Hc))), this.Gd = x), this.qa.set(g.zd(c.fa(a)), b, d)) : (this.qa.n(), this.Gd = true);
+            b ? (this.Gd && (this.qa.set(g.zd(c.fa(this.Hc))), this.Gd = false), this.qa.set(g.zd(c.fa(a)), b, d)) : (this.qa.n(), this.Gd = true);
             this.Hc = a
         },Jc: function() {
             return this.ac.get()
@@ -1126,9 +1124,9 @@ define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
         this.a.Me || (this.a.Me = this.a.$c);
         this.a.jd || (this.a.jd = true);
         this.a.Ee || (this.a.Ee = this.a.jd);
-        this.a.Pa || (this.a.Pa = x);
-        this.a.gd || (this.a.gd = x);
-        this.a.nd || (this.a.nd = x);
+        this.a.Pa || (this.a.Pa = false);
+        this.a.gd || (this.a.gd = false);
+        this.a.nd || (this.a.nd = false);
         this.l = new this.a.z(this.e, this.a);
         this.state = null
     }
@@ -1191,7 +1189,7 @@ define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
             this.ub = a.changedTouches[b].identifier;
             this.ha = a.changedTouches[b].pageX;
             this.ia = a.changedTouches[b].pageY;
-            this.se = x
+            this.se = false
         },fd: function(a) {
             for (var b, d = 0; d < a.changedTouches.length; d++)
                 a.changedTouches[d].identifier == this.ub && (b = a.changedTouches[d]);
@@ -1236,7 +1234,7 @@ define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
             this.ub = a.changedTouches[b].identifier;
             this.ha = a.changedTouches[b].pageX;
             this.ia = a.changedTouches[b].pageY;
-            this.Ce = x
+            this.Ce = false
         },Be: function(a) {
             for (var b, d = 0; d < a.changedTouches.length; d++)
                 a.changedTouches[d].identifier == this.ub && (b = a.changedTouches[d]);
@@ -1388,9 +1386,9 @@ define("1/j", ["require", "exports", "module", "./i"], function(e, k, j) {
         "undefined" == typeof this.a.Z && (this.a.Z = 0.0010);
         "undefined" == typeof this.a.$ && (this.a.$ = 0.0010);
         this.a.ae || (this.a.ae = 500);
-        this.a.p || (this.a.p = x);
-        this.a.Q || (this.a.Q = x);
-        this.a.ga || (this.a.ga = x);
+        this.a.p || (this.a.p = false);
+        this.a.Q || (this.a.Q = false);
+        this.a.ga || (this.a.ga = false);
         this.a.z || (this.a.z = c);
         this.l = new this.a.z(f, a);
         if (!this.a.pg) {
@@ -1458,12 +1456,12 @@ define("1/l", ["require", "exports", "module", "./i"], function(e, k, j) {
         this.a || (this.a = {});
         "undefined" == typeof this.a.Z && (this.a.Z = 0.0050);
         "undefined" == typeof this.a.$ && (this.a.$ = 0.0050);
-        this.a.Q || (this.a.Q = x);
-        this.a.ga || (this.a.ga = x);
-        this.a.p || (this.a.p = x);
+        this.a.Q || (this.a.Q = false);
+        this.a.ga || (this.a.ga = false);
+        this.a.p || (this.a.p = false);
         this.a.z || (this.a.z = c);
         this.a.lb || (this.a.lb = 100);
-        this.a.va || (this.a.va = x);
+        this.a.va || (this.a.va = false);
         this.l = new this.a.z(f, a)
     }
     var c = e("./i");
@@ -1622,12 +1620,12 @@ define("3/x", ["require", "exports", "module", "0/e"], function(e, k, j) {
     g.prototype = {enable: function() {
             this.enabled = true
         },disable: function() {
-            this.enabled = x
+            this.enabled = false
         },update: function() {
             !this.ib && (this.enabled && this.Yd) && (new Date).getTime() - this.Mf > this.timeout && (this.ib = true, this.Yd.call(this))
         },reset: function() {
             this.Mf = (new Date).getTime();
-            this.ib = x
+            this.ib = false
         },b: function() {
             this.reset()
         }};
@@ -1694,7 +1692,7 @@ define("3/10", "require exports module 0/9 0/e 0/d".split(" "), function(e, k, j
         },Vb: function(a) {
             this.Oc[a] = true
         },mc: function(a) {
-            this.Oc[a] = x
+            this.Oc[a] = false
         },$d: function(a) {
             return this.Oc[a]
         },jb: function(a) {
@@ -1785,7 +1783,7 @@ define("6/1b", ["require", "exports", "module", "0/9", "0/e"], function(e, k, j)
             this.enabled = true
         },disable: function() {
             if (this.enabled) {
-                this.enabled = x;
+                this.enabled = false;
                 for (var a = 0; a < this.H.length; a++)
                     this.Te(a)
             }
@@ -1862,7 +1860,7 @@ define("2/s", ["require", "exports", "module"], function(e, k, j) {
         this.Mc = 1E-4;
         this.Qf = 1;
         this.kb = (new Date).getTime();
-        this.ua = x;
+        this.ua = false;
         this.set(c, f)
     }
     g.Gb = function(c) {
@@ -1897,7 +1895,7 @@ define("2/s", ["require", "exports", "module"], function(e, k, j) {
     };
     g.prototype = {Hd: function() {
             this.kb = (new Date).getTime();
-            this.ua = x
+            this.ua = false
         },set: function(c, f) {
             "number" == typeof c && this.s(c);
             "number" == typeof f && this.ld(f)
@@ -1909,13 +1907,13 @@ define("2/s", ["require", "exports", "module"], function(e, k, j) {
             this.Hd()
         },C: function(c) {
             "function" != typeof c && console.error("Invalid agent");
-            0 > this.Ha.indexOf(c) && (this.Ha.push(c), this.ua = x)
+            0 > this.Ha.indexOf(c) && (this.Ha.push(c), this.ua = false)
         },nb: function(c) {
             c = this.Ha.indexOf(c);
-            0 <= c && (this.Ha.splice(c, 1), this.ua = x)
+            0 <= c && (this.Ha.splice(c, 1), this.ua = false)
         },kd: function(c) {
             this.Ha = c.slice(0);
-            this.ua = x
+            this.ua = false
         },F: function() {
             this.update();
             return this.x
@@ -1965,7 +1963,7 @@ define("2/t", ["require", "exports", "module", "0/9", "./s"], function(e, k, j) 
         this.a.Td || (this.a.Td = 1);
         this.a.Bc || (this.a.Bc = 2E-4);
         this.a.Ac || (this.a.Ac = 1);
-        this.a.Wc || (this.a.Wc = x);
+        this.a.Wc || (this.a.Wc = false);
         this.a.Uc || (this.a.Uc = 0.1);
         this.a.le || (this.a.le = 300);
         this.a.Vc || (this.a.Vc = 1);
@@ -1975,13 +1973,13 @@ define("2/t", ["require", "exports", "module", "0/9", "./s"], function(e, k, j) 
         window.innerWidth : window.innerHeight);
         this.a.M || (this.a.M = 0);
         this.a.N || (this.a.N = 0);
-        this.a.Id || (this.a.Id = x);
+        this.a.Id || (this.a.Id = false);
         this.a.gg && (this.a.N = this.a.M + this.a.gg - this.a.Cb);
         this.D = {};
         this.o = new f({position: 0});
         this.mf = this.We();
         this.dc = true;
-        this.W = x;
+        this.W = false;
         this.ta = [];
         this.tc = 0;
         this.zf = f.Nb(this.a.Nb);
@@ -1991,7 +1989,7 @@ define("2/t", ["require", "exports", "module", "0/9", "./s"], function(e, k, j) 
         this.Fc = [];
         this.Bd = this.t = this.qc = 0;
         this.Zf();
-        this.disabled = x
+        this.disabled = false
     }
     var c = e("0/9"), f = e("./s");
     g.prototype = {g: function(a, b) {
@@ -2026,7 +2024,7 @@ define("2/t", ["require", "exports", "module", "0/9", "./s"], function(e, k, j) 
             }
             if (!this.W || 0 <= this.ta.indexOf("edge"))
                 if (b < this.a.M || b > this.a.N)
-                    this.Hb || (this.o.kd([]), this.Hb = true), this.od && (b < this.a.M && 0 >= d) && (this.o.C(this.od), this.dc && (this.b("pullDown"), this.dc = x)), this.Cc && (b > this.a.N && 0 <= d) && this.o.C(this.Cc);
+                    this.Hb || (this.o.kd([]), this.Hb = true), this.od && (b < this.a.M && 0 >= d) && (this.o.C(this.od), this.dc && (this.b("pullDown"), this.dc = false)), this.Cc && (b > this.a.N && 0 <= d) && this.o.C(this.Cc);
             this.b("render", {position: b,Eg: d});
             0 == b && (this.dc = true);
             return {transform: "x" == this.dir ? 
@@ -2043,7 +2041,7 @@ define("2/t", ["require", "exports", "module", "0/9", "./s"], function(e, k, j) 
                                 k.y = j.pageY
                             }
                         }
-                        a.disabled || (0 < e && (a.dc = x), a.Sf(e), a.b("scrollmove"))
+                        a.disabled || (0 < e && (a.dc = false), a.Sf(e), a.b("scrollmove"))
                     } else if ("touchstart" == c) {
                         if (!a.disabled) {
                             a.hf();
@@ -2064,7 +2062,7 @@ define("2/t", ["require", "exports", "module", "0/9", "./s"], function(e, k, j) 
         },disable: function() {
             this.disabled = true
         },enable: function() {
-            this.disabled = x
+            this.disabled = false
         },F: function() {
             return this.o.F()
         },Sd: function() {
@@ -2072,10 +2070,10 @@ define("2/t", ["require", "exports", "module", "0/9", "./s"], function(e, k, j) 
         },ag: function(a, b) {
             if (b || a != this.a.M)
                 this.a.M = 
-                a, this.o.nb(this.od), this.od = -Infinity < a ? f.hc(a, this.a.Bc, this.a.Ac) : null, this.Hb = x
+                a, this.o.nb(this.od), this.od = -Infinity < a ? f.hc(a, this.a.Bc, this.a.Ac) : null, this.Hb = false
         },we: function(a, b) {
             if (b || a != this.a.N)
-                this.a.N = a, this.o.nb(this.Cc), this.Cc = Infinity > a ? f.hc(a, this.a.Bc, this.a.Ac) : null, this.Hb = x
+                this.a.N = a, this.o.nb(this.Cc), this.Cc = Infinity > a ? f.hc(a, this.a.Bc, this.a.Ac) : null, this.Hb = false
         },gf: function(a) {
             a || (a = this.F());
             return a <= this.a.M || a >= this.a.N
@@ -2098,7 +2096,7 @@ define("2/t", ["require", "exports", "module", "0/9", "./s"], function(e, k, j) 
         },n: function() {
             this.o.ld(0)
         },he: function() {
-            this.Hb = x;
+            this.Hb = false;
             this.o.kd([]);
             if (!this.W || 0 <= this.ta.indexOf("resist"))
                 this.o.C(this.zf), this.o.C(this.qf);
@@ -2127,7 +2125,7 @@ define("2/t", ["require", "exports", "module", "0/9", "./s"], function(e, k, j) 
             if (a && a != this.Af())
                 return 0;
             (new Date).getTime() - this.uc > this.a.de && (this.Ga = 0);
-            this.W = x;
+            this.W = false;
             0 > this.ta.indexOf("flow") && this.o.ld(this.Ga * this.a.Td);
             this.ta = [];
             for (a = 0; a < this.sa.length; a++)
@@ -2151,7 +2149,7 @@ define("2/t", ["require", "exports", "module", "0/9", "./s"], function(e, k, j) 
 define("4/13", ["require", "exports", "module"], function(e, k, j) {
     function g(c) {
         this.touches = {};
-        this.yb = x;
+        this.yb = false;
         this.a = c;
         this.a || (this.a = {});
         this.a.Ne || (this.a.Ne = 300);
@@ -2187,7 +2185,7 @@ define("4/13", ["require", "exports", "module"], function(e, k, j) {
                     clearTimeout(e.Xd)
                 }
             }
-            this.yb = x
+            this.yb = false
         },na: function(c) {
             for (var f = (new Date).getTime(), 
             a = 0; a < c.changedTouches.length; a++) {
@@ -2201,7 +2199,7 @@ define("4/13", ["require", "exports", "module"], function(e, k, j) {
                     delete this.touches[b]
                 }
             }
-            0 == c.touches.length && (this.yb = x)
+            0 == c.touches.length && (this.yb = false)
         },b: function(c, f) {
             "touchmove" == c ? this.oa(f) : "touchstart" == c ? this.pa(f) : 
             "touchend" == c && this.na(f)
@@ -2245,7 +2243,7 @@ define("4/12", ["require", "exports", "module"], function(e, k, j) {
                 delete this.Ea[b.identifier]
             }
             this.Lb && 
-            ("undefined" == typeof this.la && "undefined" == typeof this.ma) && (this.Lb = x, a = f - this.timestamp, 300 > a && 0 > this.wb ? c.origin.b("pinch", {B: this.wb,of: this.cb}) : 300 > a && 0 < this.wb && c.origin.b("spread", {B: this.wb,of: this.cb}));
+            ("undefined" == typeof this.la && "undefined" == typeof this.ma) && (this.Lb = false, a = f - this.timestamp, 300 > a && 0 > this.wb ? c.origin.b("pinch", {B: this.wb,of: this.cb}) : 300 > a && 0 < this.wb && c.origin.b("spread", {B: this.wb,of: this.cb}));
             this.timestamp = f
         },vd: function(c, f) {
             if (c && f) {
@@ -2368,7 +2366,7 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
     }
     function s(a) {
         Oa.T(a);
-        Pa.set(1, x);
+        Pa.set(1, false);
         Pa.Na()
     }
     function E(b, c, d) {
@@ -2376,7 +2374,7 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
         c.h("shape-button");
         c.m(new P);
         c.g("click", function() {
-            t && (a(b), window._gaq && _gaq.push(["_trackEvent", "demo", "shapeshift", d, , x]))
+            t && (a(b), window._gaq && _gaq.push(["_trackEvent", "demo", "shapeshift", d, , false]))
         });
         return c
     }
@@ -2415,7 +2413,7 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
         "/c" + window.location.pathname;
     else {
         document.title = "famo.us Stress Test Demo";
-        var r = "Common" in window && "API" in Common, t = x, G = e("0/4"), A = e("0/b"), I = e("0/2"), p = e("0/9"), y = e("0/d"), M = e("0/e"), O = e("0/1"), W = e("0/5"), Eb = e("0/7"), va = e("0/6"), Fb = e("1/g");
+        var r = "Common" in window && "API" in Common, t = false, G = e("0/4"), A = e("0/b"), I = e("0/2"), p = e("0/9"), y = e("0/d"), M = e("0/e"), O = e("0/1"), W = e("0/5"), Eb = e("0/7"), va = e("0/6"), Fb = e("1/g");
         e("1/h");
         var Ra = e("1/p"), Gb = e("1/o"), Hb = e("1/n"), ma = e("1/j"), Ib = e("1/q"), wa = e("1/l"), fa = e("1/m"), Jb = e("1/k"), na = e("3/v"), Kb = e("3/w"), Lb = e("3/x");
         e("3/z");
@@ -2515,7 +2513,7 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
         z.Wa(g);
         z.Va(0);
         for (var ec = new Pb(z, 
-        0.1), Ca = new Nb(z, Rb), Na = new na(0, x), ja = new Kb, L = -1, La = undefined, lb = undefined, Ma = undefined, mb = undefined, Q = 0; Q < ca.length; Q++)
+        0.1), Ca = new Nb(z, Rb), Na = new na(0, false), ja = new Kb, L = -1, La = undefined, lb = undefined, Ma = undefined, mb = undefined, Q = 0; Q < ca.length; Q++)
             (function(a, b) {
                 b.m(new P);
                 b.g("click", function() {
@@ -2559,7 +2557,7 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
             t && (ka.show(), ua.show(), T.Aa(1), window._gaq && _gaq.push(["_trackEvent", "sign-up", "info", , , true]))
         });
         sessionStorage.getItem("signedUp") ? 
-        (t = true, G.Pc(w)) : (t = x, G.Pc(m));
+        (t = true, G.Pc(w)) : (t = false, G.Pc(m));
         var wb = new A([600, 400], "<h3>Fun Things to Do</h3><ul><li>One finger to scroll</li><li>Two fingers to pinch zoom</li><li>Three fingers to plane in 3D</li><li>Touch any object to navigate to that object in 3D space</li><li>Touch-hold an object to disassemble any shape</li></ul><ul><li>Space key to shapeshift</li><li>WASD keys to move forward, left, backward, and right</li><li>Shift + W/S keys to move up/down</li><li>Arrow keys to rotate or spin</li><li>Hold Ctrl to enable mouse rotation</li></ul>");
         wb.h("info");
         var $a = new va([new P]);
@@ -2577,14 +2575,14 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
         Ea.g("click", function() {
             w();
             window._gaq && _gaq.push(["_trackEvent", "sign-up", 
-                "hide", , , x])
+                "hide", , , false])
         });
         var Fa = new A([120, 30], "sign up for beta");
         Fa.h("signup-show");
         Fa.m(new P);
         Fa.g("click", function() {
             m();
-            window._gaq && _gaq.push(["_trackEvent", "sign-up", "show", , , x])
+            window._gaq && _gaq.push(["_trackEvent", "sign-up", "show", , , false])
         });
         var Qa = new na(0), pa = new O;
         pa.f(xb);
@@ -2609,7 +2607,7 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
                     if (200 == this.status) {
                         var a = JSON.parse(this.responseText);
                         "OK" == a.status ? (ea.T(""), ab.T("<p><strong>Success!</strong> We just sent you an email with some more information. We'll send you updates soon.</p>" + 
-                        ('<div class="tweet-button">' + D("Tweet", a.socialId) + "</div>")), Ga.T(C(a.socialId)), sessionStorage.setItem("signedUp", true), window._gaq && _gaq.push(["_trackEvent", "sign-up", "success", , , x])) : ea.T(a.msg)
+                        ('<div class="tweet-button">' + D("Tweet", a.socialId) + "</div>")), Ga.T(C(a.socialId)), sessionStorage.setItem("signedUp", true), window._gaq && _gaq.push(["_trackEvent", "sign-up", "success", , , false])) : ea.T(a.msg)
                     } else
                         ea.T("Ooops! Something went wrong. Try again."), window._gaq && _gaq.push(["_trackEvent", "sign-up", "error", , , true])
             };
@@ -2639,7 +2637,7 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
         var Ga = new A([60, 60], C());
         Ga.h("shape-button");
         Ga.g("click", function() {
-            window._gaq && _gaq.push(["_trackEvent", "demo", "tweet", , , x])
+            window._gaq && _gaq.push(["_trackEvent", "demo", "tweet", , , false])
         });
         var Ab = 
         new A([300, 60], "&copy; 2012 Famous Industries, Inc.");
@@ -2693,9 +2691,9 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
             if (4 == J) {
                 var a = Math.ceil(oa / 15) * hb, b = 5 * ib, c = 3 * jb, d = u.da(), e = 0.5 * Math.abs(Math.sin(d[1]) + 
                 1), d = 0.5 * Math.abs(-Math.sin(d[0]) + 1);
-                F.qb([(e - 1) * a, e * a], x);
-                F.rb([(d - 1) * b, d * b], x);
-                F.sb([-c + 400, 400], x);
+                F.qb([(e - 1) * a, e * a], false);
+                F.rb([(d - 1) * b, d * b], false);
+                F.sb([-c + 400, 400], false);
                 ec.update()
             }
         });
