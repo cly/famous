@@ -1,0 +1,15 @@
+{
+    "name" : "famous"
+  , "description" : "Open source famous"
+  , "version" : "0.0.1"
+  , "dependencies" : {
+        "lodash" : "1.0.0-rc.3"
+    }
+  , "devDependencies" : {
+        "uglify-js" : "1.3.4"
+    }
+  , "engines" : {
+        "node" : "0.8.14"
+      , "npm" : "1.1.66"
+    }
+}
