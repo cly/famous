@@ -4,139 +4,412 @@ function setter_factory(key) {
     }
 }
 
-var ga, define;
+/**
+ * almond 0.2.5 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
+ * Available via the MIT or new BSD license.
+ * see: http://github.com/jrburke/almond for details
+ */
+//Going sloppy to avoid 'use strict' string cost, but strict practices should
+//be followed.
+/*jslint sloppy: true */
+/*global setTimeout: false */
 
-function ha(e, k) {
-    var j, g, c, f, a, b, d, h, s, E = k && k.split("/"), K = H.map, D = K && K["*"] || {};
-    if (e && "." === e.charAt(0) && k) {
-        E = E.slice(0, E.length - 1);
-        e = E.concat(e.split("/"));
-        for (h = 0; h < e.length; h += 1)
-            if (j = e[h], "." === j)
-                e.splice(h, 1), h -= 1;
-            else if (".." === j)
-                if (1 === h && (".." === e[2] || ".." === e[0]))
-                    break;
-                else
-                    0 < h && (e.splice(h - 1, 2), h -= 2);
-        e = e.join("/")
+var requirejs, require, define;
+(function (undef) {
+    var main, req, makeMap, handlers,
+        defined = {},
+        waiting = {},
+        config = {},
+        defining = {},
+        hasOwn = Object.prototype.hasOwnProperty,
+        aps = [].slice;
+
+    function hasProp(obj, prop) {
+        return hasOwn.call(obj, prop);
     }
-    if ((E || D) && K) {
-        j = e.split("/");
-        for (h = j.length; 0 < h; h -= 1) {
-            g = j.slice(0, h).join("/");
-            if (E)
-                for (s = E.length; 0 < s; s -= 1)
-                    if (c = K[E.slice(0, s).join("/")])
-                        if (c = c[g]) {
-                            f = c;
-                            a = h;
-                            break
+
+    /**
+     * Given a relative module name, like ./something, normalize it to
+     * a real name that can be mapped to a path.
+     * @param {String} name the relative name
+     * @param {String} baseName a real name that the name arg is relative
+     * to.
+     * @returns {String} normalized name
+     */
+    function normalize(name, baseName) {
+        var nameParts, nameSegment, mapValue, foundMap,
+            foundI, foundStarMap, starI, i, j, part,
+            baseParts = baseName && baseName.split("/"),
+            map = config.map,
+            starMap = (map && map['*']) || {};
+
+        //Adjust any relative paths.
+        if (name && name.charAt(0) === ".") {
+            //If have a base name, try to normalize against it,
+            //otherwise, assume it is a top-level require that will
+            //be relative to baseUrl in the end.
+            if (baseName) {
+                //Convert baseName to array, and lop off the last part,
+                //so that . matches that "directory" and not name of the baseName's
+                //module. For instance, baseName of "one/two/three", maps to
+                //"one/two/three.js", but we want the directory, "one/two" for
+                //this normalization.
+                baseParts = baseParts.slice(0, baseParts.length - 1);
+
+                name = baseParts.concat(name.split("/"));
+
+                //start trimDots
+                for (i = 0; i < name.length; i += 1) {
+                    part = name[i];
+                    if (part === ".") {
+                        name.splice(i, 1);
+                        i -= 1;
+                    } else if (part === "..") {
+                        if (i === 1 && (name[2] === '..' || name[0] === '..')) {
+                            //End of the line. Keep at least one non-dot
+                            //path segment at the front so it can be mapped
+                            //correctly to disk. Otherwise, there is likely
+                            //no path mapping for a path starting with '..'.
+                            //This can still fail, but catches the most reasonable
+                            //uses of ..
+                            break;
+                        } else if (i > 0) {
+                            name.splice(i - 1, 2);
+                            i -= 2;
                         }
-            if (f)
-                break;
-            !b && (D && D[g]) && (b = D[g], d = h)
+                    }
+                }
+                //end trimDots
+
+                name = name.join("/");
+            } else if (name.indexOf('./') === 0) {
+                // No baseName, so this is ID is resolved relative
+                // to baseUrl, pull off the leading dot.
+                name = name.substring(2);
+            }
         }
-        !f && b && (f = b, a = d);
-        f && (j.splice(0, a, f), e = j.join("/"))
+
+        //Apply map config if available.
+        if ((baseParts || starMap) && map) {
+            nameParts = name.split('/');
+
+            for (i = nameParts.length; i > 0; i -= 1) {
+                nameSegment = nameParts.slice(0, i).join("/");
+
+                if (baseParts) {
+                    //Find the longest baseName segment match in the config.
+                    //So, do joins on the biggest to smallest lengths of baseParts.
+                    for (j = baseParts.length; j > 0; j -= 1) {
+                        mapValue = map[baseParts.slice(0, j).join('/')];
+
+                        //baseName segment has  config, find if it has one for
+                        //this name.
+                        if (mapValue) {
+                            mapValue = mapValue[nameSegment];
+                            if (mapValue) {
+                                //Match, update name to the new value.
+                                foundMap = mapValue;
+                                foundI = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (foundMap) {
+                    break;
+                }
+
+                //Check for a star map match, but just hold on to it,
+                //if there is a shorter segment match later in a matching
+                //config, then favor over this star map.
+                if (!foundStarMap && starMap && starMap[nameSegment]) {
+                    foundStarMap = starMap[nameSegment];
+                    starI = i;
+                }
+            }
+
+            if (!foundMap && foundStarMap) {
+                foundMap = foundStarMap;
+                foundI = starI;
+            }
+
+            if (foundMap) {
+                nameParts.splice(0, foundI, foundMap);
+                name = nameParts.join('/');
+            }
+        }
+
+        return name;
     }
-    return e
-}
-function qa(e, k) {
-    return function() {
-        return ra.apply(undefined, sa.call(arguments, 0).concat([e, k]))
+
+    function makeRequire(relName, forceSync) {
+        return function () {
+            //A version of a require function that passes a moduleName
+            //value for items that may need to
+            //look up paths relative to the moduleName
+            return req.apply(undef, aps.call(arguments, 0).concat([relName, forceSync]));
+        };
     }
-}
-function ta(e) {
-    return function(k) {
-        $[e] = k
+
+    function makeNormalize(relName) {
+        return function (name) {
+            return normalize(name, relName);
+        };
     }
-}
-function Ja(e) {
-    if (Ka.hasOwnProperty(e)) {
-        var k = Ka[e];
-        delete Ka[e];
-        eb[e] = true;
-        fb.apply(undefined, k)
+
+    function makeLoad(depName) {
+        return function (value) {
+            defined[depName] = value;
+        };
     }
-    if (!$.hasOwnProperty(e) && !eb.hasOwnProperty(e))
-        throw Error("No " + e);
-    return $[e]
-}
-function gb(e) {
-    var k, j = e ? e.indexOf("!") : -1;
-    -1 < j && (k = e.substring(0, j), e = e.substring(j + 1, e.length));
-    return [k, e]
-}
-var fb, ra, Cb, Db, $ = {}, Ka = {}, H = {}, eb = {}, sa = [].slice;
-Cb = function(e, k) {
-    var j, g = gb(e), c = g[0], e = g[1];
-    c && (c = ha(c, k), j = Ja(c));
-    c ? e = j && j.normalize ? j.normalize(e, function(c) {
-        return ha(c, k)
-    }) : ha(e, k) : (e = ha(e, k), g = gb(e), c = g[0], e = g[1], c && (j = Ja(c)));
-    return {Rd: c ? c + "!" + e : e,Tf: e,Cg: c,ie: j}
-};
-Db = {Wf: function(e) {
-        return qa(e)
-    },c: function(e) {
-        var k = $[e];
-        return "undefined" !== typeof k ? k : $[e] = {}
-    },Rf: function(e) {
-        return {id: e,uri: "",c: $[e],yc: function() {
-                return H && H.yc && H.yc[e] || {}
-            }}
-    }};
-fb = function(e, k, j, g) {
-    var c, f, a, b, d = [], h, g = g || e;
-    if ("function" === typeof j) {
-        k = !k.length && j.length ? ["require", "exports", "module"] : k;
-        for (b = 0; b < k.length; b += 1)
-            if (a = Cb(k[b], g), f = a.Rd, "require" === f)
-                d[b] = Db.Wf(e);
-            else if ("exports" === f)
-                d[b] = Db.c(e), h = true;
-            else if ("module" === f)
-                c = d[b] = Db.Rf(e);
-            else if ($.hasOwnProperty(f) || Ka.hasOwnProperty(f) || eb.hasOwnProperty(f))
-                d[b] = Ja(f);
-            else if (a.ie)
-                a.ie.load(a.Tf, qa(g, true), ta(f), {}), d[b] = $[f];
-            else
-                throw Error(e + " missing " + f);
-        k = j.apply($[e], d);
-        if (e)
-            if (c && c.c !== undefined && c.c !== $[e])
-                $[e] = 
-                c.c;
-            else if (k !== undefined || !h)
-                $[e] = k
-    } else
-        e && ($[e] = j)
-};
-ga = ra = function(e, k, j, g, c) {
-    if ("string" === typeof e)
-        return Db[e] ? Db[e](k) : Ja(Cb(e, k).Rd);
-    e.splice || (H = e, k.splice ? (e = k, k = j, j = null) : e = undefined);
-    k = k || function() {
+
+    function callDep(name) {
+        if (hasProp(waiting, name)) {
+            var args = waiting[name];
+            delete waiting[name];
+            defining[name] = true;
+            main.apply(undef, args);
+        }
+
+        if (!hasProp(defined, name) && !hasProp(defining, name)) {
+            throw new Error('No ' + name);
+        }
+        return defined[name];
+    }
+
+    //Turns a plugin!resource to [plugin, resource]
+    //with the plugin being undefined if the name
+    //did not have a plugin prefix.
+    function splitPrefix(name) {
+        var prefix,
+            index = name ? name.indexOf('!') : -1;
+        if (index > -1) {
+            prefix = name.substring(0, index);
+            name = name.substring(index + 1, name.length);
+        }
+        return [prefix, name];
+    }
+
+    /**
+     * Makes a name map, normalizing the name, and using a plugin
+     * for normalization if necessary. Grabs a ref to plugin
+     * too, as an optimization.
+     */
+    makeMap = function (name, relName) {
+        var plugin,
+            parts = splitPrefix(name),
+            prefix = parts[0];
+
+        name = parts[1];
+
+        if (prefix) {
+            prefix = normalize(prefix, relName);
+            plugin = callDep(prefix);
+        }
+
+        //Normalize according
+        if (prefix) {
+            if (plugin && plugin.normalize) {
+                name = plugin.normalize(name, makeNormalize(relName));
+            } else {
+                name = normalize(name, relName);
+            }
+        } else {
+            name = normalize(name, relName);
+            parts = splitPrefix(name);
+            prefix = parts[0];
+            name = parts[1];
+            if (prefix) {
+                plugin = callDep(prefix);
+            }
+        }
+
+        //Using ridiculous property names for space reasons
+        return {
+            f: prefix ? prefix + '!' + name : name, //fullName
+            n: name,
+            pr: prefix,
+            p: plugin
+        };
     };
-    "function" === typeof j && (j = g, g = c);
-    g ? fb(undefined, e, k, j) : setTimeout(function() {
-        fb(undefined, e, k, j)
-    }, 15);
-    return ra
-};
-ra.yc = function(e) {
-    H = e;
-    return ra
-};
-define = function(e, k, j) {
-    k.splice || (j = k, k = []);
-    Ka[e] = [e, k, j]
-};
-define.lg = {tg: true};
-define("5/14", function() {
-});
+
+    function makeConfig(name) {
+        return function () {
+            return (config && config.config && config.config[name]) || {};
+        };
+    }
+
+    handlers = {
+        require: function (name) {
+            return makeRequire(name);
+        },
+        exports: function (name) {
+            var e = defined[name];
+            if (typeof e !== 'undefined') {
+                return e;
+            } else {
+                return (defined[name] = {});
+            }
+        },
+        module: function (name) {
+            return {
+                id: name,
+                uri: '',
+                exports: defined[name],
+                config: makeConfig(name)
+            };
+        }
+    };
+
+    main = function (name, deps, callback, relName) {
+        var cjsModule, depName, ret, map, i,
+            args = [],
+            usingExports;
+
+        //Use name if no relName
+        relName = relName || name;
+
+        //Call the callback to define the module, if necessary.
+        if (typeof callback === 'function') {
+
+            //Pull out the defined dependencies and pass the ordered
+            //values to the callback.
+            //Default to [require, exports, module] if no deps
+            deps = !deps.length && callback.length ? ['require', 'exports', 'module'] : deps;
+            for (i = 0; i < deps.length; i += 1) {
+                map = makeMap(deps[i], relName);
+                depName = map.f;
+
+                //Fast path CommonJS standard dependencies.
+                if (depName === "require") {
+                    args[i] = handlers.require(name);
+                } else if (depName === "exports") {
+                    //CommonJS module spec 1.1
+                    args[i] = handlers.exports(name);
+                    usingExports = true;
+                } else if (depName === "module") {
+                    //CommonJS module spec 1.1
+                    cjsModule = args[i] = handlers.module(name);
+                } else if (hasProp(defined, depName) ||
+                           hasProp(waiting, depName) ||
+                           hasProp(defining, depName)) {
+                    args[i] = callDep(depName);
+                } else if (map.p) {
+                    map.p.load(map.n, makeRequire(relName, true), makeLoad(depName), {});
+                    args[i] = defined[depName];
+                } else {
+                    throw new Error(name + ' missing ' + depName);
+                }
+            }
+
+            ret = callback.apply(defined[name], args);
+
+            if (name) {
+                //If setting exports via "module" is in play,
+                //favor that over return value and exports. After that,
+                //favor a non-undefined return value over exports use.
+                if (cjsModule && cjsModule.exports !== undef &&
+                        cjsModule.exports !== defined[name]) {
+                    defined[name] = cjsModule.exports;
+                } else if (ret !== undef || !usingExports) {
+                    //Use the return value from the function.
+                    defined[name] = ret;
+                }
+            }
+        } else if (name) {
+            //May just be an object definition for the module. Only
+            //worry about defining if have a module name.
+            defined[name] = callback;
+        }
+    };
+
+    requirejs = require = req = function (deps, callback, relName, forceSync, alt) {
+        if (typeof deps === "string") {
+            if (handlers[deps]) {
+                //callback in this case is really relName
+                return handlers[deps](callback);
+            }
+            //Just return the module wanted. In this scenario, the
+            //deps arg is the module name, and second arg (if passed)
+            //is just the relName.
+            //Normalize module name, if it contains . or ..
+            return callDep(makeMap(deps, callback).f);
+        } else if (!deps.splice) {
+            //deps is a config object, not an array.
+            config = deps;
+            if (callback.splice) {
+                //callback is an array, which means it is a dependency list.
+                //Adjust args if there are dependencies
+                deps = callback;
+                callback = relName;
+                relName = null;
+            } else {
+                deps = undef;
+            }
+        }
+
+        //Support require(['a'])
+        callback = callback || function () {};
+
+        //If relName is a function, it is an errback handler,
+        //so remove it.
+        if (typeof relName === 'function') {
+            relName = forceSync;
+            forceSync = alt;
+        }
+
+        //Simulate async callback;
+        if (forceSync) {
+            main(undef, deps, callback, relName);
+        } else {
+            //Using a non-zero value because of concern for what old browsers
+            //do, and latest browsers "upgrade" to 4 if lower value is used:
+            //http://www.whatwg.org/specs/web-apps/current-work/multipage/timers.html#dom-windowtimers-settimeout:
+            //If want a value immediately, use require('id') instead -- something
+            //that works in almond on the global level, but not guaranteed and
+            //unlikely to work in other AMD implementations.
+            setTimeout(function () {
+                main(undef, deps, callback, relName);
+            }, 4);
+        }
+
+        return req;
+    };
+
+    /**
+     * Just drops the config on the floor, but returns req in case
+     * the config return value is used.
+     */
+    req.config = function (cfg) {
+        config = cfg;
+        if (config.deps) {
+            req(config.deps, config.callback);
+        }
+        return req;
+    };
+
+    define = function (name, deps, callback) {
+
+        //This module may not have dependencies
+        if (!deps.splice) {
+            //deps is not an array, so probably means
+            //an object literal or factory function for
+            //the value. Adjust args.
+            callback = deps;
+            deps = [];
+        }
+
+        if (!hasProp(defined, name) && !hasProp(waiting, name)) {
+            waiting[name] = [name, deps, callback];
+        }
+    };
+
+    define.amd = {
+        jQuery: true
+    };
+}());
+
 define("0/a", ["require", "exports", "module"], function(e, k, j) {
     function g(c) {
         this.Tc = c;
@@ -161,7 +434,7 @@ define("0/a", ["require", "exports", "module"], function(e, k, j) {
             }
             return c
         }};
-    j.c = g
+    j.exports = g
 });
 define("0/6", ["require", "exports", "module"], function(e, k, j) {
     function g(c) {
@@ -183,7 +456,7 @@ define("0/6", ["require", "exports", "module"], function(e, k, j) {
             this.Ub[c].push(f);
             return this
         }};
-    j.c = g
+    j.exports = g
 });
 define("0/3", ["require", "exports", "module", "./a", "./6"], function(e, k, j) {
     function g(a) {
@@ -201,7 +474,7 @@ define("0/3", ["require", "exports", "module", "./a", "./6"], function(e, k, j) 
         },g: function(a, b) {
             this.fb.g(a, b)
         }};
-    j.c = g
+    j.exports = g
 });
 define("0/8", ["require", "exports", "module"], function(e, k, j) {
     function g(c) {
@@ -221,7 +494,7 @@ define("0/8", ["require", "exports", "module"], function(e, k, j) {
             if (0 != b.length)
                 return 1 == b.length ? b[0] : b
         }};
-    j.c = g
+    j.exports = g
 });
 define("0/7", ["require", "exports", "module", "./8"], function(e, k, j) {
     function g(c) {
@@ -245,7 +518,7 @@ define("0/7", ["require", "exports", "module", "./8"], function(e, k, j) {
             for (var b = 0; b < this.Kb.length; b++)
                 this.Kb[b].b(c, a)
         }};
-    j.c = g
+    j.exports = g
 });
 define("0/9", ["require", "exports", "module"], function(e, k, j) {
     var g = {precision: 1E-6,P: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],xg: function f(a, b) {
@@ -407,7 +680,7 @@ define("0/9", ["require", "exports", "module"], function(e, k, j) {
                 a[2] -= 2 * Math.PI;
             return a
         }};
-    j.c = g
+    j.exports = g
 });
 define("0/c", ["require", "exports", "module", "./9"], function(e, k, j) {
     function g(a, d) {
@@ -601,7 +874,7 @@ define("0/c", ["require", "exports", "module", "./9"], function(e, k, j) {
                 for (var a = this.i[d], c = 0; c < a.length; c++)
                     delete a[c].ee, delete a[c].opacity
         }};
-    j.c = g
+    j.exports = g
 });
 define("0/4", "require exports module ./3 ./7 ./8 ./c".split(" "), function(e, k, j) {
     function g() {
@@ -650,7 +923,7 @@ define("0/4", "require exports module ./3 ./7 ./8 ./c".split(" "), function(e, k
                 K.b(a, b)
             })
         }).call(this, e[k]);
-    j.c = {C: function(a) {
+    j.exports = {C: function(a) {
             0 > d.indexOf(a) && d.push(a)
         },nb: function(a) {
             a = d.indexOf(a);
@@ -780,7 +1053,7 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(e, k, j) 
             this.size = a.slice(0, 2);
             this.wa = true
         }};
-    j.c = g
+    j.exports = g
 });
 define("0/2", "require exports module ./c ./b ./a".split(" "), function(e, k, j) {
     function g() {
@@ -823,7 +1096,7 @@ define("0/2", "require exports module ./c ./b ./a".split(" "), function(e, k, j)
         }};
     for (var b in f.prototype)
         f.prototype.hasOwnProperty(b) && !g.prototype.hasOwnProperty(b) && (g.prototype[b] = f.prototype[b]);
-    j.c = g
+    j.exports = g
 });
 define("0/e", ["require", "exports", "module"], function(e, k, j) {
     function g(c) {
@@ -915,7 +1188,7 @@ define("0/e", ["require", "exports", "module"], function(e, k, j) {
         },n: function() {
             this.set(this.get())
         }};
-    j.c = g
+    j.exports = g
 });
 define("0/d", ["require", "exports", "module", "./9", "./e"], function(e, k, j) {
     function g(a, b, d) {
@@ -955,7 +1228,7 @@ define("0/d", ["require", "exports", "module", "./9", "./e"], function(e, k, j) 
         },u: function(a) {
             return {transform: this.O(),opacity: this.Jc(),ea: this.ea,target: a}
         }};
-    j.c = g
+    j.exports = g
 });
 define("0/1", ["require", "exports", "module", "./a"], function(e, k, j) {
     function g() {
@@ -973,7 +1246,7 @@ define("0/1", ["require", "exports", "module", "./a"], function(e, k, j) {
                 c.push(this.R[a].execute());
             return c
         }};
-    j.c = g
+    j.exports = g
 });
 define("0/5", ["require", "exports", "module", "./8", "./7"], function(e, k, j) {
     function g() {
@@ -999,7 +1272,7 @@ define("0/5", ["require", "exports", "module", "./8", "./7"], function(e, k, j) 
                     return d.b(a, b)
             }
         }};
-    j.c = c
+    j.exports = c
 });
 define("1/g", ["require", "exports", "module", "0/9", "0/e"], function(e, k, j) {
     function g(a) {
@@ -1080,7 +1353,7 @@ define("1/g", ["require", "exports", "module", "0/9", "0/e"], function(e, k, j) 
             this.J([-h[0], -h[1], -h[2]], b);
             this.s([-a[0], -a[1], -a[2]], b, d)
         }};
-    j.c = g
+    j.exports = g
 });
 define("1/i", ["require", "exports", "module"], function(e, k, j) {
     function g(c) {
@@ -1096,7 +1369,7 @@ define("1/i", ["require", "exports", "module"], function(e, k, j) {
             var b = this.e.La();
             this.e.J([b[0] + c[0], b[1] + c[1], b[2] + c[2]], f, a)
         }};
-    j.c = g
+    j.exports = g
 });
 define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
     function g(a, b) {
@@ -1291,7 +1564,7 @@ define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
             "touchstart" == a ? this.pa(b) : "touchmove" == a ? this.oa(b) : "touchend" == a && this.na(b)
         }};
     g.prototype.trigger = g.prototype.b;
-    j.c = g
+    j.exports = g
 });
 define("1/p", ["require", "exports", "module", "./h"], function(e, k, j) {
     function g() {
@@ -1315,7 +1588,7 @@ define("1/p", ["require", "exports", "module", "./h"], function(e, k, j) {
         }};
     for (var f in c.prototype)
         c.prototype.hasOwnProperty(f) && !g.prototype.hasOwnProperty(f) && (g.prototype[f] = c.prototype[f]);
-    j.c = g
+    j.exports = g
 });
 define("1/o", ["require", "exports", "module", "./h", "0/9"], function(e, k, j) {
     function g() {
@@ -1349,7 +1622,7 @@ define("1/o", ["require", "exports", "module", "./h", "0/9"], function(e, k, j) 
     for (var a in c.prototype)
         c.prototype.hasOwnProperty(a) && 
         !g.prototype.hasOwnProperty(a) && (g.prototype[a] = c.prototype[a]);
-    j.c = g
+    j.exports = g
 });
 define("1/n", ["require", "exports", "module", "./h"], function(e, k, j) {
     function g() {
@@ -1375,7 +1648,7 @@ define("1/n", ["require", "exports", "module", "./h"], function(e, k, j) {
         }};
     for (var a in c.prototype)
         c.prototype.hasOwnProperty(a) && !g.prototype.hasOwnProperty(a) && (g.prototype[a] = c.prototype[a]);
-    j.c = g
+    j.exports = g
 });
 define("1/j", ["require", "exports", "module", "./i"], function(e, k, j) {
     function g(f, a) {
@@ -1424,7 +1697,7 @@ define("1/j", ["require", "exports", "module", "./i"], function(e, k, j) {
             "keydown" == c ? (this.Nc = (new Date).getTime(), b.call(this, a, 1), this.update()) : "keyup" == c && b.call(this, a, 0)
         }};
     g.prototype.trigger = g.prototype.b;
-    j.c = g
+    j.exports = g
 });
 define("1/q", ["require", "exports", "module", "./i", "./j"], function(e, k, j) {
     function g(a, b) {
@@ -1447,7 +1720,7 @@ define("1/q", ["require", "exports", "module", "./i", "./j"], function(e, k, j) 
         c.prototype.hasOwnProperty(f) && !g.prototype.hasOwnProperty(f) && (g.prototype[f] = 
         c.prototype[f]);
     g.prototype.trigger = g.prototype.b;
-    j.c = g
+    j.exports = g
 });
 define("1/l", ["require", "exports", "module", "./i"], function(e, k, j) {
     function g(f, a) {
@@ -1485,7 +1758,7 @@ define("1/l", ["require", "exports", "module", "./i"], function(e, k, j) {
         }};
     g.prototype.trigger = 
     g.prototype.b;
-    j.c = g
+    j.exports = g
 });
 define("1/m", ["require", "exports", "module", "./i", "0/e"], function(e, k, j) {
     function g(a, b) {
@@ -1511,7 +1784,7 @@ define("1/m", ["require", "exports", "module", "./i", "0/e"], function(e, k, j) 
             this.l.move([0, this.a.Xa * a[1], 0], b);
             this.l.p(a, b, d)
         }};
-    j.c = g
+    j.exports = g
 });
 define("1/k", ["require", "exports", "module", "0/9", "0/e"], function(e, k, j) {
     function g(a, b, d, c) {
@@ -1564,7 +1837,7 @@ define("1/k", ["require", "exports", "module", "0/9", "0/e"], function(e, k, j) 
             }
             return b
         }};
-    j.c = g
+    j.exports = g
 });
 define("3/v", ["require", "exports", "module", "0/e"], function(e, k, j) {
     function g(f, a) {
@@ -1588,7 +1861,7 @@ define("3/v", ["require", "exports", "module", "0/e"], function(e, k, j) {
             c || (c = 0);
             return 1 <= c ? 1 == this.ra.get() : this.ra.get() > c
         }};
-    j.c = g
+    j.exports = g
 });
 define("3/w", ["require", "exports", "module", "0/9", "0/e"], function(e, k, j) {
     function g(a) {
@@ -1607,7 +1880,7 @@ define("3/w", ["require", "exports", "module", "0/9", "0/e"], function(e, k, j) 
             var b = this.ra.get(), d = {transform: c.Ra(Math.PI * b),target: a[0]}, a = {transform: c.Ra(Math.PI * (b - 1)),target: a[1]};
             return {transform: c.scale(1, 1, this.xf),target: [d, a]}
         }};
-    j.c = g
+    j.exports = g
 });
 define("3/x", ["require", "exports", "module", "0/e"], function(e, k, j) {
     function g(c, f) {
@@ -1629,7 +1902,7 @@ define("3/x", ["require", "exports", "module", "0/e"], function(e, k, j) {
         },b: function() {
             this.reset()
         }};
-    j.c = g
+    j.exports = g
 });
 define("3/z", ["require", "exports", "module"], function(e, k, j) {
     function g() {
@@ -1644,7 +1917,7 @@ define("3/z", ["require", "exports", "module"], function(e, k, j) {
         },update: function() {
             0 > this.ja || this.ja >= this.ec.length || this.Ye((new Date).getTime() - this.startTime)
         }};
-    j.c = g
+    j.exports = g
 });
 define("3/10", "require exports module 0/9 0/e 0/d".split(" "), function(e, k, j) {
     function g(b) {
@@ -1704,7 +1977,7 @@ define("3/10", "require exports module 0/9 0/e 0/d".split(" "), function(e, k, j
                 a.push(this.v[d].u(this.cc[d]));
             return a
         }};
-    j.c = g
+    j.exports = g
 });
 define("6/19", ["require", "exports", "module", "0/9"], function(e, k, j) {
     function g(c, a) {
@@ -1764,7 +2037,7 @@ define("6/19", ["require", "exports", "module", "0/9"], function(e, k, j) {
         },Kf: function(c) {
             return 0 <= this.$a.indexOf(c)
         }};
-    j.c = g
+    j.exports = g
 });
 define("6/1b", ["require", "exports", "module", "0/9", "0/e"], function(e, k, j) {
     function g(a, b, d) {
@@ -1813,7 +2086,7 @@ define("6/1b", ["require", "exports", "module", "0/9", "0/e"], function(e, k, j)
             }
             return b
         }};
-    j.c = g
+    j.exports = g
 });
 define("6/1a", "require exports module 0/9 0/e 3/10".split(" "), function(e, k, j) {
     function g(a, b) {
@@ -1850,7 +2123,7 @@ define("6/1a", "require exports module 0/9 0/e 3/10".split(" "), function(e, k, 
                 this.cg(d, b)
             }
         }};
-    j.c = g
+    j.exports = g
 });
 define("2/s", ["require", "exports", "module"], function(e, k, j) {
     function g(c, f) {
@@ -1949,7 +2222,7 @@ define("2/s", ["require", "exports", "module"], function(e, k, j) {
                 this.ua && (this.x = Math.round(this.x / this.Gc) * this.Gc)
             }
         }};
-    j.c = g
+    j.exports = g
 });
 define("2/t", ["require", "exports", "module", "0/9", "./s"], function(e, k, j) {
     function g(a, b) {
@@ -2144,7 +2417,7 @@ define("2/t", ["require", "exports", "module", "0/9", "./s"], function(e, k, j) 
             this.uc = b;
             c && (this.Ga = a / c)
         }};
-    j.c = g
+    j.exports = g
 });
 define("4/13", ["require", "exports", "module"], function(e, k, j) {
     function g(c) {
@@ -2204,7 +2477,7 @@ define("4/13", ["require", "exports", "module"], function(e, k, j) {
             "touchmove" == c ? this.oa(f) : "touchstart" == c ? this.pa(f) : 
             "touchend" == c && this.na(f)
         }};
-    j.c = g
+    j.exports = g
 });
 define("4/12", ["require", "exports", "module"], function(e, k, j) {
     function g() {
@@ -2253,7 +2526,7 @@ define("4/12", ["require", "exports", "module"], function(e, k, j) {
         },b: function(c, f) {
             "touchstart" == c ? this.pa(f) : "touchmove" == c ? this.oa(f) : "touchend" == c && this.na(f)
         }};
-    j.c = g
+    j.exports = g
 });
 define("6/18", {wf: "H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Rf Db Sg Bh Hs Mt Ds Rg Cn Rv Fl Uup Lv Uus Ur".split(" "),tf: {zg: [0, 5, 6, 7, 14, 15, 33],yg: [1, 9, 17, 35, 53, 85, 117],sg: [8, 16, 34, 52, 84, 116],wg: [4, 13, 31, 32, 50, 51, 83],vb: [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 
             38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 71, 72, 73, 74, 75, 76, 77, 78, 79, 103, 104, 105, 106, 107, 108, 109, 110, 111],Bg: [12, 30, 48, 49, 80, 81, 82, 112, 113, 114, 115],jg: [2, 10, 18, 36, 54, 86],kg: [3, 11, 19, 37, 55, 87],ug: [56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70],ig: [88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102]},vf: "Hydrogen Helium Lithium Beryllium Boron Carbon Nitrogen Oxygen Fluorine Neon Sodium Magnesium Aluminium Silicon Phosphorus Sulfur Chlorine Argon Potassium Calcium Scandium Titanium Vanadium Chromium Manganese Iron Cobalt Nickel Copper Zinc Gallium Germanium Arsenic Selenium Bromine Krypton Rubidium Strontium Yttrium Zirconium Niobium Molybdenum Technetium Ruthenium Rhodium Palladium Silver Cadmium Indium Tin Antimony Tellurium Iodine Xenon Cesium Barium Lanthanum Cerium Praseodymium Neodymium Promethium Samarium Europium Gadolinium Terbium Dysprosium Holmium Erbium Thulium Ytterbium Lutetium Hafnium Tantalum Tungsten Rhenium Osmium Iridium Platinum Gold Mercury Thallium Lead Bismuth Polonium Astatine Radon Francium Radium Actinium Thorium Protactinium Uranium Neptunium Plutonium Americium Curium Berkelium Californium Einsteinium Fermium Mendelevium Nobelium Lawrencium Rutherfordium Dubnium Seaborgium Bohrium Hassium Meitnerium Darmstadtium Roentgenium Copernicium Ravikantium Flerovium Ununpentium Livermorium Ununseptium Urasium".split(" "),
@@ -2700,4 +2973,4 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
         a(4)
     }
 });
-ga(["app"]);
+require(["app"]);
