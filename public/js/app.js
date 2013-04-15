@@ -410,118 +410,212 @@ var requirejs, require, define;
     };
 }());
 
-define("0/a", ["require", "exports", "module"], function(e, k, j) {
-    function g(c) {
-        this.Tc = c;
-        this.next = undefined
+define("0/a", ["require", "exports", "module"], function(require, exports, module) {
+    /**
+     * Defines some sort of class.
+     * Takes in an DOM looking thing.
+     * Creates a Node in a Singly Linked-List.
+     * Looks like it is executing everything LIFO.
+     */
+    function Node(value) {
+        this.value = value
+        //this.next = void 0 // unnecessary
     }
-    g.prototype = {get: function() {
-            return this.Tc
-        },d: function(c) {
-            c = new g(c);
-            this.xe(c);
-            return c
-        },xe: setter_factory("next"),execute: function() {
-            var c = this.next, f = this.get(), c = c ? c.execute() : undefined;
-            if (f) {
-                if ("function" == typeof f)
-                    return f(c);
-                if (f.u)
-                    return f.u(c);
-                var c = [], a;
-                for (a in f)
-                    c.push(f[a].u())
+    Node.prototype = {
+        get: function() {
+            return this.value
+        }
+      , append: function(value) {
+            var node = new Node(value);
+            this.set_next(node)
+            return node
+        }
+      , set_next: function(node) {
+            this.next = node
+        }
+      , execute: function() {
+            var next = this.next
+              , value = this.get()
+              , next = next ? next.execute() : void 0
+
+            if (value) {
+                if ("function" == typeof value) {
+                    return value(next)
+                }
+                if (value.u) {
+                    return value.u(next)
+                }
+
+                var next = []
+                  , key
+
+                /**
+                 * Looks like might be dead code.
+                 */
+                for (key in value) {
+                    next.push(value[key].u())
+                }
             }
-            return c
-        }};
-    j.exports = g
-});
-define("0/6", ["require", "exports", "module"], function(e, k, j) {
-    function g(c) {
-        this.Lc = [];
-        c && (this.Lc = c.slice(0));
-        this.Ub = {}
+            return next
+        }}
+    module.exports = Node
+})
+
+define("0/6", ["require", "exports", "module"], function(require, exports, module) {
+    /**
+     * Some sort of global event mediator.
+     */
+    function Module(initial_array) {
+        this.some_array = []
+        if (initial_array) {
+            this.some_array = initial_array.slice(0)
+        }
+        this.events = {}
     }
-    g.prototype = {b: function(c, f) {
-            f || (f = {});
-            f.origin = this;
-            for (var a = 0; a < this.Lc.length; a++)
-                this.Lc[a].b(c, f);
-            var b = this.Ub[c];
-            if (b)
-                for (a = 0; a < b.length; a++)
-                    b[a].call(this, f)
-        },g: function(c, f) {
-            this.Ub[c] || (this.Ub[c] = []);
-            this.Ub[c].push(f);
+
+    Module.prototype = {
+        b: function(key, f) {
+            f || (f = {})
+            f.origin = this
+
+            for (var i = 0; i < this.some_array.length; i++) {
+                this.some_array[i].b(key, f);
+            }
+
+            var some_list = this.events[key]
+            if (some_list) {
+                for (var i = 0; i < some_list.length; i++) {
+                    some_list[i].call(this, f)
+                }
+            }
+        }
+        // TODO: Probably dead code.
+      , g: function(key, cb) {
+            console.log('TODO', (new Error()).stack)
+            this.events[key] || (this.events[key] = [])
+            this.events[key].push(cb)
             return this
-        }};
-    j.exports = g
-});
-define("0/3", ["require", "exports", "module", "./a", "./6"], function(e, k, j) {
-    function g(a) {
-        this.V = a;
-        this.ic = undefined;
+        }
+      , on: function(key, cb) {
+            this.events[key] || (this.events[key] = [])
+            this.events[key].push(cb)
+            return this
+        }
+    }
+    module.exports = Module
+})
+
+define("0/3", ["require", "exports", "module", "./a", "./6"], function(require, exports, module) {
+    var c = require("./a")
+      , f = require("./6")
+
+    function Module(a) {
+        this.V = a
+        this.ic = void 0
         this.fb = new f
     }
-    var c = e("./a"), f = e("./6");
-    g.prototype = {Db: function(a) {
+
+    Module.prototype = {
+        Db: function(a) {
             return this.ic = new c(a)
-        },update: function() {
+        }
+      , update: function() {
             this.ic && this.V.update(this.ic.execute())
-        },b: function(a, b) {
+        }
+      , b: function(a, b) {
             this.fb.b(a, b)
-        },g: function(a, b) {
-            this.fb.g(a, b)
-        }};
-    j.exports = g
-});
-define("0/8", ["require", "exports", "module"], function(e, k, j) {
-    function g(c) {
-        this.Tc = c;
-        this.next = undefined
+        }
+      , g: function(a, b) {
+            this.fb.on(a, b)
+        }
     }
-    g.prototype = {get: function() {
-            return this.Tc
-        },xe: setter_factory("next"),b: function(c, f) {
-            var a;
-            a = this.get().b(c, f);
+
+    module.exports = Module
+})
+
+define("0/8", ["require", "exports", "module"], function(require, exports, module) {
+    function Module(value) {
+        this.value = value
+        this.next = void 0
+    }
+
+    Module.prototype = {
+        get: function() {
+            return this.value
+        }
+      , xe: function(next) {
+            this.next = next
+        }
+      , b: function(c, f) {
+            var a = this.get().b(c, f)
+
             a = "object" != typeof a ? [] : "string" == typeof a[0] ? [a] : a;
-            var b = [], d = this.next;
-            if (d)
-                for (var h = 0; h < a.length; h++)
-                    d.b(a[h][0], a[h][1]);
-            if (0 != b.length)
-                return 1 == b.length ? b[0] : b
-        }};
-    j.exports = g
-});
-define("0/7", ["require", "exports", "module", "./8"], function(e, k, j) {
-    function g(c) {
-        this.Kb = [];
+
+            var b = []
+              , next = this.next
+
+            if (next) {
+                for (var i = 0; i < a.length; i++) {
+                    next.b(a[i][0], a[i][1])
+                }
+            }
+
+            if (0 != b.length) {
+                if (1 == b.length) {
+                    return b[0]
+                } else {
+                    return b
+                }
+            }
+        }
+    }
+
+    module.exports = Module
+})
+
+define("0/7", ["require", "exports", "module", "./8"], function(require, exports, module) {
+    var c = require("./8");
+
+    function Module(c) {
+        this.Kb = []
         c && this.m(c)
     }
-    var c = e("./8");
-    g.prototype = {za: function(f) {
-            f = new c(f);
-            this.Kb.push(f);
+
+    Module.prototype = {
+        za: function(f) {
+            f = new c(f)
+            this.Kb.push(f)
             return f
-        },m: function(c) {
+        }
+      , m: function(c) {
             "object" == typeof c && c.b && (c = [c]);
-            for (var a = 0; a < c.length; a++)
-                this.za(c[a])
-        },reset: function() {
+            for (var i = 0; i < c.length; i++) {
+                this.za(c[i])
+            }
+        }
+      , reset: function() {
             this.Kb = []
-        },b: function(c, a) {
+        }
+      , b: function(c, a) {
             a || (a = {});
             a.origin || (a.origin = this);
-            for (var b = 0; b < this.Kb.length; b++)
-                this.Kb[b].b(c, a)
-        }};
-    j.exports = g
-});
-define("0/9", ["require", "exports", "module"], function(e, k, j) {
-    var g = {precision: 1E-6,P: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],xg: function f(a, b) {
+            for (var i = 0; i < this.Kb.length; i++) {
+                this.Kb[i].b(c, a)
+            }
+        }
+    }
+
+    module.exports = Module
+})
+
+define("0/9", ["require", "exports", "module"], function(require, exports, module) {
+    /**
+     * This module does matrix math.
+     */
+    var Module = {
+        precision: 1E-6
+      , P: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+      , xg: function f(a, b) {
             var d = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
             d[0] = a[0] * b[0] + a[1] * b[4] + a[2] * b[8] + a[3] * b[12];
             d[1] = a[0] * b[1] + a[1] * b[5] + a[2] * b[9] + a[3] * b[13];
@@ -530,8 +624,7 @@ define("0/9", ["require", "exports", "module"], function(e, k, j) {
             d[4] = a[4] * b[0] + a[5] * b[4] + a[6] * b[8] + a[7] * b[12];
             d[5] = a[4] * b[1] + a[5] * b[5] + a[6] * b[9] + a[7] * b[13];
             d[6] = a[4] * b[2] + a[5] * b[6] + a[6] * b[10] + a[7] * b[14];
-            d[7] = 
-            a[4] * b[3] + a[5] * b[7] + a[6] * b[11] + a[7] * b[15];
+            d[7] = a[4] * b[3] + a[5] * b[7] + a[6] * b[11] + a[7] * b[15];
             d[8] = a[8] * b[0] + a[9] * b[4] + a[10] * b[8] + a[11] * b[12];
             d[9] = a[8] * b[1] + a[9] * b[5] + a[10] * b[9] + a[11] * b[13];
             d[10] = a[8] * b[2] + a[9] * b[6] + a[10] * b[10] + a[11] * b[14];
@@ -540,9 +633,15 @@ define("0/9", ["require", "exports", "module"], function(e, k, j) {
             d[13] = a[12] * b[1] + a[13] * b[5] + a[14] * b[9] + a[15] * b[13];
             d[14] = a[12] * b[2] + a[13] * b[6] + a[14] * b[10] + a[15] * b[14];
             d[15] = a[12] * b[3] + a[13] * b[7] + a[14] * b[11] + a[15] * b[15];
-            return 2 >= arguments.length ? d : f.apply(null, [d].concat(Array.prototype.slice.call(arguments, 
-            2)))
-        },multiply: function a(b, d) {
+            return 2 >= arguments.length ? d : f.apply(null, [d].concat(Array.prototype.slice.call(arguments, 2)))
+        }
+      , multiply: function a(b, d) {
+            /**
+             * h = [b[0] , b[1] , b[2] , 0,   [d[0] , d[1] , d[2] , 0,
+             *      b[4] , b[5] , b[6] , 0, x  d[4] , d[5] , d[6] , 0,
+             *      b[8] , b[9] , b[10], 0,    d[8] , d[9] , d[10], 0,
+             *      b[12], b[13], b[14], 1]    d[12], d[13], d[14], 0]
+             */
             var h = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
             h[0] = b[0] * d[0] + b[1] * d[4] + b[2] * d[8];
             h[1] = b[0] * d[1] + b[1] * d[5] + b[2] * d[9];
@@ -555,30 +654,43 @@ define("0/9", ["require", "exports", "module"], function(e, k, j) {
             h[10] = b[8] * d[2] + b[9] * d[6] + b[10] * d[10];
             h[12] = b[12] * d[0] + b[13] * d[4] + b[14] * d[8] + d[12];
             h[13] = b[12] * d[1] + b[13] * d[5] + b[14] * d[9] + d[13];
-            h[14] = b[12] * d[2] + b[13] * 
-            d[6] + b[14] * d[10] + d[14];
+            h[14] = b[12] * d[2] + b[13] * d[6] + b[14] * d[10] + d[14];
             return 2 >= arguments.length ? h : a.apply(null, [h].concat(Array.prototype.slice.call(arguments, 2)))
-        },move: function(a, b) {
+        }
+      , move: function(a, b) {
             b[2] || (b[2] = 0);
-            return [a[0], a[1], a[2], 0, a[4], a[5], a[6], 0, a[8], a[9], a[10], 0, a[12] + b[0], a[13] + b[1], a[14] + b[2], 1]
-        },translate: function(a, b, d) {
+            return [a[0], a[1], a[2], 0, a[4], a[5], a[6], 0, a[8], a[9], a[10], 0, a[12] + b[0], a[13] + b[1]
+              , a[14] + b[2], 1]
+        }
+      , translate: function(a, b, d) {
             "number" != typeof d && (d = 0);
             return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, a, b, d, 1]
-        },scale: function(a, b, d) {
+        }
+      , scale: function(a, b, d) {
             "number" != typeof d && (d = 1);
             return [a, 0, 0, 0, 0, b, 0, 0, 0, 0, d, 0, 0, 0, 0, 1]
-        },te: function(a) {
+        }
+      , te: function(a) {
             var b = Math.cos(a), a = Math.sin(a);
-            return [1, 0, 0, 0, 0, b, a, 0, 0, -a, 
-                b, 0, 0, 0, 0, 1]
-        },Ra: function(a) {
+            return [1, 0, 0, 0, 0, b, a, 0, 0, -a, b, 0, 0, 0, 0, 1]
+        }
+      , Ra: function(a) {
             var b = Math.cos(a), a = Math.sin(a);
             return [b, 0, -a, 0, 0, 1, 0, 0, a, 0, b, 0, 0, 0, 0, 1]
-        },ue: function(a) {
+        }
+      , ue: function(a) {
             var b = Math.cos(a), a = Math.sin(a);
             return [b, a, 0, 0, -a, b, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
-        },rotate: function(a, b, d) {
-            var h = Math.cos(a), a = Math.sin(a), s = Math.cos(b), b = Math.sin(b), e = Math.cos(d), d = Math.sin(d), g = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
+        }
+      , rotate: function(a, b, d) {
+            var h = Math.cos(a)
+              , a = Math.sin(a)
+              , s = Math.cos(b)
+              , b = Math.sin(b)
+              , e = Math.cos(d)
+              , d = Math.sin(d)
+              , g = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+
             g[0] = s * e;
             g[1] = h * d + a * b * e;
             g[2] = a * d - h * b * e;
@@ -589,21 +701,35 @@ define("0/9", ["require", "exports", "module"], function(e, k, j) {
             g[9] = -a * s;
             g[10] = h * s;
             return g
-        },yf: function(a) {
-            for (var a = a.slice(0), b = 0; b < a.length; b++)
-                Math.abs(a[b]) < 
-                g.precision && (a[b] = 0);
+        }
+      , yf: function(a) {
+            for (var a = a.slice(0), b = 0; b < a.length; b++) {
+                Math.abs(a[b]) < Module.precision && (a[b] = 0);
+            }
             return "matrix3d(" + a.join() + ")"
-        },Ba: function(a, b, d) {
+        }
+      , Ba: function(a, b, d) {
             return [1, 0, 0, 0, Math.tan(d), 1, 0, 0, Math.tan(b), Math.tan(a), 1, 0, 0, 0, 0, 1]
-        },Ma: function(a) {
+        }
+      , Ma: function(a) {
             return [a[12], a[13], a[14]]
-        },inverse: function(a) {
-            var b = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1], d = a[5] * a[10] - a[6] * a[9], h = a[4] * a[10] - a[6] * a[8], s = a[4] * a[9] - a[5] * a[8], e = a[1] * a[10] - a[2] * a[9], g = a[0] * a[10] - a[2] * a[8], j = a[0] * a[9] - a[1] * a[8], k = a[1] * a[6] - a[2] * a[5], m = a[0] * a[6] - a[2] * a[4], w = a[0] * a[5] - a[1] * a[4], r = 1 / (a[0] * d - a[1] * h + a[2] * s);
+        }
+      , inverse: function(a) {
+            var b = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+              , d = a[5] * a[10] - a[6] * a[9]
+              , h = a[4] * a[10] - a[6] * a[8]
+              , s = a[4] * a[9] - a[5] * a[8]
+              , e = a[1] * a[10] - a[2] * a[9]
+              , g = a[0] * a[10] - a[2] * a[8]
+              , j = a[0] * a[9] - a[1] * a[8]
+              , k = a[1] * a[6] - a[2] * a[5]
+              , m = a[0] * a[6] - a[2] * a[4]
+              , w = a[0] * a[5] - a[1] * a[4]
+              , r = 1 / (a[0] * d - a[1] * h + a[2] * s)
+
             b[0] = r * d;
             b[1] = -r * e;
-            b[2] = r * 
-            k;
+            b[2] = r * k;
             b[4] = -r * h;
             b[5] = r * g;
             b[6] = -r * m;
@@ -614,12 +740,16 @@ define("0/9", ["require", "exports", "module"], function(e, k, j) {
             b[13] = -a[12] * b[1] - a[13] * b[5] - a[14] * b[9];
             b[14] = -a[12] * b[2] - a[13] * b[6] - a[14] * b[10];
             return b
-        },fa: function(a) {
+        }
+      , fa: function(a) {
             function b(a, b, d) {
                 d || (d = 0);
                 return Math.sqrt(a * a + b * b + d * d)
             }
-            var d = a[0] + b(a[0], a[1], a[2]), h = 2 / (d * d + a[1] * a[1] + a[2] * a[2]), s = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
+            var d = a[0] + b(a[0], a[1], a[2])
+              , h = 2 / (d * d + a[1] * a[1] + a[2] * a[2])
+              , s = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
+
             s[0] = 1 - h * d * d;
             s[1] = -h * d * a[1];
             s[2] = -h * d * a[2];
@@ -629,46 +759,53 @@ define("0/9", ["require", "exports", "module"], function(e, k, j) {
             s[4] = s[1];
             s[8] = s[2];
             s[9] = s[6];
-            d = g.multiply(a, 
-            s);
+            d = Module.multiply(a, s);
             h = b(d[5], d[6]);
             0 < d[5] && d[5] != h && (h *= -1);
-            var h = d[5] + h, e = 2 / (h * h + d[6] * d[6]), j = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
+
+            var h = d[5] + h
+              , e = 2 / (h * h + d[6] * d[6])
+              , j = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+
             j[5] = 1 - e * h * h;
             j[6] = -e * h * d[6];
             j[9] = j[6];
             j[10] = 1 - e * d[6] * d[6];
-            s = g.multiply(s, j);
-            d = g.multiply(a, s);
-            h = g.scale(0 > d[0] ? -1 : 1, 0 > d[5] ? -1 : 1, 0 > d[10] ? -1 : 1);
-            d = g.multiply(h, d);
-            s = g.multiply(s, h);
+            s = Module.multiply(s, j);
+            d = Module.multiply(a, s);
+            h = Module.scale(0 > d[0] ? -1 : 1, 0 > d[5] ? -1 : 1, 0 > d[10] ? -1 : 1);
+            d = Module.multiply(h, d);
+            s = Module.multiply(s, h);
             h = {};
-            h.translate = g.Ma(a);
+            h.translate = Module.Ma(a);
             h.rotate = [Math.atan2(-s[6], s[10]), Math.asin(s[2]), Math.atan2(-s[1], s[0])];
             h.rotate[0] || (h.rotate[0] = 0, h.rotate[2] = Math.atan2(s[4], s[5]));
             h.scale = [d[0], d[5], d[10]];
-            h.Ba = [Math.atan(d[9] / h.scale[2]), 
-                Math.atan(d[8] / h.scale[2]), Math.atan(d[4] / h.scale[0])];
+            h.Ba = [Math.atan(d[9] / h.scale[2]), Math.atan(d[8] / h.scale[2]), Math.atan(d[4] / h.scale[0])];
             return h
-        },jf: function(a) {
-            var b = g.scale(a.scale[0], a.scale[1], a.scale[2]), d = g.Ba(a.Ba[0], a.Ba[1], a.Ba[2]), h = g.rotate(a.rotate[0], a.rotate[1], a.rotate[2]);
-            return g.move(g.multiply(b, d, h), a.translate)
-        },Qd: function(a, b) {
+        }
+      , jf: function(a) {
+            var b = Module.scale(a.scale[0], a.scale[1], a.scale[2])
+              , d = Module.Ba(a.Ba[0], a.Ba[1], a.Ba[2])
+              , h = Module.rotate(a.rotate[0], a.rotate[1], a.rotate[2])
+
+            return Module.move(Module.multiply(b, d, h), a.translate)
+        }
+      , Qd: function(a, b) {
             if (!a || !b)
                 return false;
             if (a == b)
                 return true;
             for (var d = 0; d < a.length; d++)
-                if (Math.abs(a[d] - b[d]) >= g.precision)
+                if (Math.abs(a[d] - b[d]) >= Module.precision)
                     return false;
             return true
-        },Sc: function(a) {
+        }
+      , Sc: function(a) {
             a = a.slice(0);
             if (a[0] == Math.PI / 2 || a[0] == -Math.PI / 2)
                 a[0] = -a[0], a[1] = Math.PI - a[1], a[2] -= Math.PI;
-            a[0] > 
-            Math.PI / 2 && (a[0] -= Math.PI, a[1] = Math.PI - a[1], a[2] -= Math.PI);
+            a[0] > Math.PI / 2 && (a[0] -= Math.PI, a[1] = Math.PI - a[1], a[2] -= Math.PI);
             a[0] < -Math.PI / 2 && (a[0] += Math.PI, a[1] = -Math.PI - a[1], a[2] -= Math.PI);
             for (; a[1] < -Math.PI; )
                 a[1] += 2 * Math.PI;
@@ -679,9 +816,12 @@ define("0/9", ["require", "exports", "module"], function(e, k, j) {
             for (; a[2] >= Math.PI; )
                 a[2] -= 2 * Math.PI;
             return a
-        }};
-    j.exports = g
-});
+        }
+    }
+
+    module.exports = Module
+})
+
 define("0/c", ["require", "exports", "module", "./9"], function(e, k, j) {
     function g(a, d) {
         this.K = a;
@@ -708,7 +848,7 @@ define("0/c", ["require", "exports", "module", "./9"], function(e, k, j) {
         a ? b.style.webkitTransform = h : b.style.transform = 
         h
     }
-    var f = e("./9"), a = document.body.style.webkitTransform !== undefined;
+    var f = e("./9"), a = document.body.style.webkitTransform !== void 0;
     g.prototype = {wc: function(a) {
             var d = {}, h = {}, c = {}, e = {}, g = {}, j = {}, k = {};
             if (a)
@@ -850,7 +990,7 @@ define("0/c", ["require", "exports", "module", "./9"], function(e, k, j) {
             f.Qd(d, this.Yb[a]) || (this.Yb[a] = d, h ? (h = f.move(d, [0, 0, -this.a.Rb]), c(k, h)) : c(k, this.ud(d, g)));
             e != this.Zb[a] && (this.Zb[a] = e, k.style.opacity = 0.999999 < e ? 0.999999 : e)
         },ef: function(a, d) {
-            var h = d != undefined ? this.Uf(d) : this.pf, c;
+            var h = d != void 0 ? this.Uf(d) : this.pf, c;
             h.bb.length ? c = h.bb.pop() : (h.Rc++, 
             c = document.createElement("div"), c.classList.add(this.a.Ge), h.K.appendChild(c));
             this.Qc[a] = h;
@@ -895,7 +1035,7 @@ define("0/4", "require exports module ./3 ./7 ./8 ./c".split(" "), function(e, k
     var f = e("./3"), k = e("./7");
     e("./8");
     var a = e("./c"), b = [], d = [], h = [], s = (new Date).getTime(), 
-    E = undefined, K = new k;
+    E = void 0, K = new k;
     requestAnimationFrame(function C() {
         var a = (new Date).getTime();
         E = 1E3 / (a - s);
@@ -962,7 +1102,7 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(e, k, j) 
         };
         this.Dc = new c;
         this.fb = new f;
-        this.size = undefined;
+        this.size = void 0;
         "object" == typeof a && this.ka(a);
         "undefined" != typeof b && this.T(b);
         g.Zd[this.id] = this
@@ -976,7 +1116,7 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(e, k, j) 
     g.He = ["touchstart", "touchmove", "touchend", "touchcancel", "click"];
     g.prototype = {g: function(a, 
         b) {
-            this.fb.g(a, b)
+            this.fb.on(a, b)
         },b: function(a, b) {
             b && (b.origin = this);
             this.fb.b(a, b);
@@ -1010,7 +1150,7 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(e, k, j) 
                 a.classList.remove(this.sc[b]);
             this.sc = []
         },bg: function(a) {
-            this.size ? (a.style.width = this.size[0] + "px", a.style.height = this.size[1] + "px") : this.rc = undefined;
+            this.size ? (a.style.width = this.size[0] + "px", a.style.height = this.size[1] + "px") : this.rc = void 0;
             for (var b in this.Y)
                 this.Y.hasOwnProperty(b) && (a.style[b] = this.Y[b]);
             b = this.classList;
@@ -1032,7 +1172,7 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(e, k, j) 
             for (var d = 0; d < b.length; d++)
                 a.classList.remove(b[d]);
             this.cf(a);
-            this.xb = undefined
+            this.xb = void 0
         },Ld: function(a) {
             a.innerHTML = this.content;
             this.b("deploy", a)
@@ -1064,7 +1204,7 @@ define("0/2", "require exports module ./c ./b ./a".split(" "), function(e, k, j)
         this.Ib.appendChild(this.K);
         this.V = new c(this.K, {size: this.size});
         this.wa = true;
-        this.Eb = undefined
+        this.Eb = void 0
     }
     var c = e("./c"), f = e("./b"), a = e("./a");
     g.prototype = {Ld: function(a) {
@@ -1079,7 +1219,7 @@ define("0/2", "require exports module ./c ./b ./a".split(" "), function(e, k, j)
         },
         bd: function() {
             this.Ib.appendChild(this.Ia.removeChild(this.Ia.firstChild));
-            this.Ia = undefined
+            this.Ia = void 0
         },update: function(a) {
             this.V.update(a)
         },u: function(a) {
@@ -1740,10 +1880,10 @@ define("1/l", ["require", "exports", "module", "./i"], function(e, k, j) {
     var c = e("./i");
     g.prototype = {b: function(c, a) {
             if ("mouseenter" == c)
-                this.a.va && !a.ctrlKey && (this.xa = undefined), this.xa = [a.screenX, a.screenY];
+                this.a.va && !a.ctrlKey && (this.xa = void 0), this.xa = [a.screenX, a.screenY];
             else if ("mousemove" == c)
                 if (this.a.va && !a.ctrlKey)
-                    this.xa = undefined;
+                    this.xa = void 0;
                 else {
                     var b = [a.screenX, a.screenY];
                     if (this.xa) {
@@ -1754,7 +1894,7 @@ define("1/l", ["require", "exports", "module", "./i"], function(e, k, j) {
                     this.xa = b
                 }
             else
-                "mouseleave" == c && (this.xa = undefined)
+                "mouseleave" == c && (this.xa = void 0)
         }};
     g.prototype.trigger = 
     g.prototype.b;
@@ -1939,7 +2079,7 @@ define("3/10", "require exports module 0/9 0/e 0/d".split(" "), function(e, k, j
             this.v[a].setTransform(d, c, f)
         },$f: function(a, d, c, f) {
             for (var e = 0; e < a.length; e++)
-                this.set(a[e], d(e), c, 0 == e ? f : undefined)
+                this.set(a[e], d(e), c, 0 == e ? f : void 0)
         },Wa: function(a, 
         d, c) {
             this.$f(this.all(), a, d, c)
@@ -1950,7 +2090,7 @@ define("3/10", "require exports module 0/9 0/e 0/d".split(" "), function(e, k, j
             this.v[a].Ua(d, c, f)
         },Yf: function(a, d, c, f) {
             for (var e = 0; e < a.length; e++)
-                this.Ua(a[e], d, c, 0 == e ? f : undefined)
+                this.Ua(a[e], d, c, 0 == e ? f : void 0)
         },Va: function(a, d, c) {
             this.Yf(this.all(), a, d, c)
         },all: function() {
@@ -2484,7 +2624,7 @@ define("4/12", ["require", "exports", "module"], function(e, k, j) {
         this.Ea = {}
     }
     g.prototype = {pa: function(c) {
-            this.Lb && (this.ma = this.la = undefined);
+            this.Lb && (this.ma = this.la = void 0);
             for (var f = 0; f < c.changedTouches.length; f++) {
                 var a = c.changedTouches[f];
                 this.Ea[a.identifier] = {x: a.pageX,y: a.pageY};
@@ -2511,8 +2651,8 @@ define("4/12", ["require", "exports", "module"], function(e, k, j) {
         },na: function(c) {
             for (var f = (new Date).getTime(), a = 0; a < c.changedTouches.length; a++) {
                 var b = c.changedTouches[a];
-                this.la == b.identifier && (this.la = undefined);
-                this.ma == b.identifier && (this.ma = undefined);
+                this.la == b.identifier && (this.la = void 0);
+                this.ma == b.identifier && (this.ma = void 0);
                 delete this.Ea[b.identifier]
             }
             this.Lb && 
@@ -2662,7 +2802,7 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
         "&via=befamous\" onclick=\"event.preventDefault(); window.open(event.currentTarget.href, '_blank', 'width=700,height=260');\">" + a + "</a>"
     }
     function C(a) {
-        return D('<img src="content/icons/twitter.png" alt="Tweet" />', a, undefined)
+        return D('<img src="content/icons/twitter.png" alt="Tweet" />', a, void 0)
     }
     function m() {
         ea.T("");
@@ -2756,15 +2896,14 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
         kb = function(a) {
             return 118 <= a ? p.scale(0, 0, 0) : za[a]
         };
-        var Z = 
-        new W(4);
+        var Z = new W(4);
         Z.L(3).m([Sb, pb, qb]);
         Z.L(0).m([Tb, pb, qb]);
         Z.L(4).m([Ub, Xb, $b]);
         Z.L(1).m([Wb, Yb, ac]);
         Z.L(2).m([Vb, Zb, bc]);
         var tb = new va;
-        tb.g("keyup", function(b) {
+        tb.on("keyup", function(b) {
             if (t)
                 if (r) {
                     var c = new Common.API.TVKeyValue;
@@ -2773,20 +2912,20 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
                     32 == b.keyCode && a()
         });
         var J = 4, Ba = new va([new P, new Qb]);
-        Ba.g("click", function(a) {
+        Ba.on("click", function(a) {
             a.target == document.body && b()
         });
-        Ba.g("pinch", function() {
+        Ba.on("pinch", function() {
             b()
         });
-        Ba.g("keyup", function(a) {
+        Ba.on("keyup", function(a) {
             27 == a.keyCode ? b() : 32 == a.keyCode && ja.Mb()
         });
         var ba = new W(0), z = new Mb(ca);
         z.Wa(g);
         z.Va(0);
         for (var ec = new Pb(z, 
-        0.1), Ca = new Nb(z, Rb), Na = new na(0, false), ja = new Kb, L = -1, La = undefined, lb = undefined, Ma = undefined, mb = undefined, Q = 0; Q < ca.length; Q++)
+        0.1), Ca = new Nb(z, Rb), Na = new na(0, false), ja = new Kb, L = -1, La = void 0, lb = void 0, Ma = void 0, mb = void 0, Q = 0; Q < ca.length; Q++)
             (function(a, b) {
                 b.m(new P);
                 b.g("click", function() {
@@ -2834,8 +2973,8 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
         var wb = new A([600, 400], "<h3>Fun Things to Do</h3><ul><li>One finger to scroll</li><li>Two fingers to pinch zoom</li><li>Three fingers to plane in 3D</li><li>Touch any object to navigate to that object in 3D space</li><li>Touch-hold an object to disassemble any shape</li></ul><ul><li>Space key to shapeshift</li><li>WASD keys to move forward, left, backward, and right</li><li>Shift + W/S keys to move up/down</li><li>Arrow keys to rotate or spin</li><li>Hold Ctrl to enable mouse rotation</li></ul>");
         wb.h("info");
         var $a = new va([new P]);
-        $a.g("keyup", K);
-        $a.g("click", K);
+        $a.on("keyup", K);
+        $a.on("click", K);
         var la = new y(p.P), xb = new A([600, 500], '<h3>Welcome to <strong>famo.us</strong><br /><span class="sub">a javascript engine and framework that solves HTML5 performance</span></h3><p>40-60fps on phones, tablets, PCs, and televisions<br /> mod a template, or piece together components<br /> no plug-ins, no WebGL, no Canvas<br /> works on modern browsers<br />everything is DOM<br /> 65KB footprint</p><p class="experience">sign up for the beta, then experience famo.us</p>');
         xb.h("signup-box");
         var ab = new A([600, 150], '<form method="POST" action="#"><input id="email" type="text" size="30" name="email" maxlength="75" placeholder="enter email to sign up for beta" size="35" /><input class="button" type="submit" value="sign up" /></form>');
@@ -2859,9 +2998,9 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
         });
         var Qa = new na(0), pa = new O;
         pa.f(xb);
-        pa.f(new y(p.translate(0, 175, 0.01))).d(ab);
-        pa.f(new y(p.translate(0, 210, 0.01))).d(ea);
-        pa.f(new y(p.translate(275, -225, 0.01))).d(Ea);
+        pa.f(new y(p.translate(0, 175, 0.01))).append(ab);
+        pa.f(new y(p.translate(0, 210, 0.01))).append(ea);
+        pa.f(new y(p.translate(275, -225, 0.01))).append(Ea);
         window.addEventListener("submit", function(a) {
             a.preventDefault();
             for (var b = {}, a = a.target.querySelectorAll("input"), c = 0; c < a.length; c++) {
@@ -2887,7 +3026,7 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
             a.send(JSON.stringify(b))
         });
         var yb = new va;
-        yb.g("keyup", function(a) {
+        yb.on("keyup", function(a) {
             if (r) {
                 var b = new Common.API.TVKeyValue;
                 a.keyCode == b.KEY_EXIT && w()
@@ -2916,11 +3055,11 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
         new A([300, 60], "&copy; 2012 Famous Industries, Inc.");
         Ab.h("copyright");
         var kc = G.Kd(document.querySelector("#main")), Bb = G.Kd(document.querySelector("#overlay")), bb = new O;
-        bb.f(new y(p.move(p.scale(3, 3, 3), [0, -1E3, 0]))).d(ub);
-        bb.f(F).d(Y).d(z);
+        bb.f(new y(p.move(p.scale(3, 3, 3), [0, -1E3, 0]))).append(ub);
+        bb.f(F).append(Y).append(z);
         var cb = new O;
-        cb.f(u).d(bb);
-        cb.f(Na).d(new y(p.translate(0, 0, 200))).d(ja).d(function() {
+        cb.f(u).append(bb);
+        cb.f(Na).append(new y(p.translate(0, 0, 200))).append(ja).append(function() {
             var a = {transform: p.scale(1 / 3, 1 / 3, 1 / 3),target: 0 <= L ? S[L] : null}, b = {transform: p.scale(1 / 3, 1 / 3, 1 / 3),target: da};
             return [a, b]
         });
@@ -2932,25 +3071,25 @@ define("app", "require exports module 0/4 0/b 0/2 0/9 0/d 0/e 0/1 0/5 0/7 0/6 1/
             Za.ka([window.innerWidth, window.innerHeight])
         });
         var N = new O;
-        N.f(new y(p.translate(240, 0), 1, "b")).d(Ga);
-        N.f(new y(p.translate(-120, 0), 1, "b")).d(fc);
-        N.f(new y(p.translate(120, 0), 1, "b")).d(gc);
-        N.f(new y(p.translate(0, 0), 1, "b")).d(ic);
-        N.f(new y(p.translate(60, 0), 1, "b")).d(jc);
-        N.f(new y(p.translate(-60, 0), 1, "b")).d(hc);
-        N.f(new y(p.translate(0, 0, 0.01), 1, "b")).d(X).d(vb);
-        N.f(new y(p.P, 1, "br")).d(Da);
-        N.f(new y(p.P, 1, "bl")).d(Ab);
+        N.f(new y(p.translate(240, 0), 1, "b")).append(Ga);
+        N.f(new y(p.translate(-120, 0), 1, "b")).append(fc);
+        N.f(new y(p.translate(120, 0), 1, "b")).append(gc);
+        N.f(new y(p.translate(0, 0), 1, "b")).append(ic);
+        N.f(new y(p.translate(60, 0), 1, "b")).append(jc);
+        N.f(new y(p.translate(-60, 0), 1, "b")).append(hc);
+        N.f(new y(p.translate(0, 0, 0.01), 1, "b")).append(X).append(vb);
+        N.f(new y(p.P, 1, "br")).append(Da);
+        N.f(new y(p.P, 1, "bl")).append(Ab);
         Ia.Db(N);
         var R = new O;
-        R.f(Pa).d(Oa);
-        R.f(new y(p.P, 1, "tl")).d(zb);
-        R.f(new y(p.P, 1, "tr")).d(Ha);
-        R.f(new y(p.translate(0, 0, 0), 1, "b")).d(Ia);
-        R.f(new y(p.translate(0, 0, 0.09))).d(ka).d(Za);
-        R.f(new y(p.translate(0, 0, 0.1))).d(ua).d(wb);
-        R.f(new y(p.translate(0, 0, 0.1))).d(la).d(pa);
-        R.f(new y(p.move(p.ue(Math.PI / 2), [-45, 0]), 1, "l")).d(Qa).d(Fa);
+        R.f(Pa).append(Oa);
+        R.f(new y(p.P, 1, "tl")).append(zb);
+        R.f(new y(p.P, 1, "tr")).append(Ha);
+        R.f(new y(p.translate(0, 0, 0), 1, "b")).append(Ia);
+        R.f(new y(p.translate(0, 0, 0.09))).append(ka).append(Za);
+        R.f(new y(p.translate(0, 0, 0.1))).append(ua).append(wb);
+        R.f(new y(p.translate(0, 0, 0.1))).append(la).append(pa);
+        R.f(new y(p.move(p.ue(Math.PI / 2), [-45, 0]), 1, "l")).append(Qa).append(Fa);
         kc.Db(cb);
         Bb.Db(R);
         ba.L(0).za(Z);
