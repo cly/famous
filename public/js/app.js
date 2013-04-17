@@ -574,6 +574,7 @@ define("0/8", ["require", "exports", "module"], function(require, exports, modul
 })
 
 define("0/7", ["require", "exports", "module", "./8"], function(require, exports, module) {
+    // Something related to event handler.
     var c = require("./8");
 
     function Module(c) {
@@ -596,11 +597,12 @@ define("0/7", ["require", "exports", "module", "./8"], function(require, exports
       , reset: function() {
             this.Kb = []
         }
-      , b: function(c, a) {
-            a || (a = {});
-            a.origin || (a.origin = this);
+      , b: function(event_type, event) {
+            event || (event = {})
+            event.origin || (event.origin = this)
+
             for (var i = 0; i < this.Kb.length; i++) {
-                this.Kb[i].b(c, a)
+                this.Kb[i].b(event_type, event)
             }
         }
     }
@@ -624,7 +626,7 @@ define("0/Matrix", ["require", "exports", "module"], function(require, exports, 
      * http://www.cg.info.hiroshima-cu.ac.jp/~miyazaki/knowledge/teche23.html
      */
     var Module = {
-        precision: 1E-6
+        precision: 1e-6
       , identity: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
       // , xg: function f(a, b) {
       //       /**
@@ -672,10 +674,15 @@ define("0/Matrix", ["require", "exports", "module"], function(require, exports, 
                 a[0]*b[0]+a[1]*b[4]+a[2]*b[8], a[0]*b[1]+a[1]*b[5]+a[2]*b[9], a[0]*b[2]+a[1]*b[6]+a[2]*b[10], 0
               , a[4]*b[0]+a[5]*b[4]+a[6]*b[8], a[4]*b[1]+a[5]*b[5]+a[6]*b[9], a[4]*b[2]+a[5]*b[6]+a[6]*b[10], 0
               , a[8]*b[0]+a[9]*b[4]+a[10]*b[8], a[8]*b[1]+a[9]*b[5]+a[10]*b[9], a[8]*b[2]+a[9]*b[6]+a[10]*b[10], 0
-              , a[12]*b[0]+a[13]*b[4]+a[14]*b[8]+b[12], a[12]*b[1]+a[13]*b[5]+a[14]*b[9]+b[13], a[12]*b[2]+a[13]*b[6]+a[14]*b[10]+b[14], 1
+              , a[12]*b[0]+a[13]*b[4]+a[14]*b[8]+b[12], a[12]*b[1]+a[13]*b[5]+a[14]*b[9]+b[13]
+              , a[12]*b[2]+a[13]*b[6]+a[14]*b[10]+b[14], 1
             ]
 
-            return 2 >= arguments.length ? o : multiply.apply(null, [o].concat(Array.prototype.slice.call(arguments, 2)))
+            if (arguments.length <= 2) {
+                return o
+            } else {
+                return multiply.apply(null, [o].concat(Array.prototype.slice.call(arguments, 2)))
+            }
         }
       , move: function(a, b) {
             // Column-major
@@ -847,19 +854,23 @@ define("0/Matrix", ["require", "exports", "module"], function(require, exports, 
               , -det_a * j
               , det_a * w
               , 0
-              , -a[12] * b[0] - a[13] * b[4] - a[14] * b[8]
-              , -a[12] * b[1] - a[13] * b[5] - a[14] * b[9]
-              , -a[12] * b[2] - a[13] * b[6] - a[14] * b[10]
+              , 0
+              , 0
+              , 0
               , 1
             ]
+
+            b[12] = -a[12] * b[0] - a[13] * b[4] - a[14] * b[8]
+            b[13] = -a[12] * b[1] - a[13] * b[5] - a[14] * b[9]
+            b[14] = -a[12] * b[2] - a[13] * b[6] - a[14] * b[10]
             return b
         }
       , fa: function(a) {
-            function b(a, b, d) {
-                d || (d = 0);
-                return Math.sqrt(a * a + b * b + d * d)
+            function distance(a, b, c) {
+                c || (c = 0);
+                return Math.sqrt(a * a + b * b + c * c)
             }
-            var d = a[0] + b(a[0], a[1], a[2])
+            var d = a[0] + distance(a[0], a[1], a[2])
               , h = 2 / (d * d + a[1] * a[1] + a[2] * a[2])
               , s = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
 
@@ -873,7 +884,7 @@ define("0/Matrix", ["require", "exports", "module"], function(require, exports, 
             s[8] = s[2];
             s[9] = s[6];
             d = Module.multiply(a, s);
-            h = b(d[5], d[6]);
+            h = distance(d[5], d[6]);
             0 < d[5] && d[5] != h && (h *= -1);
 
             var h = d[5] + h
@@ -904,30 +915,58 @@ define("0/Matrix", ["require", "exports", "module"], function(require, exports, 
 
             return Module.move(Module.multiply(b, d, h), a.translate)
         }
-      , Qd: function(a, b) {
-            if (!a || !b)
-                return false;
-            if (a == b)
-                return true;
-            for (var d = 0; d < a.length; d++)
-                if (Math.abs(a[d] - b[d]) >= Module.precision)
-                    return false;
+      , equal: function(a, b) {
+            if (!a || !b) {
+                return false
+            }
+
+            if (a == b) {
+                return true
+            }
+
+            for (var i = 0, ii = a.length; i < ii; i++) {
+                if (Math.abs(a[i] - b[i]) >= Module.precision) {
+                    return false
+                }
+            }
             return true
         }
       , Sc: function(a) {
-            a = a.slice(0);
-            if (a[0] == Math.PI / 2 || a[0] == -Math.PI / 2)
-                a[0] = -a[0], a[1] = Math.PI - a[1], a[2] -= Math.PI;
-            a[0] > Math.PI / 2 && (a[0] -= Math.PI, a[1] = Math.PI - a[1], a[2] -= Math.PI);
-            a[0] < -Math.PI / 2 && (a[0] += Math.PI, a[1] = -Math.PI - a[1], a[2] -= Math.PI);
-            for (; a[1] < -Math.PI; )
+            a = a.slice(0)
+            if (a[0] == Math.PI / 2 || a[0] == -Math.PI / 2) {
+                a[0] = -a[0]
+                a[1] = Math.PI - a[1]
+                a[2] -= Math.PI
+            }
+
+            if (a[0] > Math.PI / 2) {
+                a[0] -= Math.PI
+                a[1] = Math.PI - a[1]
+                a[2] -= Math.PI
+            }
+
+            if (a[0] < -Math.PI / 2) {
+                a[0] += Math.PI
+                a[1] = -Math.PI - a[1]
+                a[2] -= Math.PI
+            }
+
+            for (; a[1] < -Math.PI; ) {
                 a[1] += 2 * Math.PI;
-            for (; a[1] >= Math.PI; )
+            }
+
+            for (; a[1] >= Math.PI; ) {
                 a[1] -= 2 * Math.PI;
-            for (; a[2] < -Math.PI; )
+            }
+
+            for (; a[2] < -Math.PI; ) {
                 a[2] += 2 * Math.PI;
-            for (; a[2] >= Math.PI; )
+            }
+
+            for (; a[2] >= Math.PI; ) {
                 a[2] -= 2 * Math.PI;
+            }
+
             return a
         }
     }
@@ -935,11 +974,10 @@ define("0/Matrix", ["require", "exports", "module"], function(require, exports, 
     module.exports = Module
 })
 
-define("0/c", ["require", "exports", "module", "./Matrix"], function(require, k, j) {
+define("0/c", ["require", "exports", "module", "./Matrix"], function(require, exports, module) {
     var Matrix = require("./Matrix")
-      , a = document.body.style.webkitTransform !== void 0
 
-    function g(a, d) {
+    function Module(a, d) {
         this.K = a;
         this.R = {};
         this.Xb = {};
@@ -949,7 +987,11 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, k,
         this.Oa = {};
         this.i = {};
         this.pd = {};
-        this.pf = {K: this.K,bb: [],Rc: 0};
+        this.pf = {
+            K: this.K
+          , bb: []
+          , Rc: 0
+        };
         this.a = d;
         this.a || (this.a = {});
         this.a.Ge || (this.a.Ge = "surface");
@@ -959,40 +1001,75 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, k,
         this.a.ea || (this.a.ea = "c");
         this.a.size || (this.a.size = [a.offsetWidth, a.offsetHeight])
     }
+
     function c(b, d) {
-        var h = Matrix.get_css_transform(d);
-        a ? b.style.webkitTransform = h : b.style.transform = h
+        var css_transform = Matrix.get_css_transform(d);
+
+        if (document.body.style.webkitTransform !== void 0) {
+            b.style.webkitTransform = css_transform
+        } else {
+            b.style.transform = css_transform
+        }
     }
 
-    g.prototype = {wc: function(a) {
-            var d = {}, h = {}, c = {}, e = {}, g = {}, j = {}, k = {};
-            if (a)
-                if ("undefined" != typeof a.id)
-                    this.pd[a.id] = a, h[a.id] = Matrix.identity, d[a.id] = 1;
-                else if ("number" == typeof a.length)
-                    for (var m = 0; m < a.length; m++) {
-                        var w = m.toString() + "A", r = this.wc(a[m]), t;
-                        for (t in r.$b)
-                            d[t] = r.$b[t];
-                        for (t in r.v)
-                            h[t] = r.v[t];
-                        for (t in r.Ob)
-                            c[t] = r.Ob[t];
-                        for (t in r.i)
-                            e[t] = w + r.i[t];
-                        for (t in r.Sb)
-                            g[w + t] = r.Sb[t];
-                        for (t in r.Qb)
-                            j[w + t] = r.Qb[t];
-                        for (t in r.Pb)
+    Module.prototype = {
+        wc: function(a) {
+            var d = {}
+              , h = {}
+              , c = {}
+              , e = {}
+              , g = {}
+              , j = {}
+              , k = {}
+
+            if (a) {
+                if ("undefined" != typeof a.id) {
+                    this.pd[a.id] = a
+                    h[a.id] = Matrix.identity
+                    d[a.id] = 1
+                } else if ("number" == typeof a.length) {
+                    for (var i = 0, ii = a.length; i < ii; i++) {
+                        var w = i.toString() + "A"
+                          , r = this.wc(a[i])
+                          , t
+
+                        for (t in r.$b) {
+                            d[t] = r.$b[t]
+                        }
+
+                        for (t in r.v) {
+                            h[t] = r.v[t]
+                        }
+
+                        for (t in r.Ob) {
+                            c[t] = r.Ob[t]
+                        }
+
+                        for (t in r.i) {
+                            e[t] = w + r.i[t]
+                        }
+
+                        for (t in r.Sb) {
+                            g[w + t] = r.Sb[t]
+                        }
+
+                        for (t in r.Qb) {
+                            j[w + t] = r.Qb[t]
+                        }
+
+                        for (t in r.Pb) {
                             k[w + t] = r.Pb[t]
+                        }
                     }
-                else if (a.target) {
-                    var G = 
-                    a.target;
+                } else if (a.target) {
+                    var G = a.target;
+
                     t = "object" == typeof a.transform ? a.transform : Matrix.identity;
+
                     var r = "number" == typeof a.opacity ? a.opacity : 1, A = a.group, a = a.ea;
+
                     A && (g.X = t, j.X = r);
+
                     var I = this.wc(G), G = I.v, p = I.$b, y = I.Ob, M = I.i, O = I.Sb, W = I.Qb, I = I.Pb;
                     for (m in G)
                         G.hasOwnProperty(m) && (h[m] = A || M.hasOwnProperty(m) ? G[m] : Matrix.multiply(G[m], t), d[m] = A || M.hasOwnProperty(m) ? p[m] : r * p[m], c[m] = y[m] || a, M.hasOwnProperty(m) ? e[m] = M[m] : A && (e[m] = "X"));
@@ -1001,36 +1078,60 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, k,
                     for (w in W)
                         W.hasOwnProperty(w) && (j[w] = r * W[w]);
                     for (w in I)
-                        I.hasOwnProperty(w) && 
-                        (k[w] = I[w])
+                        I.hasOwnProperty(w) && (k[w] = I[w])
                 }
-            return {v: h,i: e,Sb: g,$b: d,Qb: j,Ob: c,Pb: k}
-        },Xe: function(a) {
-            var d = {}, h = [], c;
-            for (c in a)
+            }
+
+            return {
+                v: h
+              , i: e
+              , Sb: g
+              , $b: d
+              , Qb: j
+              , Ob: c
+              , Pb: k
+            }
+        }
+      , Xe: function(a) {
+            var d = {}
+              , h = []
+              , c
+
+            for (c in a) {
                 if (a.hasOwnProperty(c)) {
                     var f = this.Oa[c];
                     f && (d.hasOwnProperty(f) ? h.push(f) : d[f] = a[c])
                 }
-            for (c = 0; c < h.length; c++)
+            }
+
+            for (c = 0; c < h.length; c++) {
                 d.hasOwnProperty(h[c]) && delete d[h[c]];
+            }
+
             return d
-        },af: function(a) {
-            for (var d in this.Oa)
+        }
+      , af: function(a) {
+            for (var d in this.Oa) {
                 this.Oa.hasOwnProperty(d) && (this.Oa[d] = a[this.Oa[d]]);
+            }
             var h = {};
-            for (d in this.i)
-                if (this.i.hasOwnProperty(d))
+            for (d in this.i) {
+                if (this.i.hasOwnProperty(d)) {
                     if (a.hasOwnProperty(d)) {
                         h.hasOwnProperty(a[d]) || (h[a[d]] = []);
-                        for (var c = 0; c < this.i[d].length; c++)
-                            this.i[d][c].hb = 
-                            a[d], h[a[d]].push(this.i[d][c])
-                    } else
-                        for (c = 0; c < this.i[d].length; c++)
+                        for (var c = 0; c < this.i[d].length; c++) {
+                            this.i[d][c].hb = a[d], h[a[d]].push(this.i[d][c])
+                        }
+                    } else {
+                        for (c = 0; c < this.i[d].length; c++) {
                             delete this.i[d][c].hb;
+                        }
+                    }
+                }
+            }
             this.i = h
-        },ud: function(a, d) {
+        }
+      , ud: function(a, d) {
             d = d || this.a.ea;
             if ("tl" == d)
                 return a;
@@ -1045,7 +1146,8 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, k,
             else if (!d || "l" == d || "c" == d || "r" == d)
                 c = 0.5 * this.a.size[1];
             return Matrix.move(a, [h, c, 0])
-        },Ue: function(a, d, h) {
+        }
+      , Ue: function(a, d, h) {
             h = h || this.a.ea;
             if ("tl" == h)
                 return d;
@@ -1060,38 +1162,61 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, k,
             else if (!h || "l" == h || "c" == h || "r" == h)
                 e = -0.5 * a[1];
             return Matrix.move(d, [c, e, 0])
-        },update: function(a) {
-            var d = this.wc(a), a = d.v, h = d.i, c = d.$b, e = d.Ob, g = d.Sb, j = d.Qb, d = d.Pb, k = this.Xe(h);
+        }
+      , update: function(a) {
+            var d = this.wc(a)
+              , a = d.v
+              , h = d.i
+              , c = d.$b
+              , e = d.Ob
+              , g = d.Sb
+              , j = d.Qb
+              , d = d.Pb
+              , k = this.Xe(h)
+
             this.af(k);
-            for (var m in this.R)
+
+            for (var m in this.R) {
                 a.hasOwnProperty(m) || this.detach(m);
-            for (m in a)
-                a.hasOwnProperty(m) && this.fg(m, a[m], h[m], c[m], e[m], h.hasOwnProperty(m) ? Matrix.multiply(a[m], g[h[m]]) : a[m]);
-            for (m in g)
-                g.hasOwnProperty(m) && this.eg(m, g[m], j[m], d[m])
-        },eg: function(a, d, h, e) {
+            }
+
+            for (m in a) {
+                if (a.hasOwnProperty(m)) {
+                    this.fg(m, a[m], h[m], c[m], e[m], h.hasOwnProperty(m) ? Matrix.multiply(a[m], g[h[m]]) : a[m]);
+                }
+            }
+
+            for (m in g) {
+                if (g.hasOwnProperty(m)) {
+                    this.eg(m, g[m], j[m], d[m])
+                }
+            }
+        }
+      , eg: function(a, d, h, e) {
             if (a = this.i[a])
                 for (var g = 0; g < a.length; g++) {
-                    if (!Matrix.Qd(a[g].ee, d)) {
+                    if (!Matrix.equal(a[g].ee, d)) {
                         a[g].ee = d;
                         var j = Matrix.multiply(Matrix.translate(0, 0, this.a.Rb), this.ud(d, e));
                         c(a[g].K, j)
                     }
                     a[g].opacity != h && (a[g].opacity = h, a[g].K.style.opacity = h)
                 }
-        },ff: function(a, d) {
+        }
+      , ff: function(a, d) {
             this.i[a] || (this.i[a] = []);
             var h = this.i[a];
             d.hb = a;
             h.push(d)
-        },Uf: function(a) {
+        }
+      , Uf: function(a) {
             this.i.hasOwnProperty(a) || (this.i[a] = []);
             for (var d = this.i[a], h = 0, c = this.a.fe; h < d.length && !(0 < d[h].bb.length || d[h].Rc < c); )
                 h++;
-            h >= d.length && (c = document.createElement("div"), c.classList.add(this.a.Ud), this.K.appendChild(c), 
-            d.push({hb: a,K: c,Rc: 0,bb: []}));
+            h >= d.length && (c = document.createElement("div"), c.classList.add(this.a.Ud), this.K.appendChild(c), d.push({hb: a,K: c,Rc: 0,bb: []}));
             return d[h]
-        },fg: function(a, d, h, e, g) {
+        }
+      , fg: function(a, d, h, e, g) {
             var j = this.pd[a], k = this.Qc[a];
             k && h && (k.hb || this.ff(h, k), k.hb != h && this.detach(a));
             this.Oa[a] = h;
@@ -1100,106 +1225,169 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, k,
             if (j.wa || this.Xb[a])
                 j.bg(k), this.Xb[a] = false;
             d = this.Ue(j.Kc(), d, g);
-            Matrix.Qd(d, this.Yb[a]) || (this.Yb[a] = d, h ? (h = Matrix.move(d, [0, 0, -this.a.Rb]), c(k, h)) : c(k, this.ud(d, g)));
+            Matrix.equal(d, this.Yb[a]) || (this.Yb[a] = d, h ? (h = Matrix.move(d, [0, 0, -this.a.Rb]), c(k, h)) : c(k, this.ud(d, g)));
             e != this.Zb[a] && (this.Zb[a] = e, k.style.opacity = 0.999999 < e ? 0.999999 : e)
-        },ef: function(a, d) {
+        }
+      , ef: function(a, d) {
             var h = d != void 0 ? this.Uf(d) : this.pf, c;
             h.bb.length ? c = h.bb.pop() : (h.Rc++, c = document.createElement("div"), c.classList.add(this.a.Ge), h.K.appendChild(c));
             this.Qc[a] = h;
             this.R[a] = c;
             this.Xb[a] = true;
             return c
-        },detach: function(a) {
+        }
+      , detach: function(a) {
             var d = this.R[a];
             delete this.R[a];
             delete this.Yb[a];
             delete this.Zb[a];
             d && (this.pd[a].lf(d), this.Qc[a].bb.push(d), c(d, Matrix.scale(0, 0, 0)));
             this.Xb[a] = true
-        },fc: function(a) {
+        }
+      , fc: function(a) {
             this.a.ea = a
-        },ka: function(a) {
+        }
+      , ka: function(a) {
             this.a.size = a.slice(0);
             this.Yb = {};
             this.Zb = {};
             for (var d in this.i)
                 for (var a = this.i[d], c = 0; c < a.length; c++)
                     delete a[c].ee, delete a[c].opacity
-        }};
-    j.exports = g
-});
-define("0/4", "require exports module ./3 ./7 ./8 ./c".split(" "), function(e, k, j) {
-    function g() {
-        document.activeElement && "INPUT" == document.activeElement.nodeName ? document.activeElement.addEventListener("blur", function C() {
-            this.removeEventListener("blur", C);
-            g()
-        }) : (window.scrollTo(0, 0), c(function() {
-            for (var a = window.innerWidth, d = window.innerHeight, c = 0; c < b.length; c++) {
-                b[c].b("resize");
-                var h = b[c].V;
-                h && h.ka([a, d])
-            }
-        }))
-    }
+        }}
+    module.exports = Module
+})
+
+define("0/4", ["require", "exports", "module", "./3", "./7", "./8", "./c"], function(require, exports, module) {
+    var f = require("./3")
+      , k = require("./7")
+      , a = require("./c");
+
+    require("./8");
+
+    var K = new k
+
+    var last_frame_at = (new Date).getTime()
+      , b = []
+      , h = []
+      , d = []
+      , fps = void 0
+
     function c(a) {
         h.push(a)
     }
-    var f = e("./3"), k = e("./7");
-    e("./8");
-    var a = e("./c"), b = [], d = [], h = [], s = (new Date).getTime(), 
-    E = void 0, K = new k;
-    requestAnimationFrame(function C() {
-        var a = (new Date).getTime();
-        E = 1E3 / (a - s);
-        s = a;
-        for (a = 0; a < d.length; a++) {
-            var c = d[a];
-            "function" == typeof c ? c.call(this) : c.update()
-        }
-        for (a = 0; a < h.length; a++)
-            h[a].call(this);
-        h = [];
-        for (a = 0; a < b.length; a++)
-            b[a].update();
-        requestAnimationFrame(C)
-    });
-    window.addEventListener("resize", g);
-    g();
-    window.addEventListener("touchmove", function(a) {
-        a.preventDefault()
-    });
-    e = "touchstart touchmove touchend touchcancel click keydown keyup keypress mouseenter mousemove mouseleave".split(" ");
-    for (k = 0; k < e.length; k++)
-        (function(a) {
-            document.body.addEventListener(a, function(b) {
-                K.b(a, b)
+
+    function on_resize() {
+        if (document.activeElement && "INPUT" == document.activeElement.nodeName) {
+            document.activeElement.addEventListener("blur", function listener() {
+                this.removeEventListener("blur", listener)
+                on_resize()
             })
-        }).call(this, e[k]);
-    j.exports = {C: function(a) {
+        } else {
+            window.scrollTo(0, 0)
+            c(function() {
+                var width = window.innerWidth
+                  , height = window.innerHeight
+
+                for (var i = 0, ii = b.length; i < ii; i++) {
+                    b[i].b("resize");
+                    var h = b[i].V;
+                    h && h.ka([width, height])
+                }
+            })
+        }
+    }
+
+    requestAnimationFrame(function cb() {
+        var now = (new Date).getTime()
+
+        fps = 1000 / (now - last_frame_at)
+        last_frame_at = now
+
+        for (var i = 0; i < d.length; i++) {
+            var c = d[i]
+            if ("function" == typeof c) {
+                c.call(this)
+            } else {
+                c.update()
+            }
+        }
+
+        for (var i = 0; i < h.length; i++) {
+            h[i].call(this)
+        }
+        h = []
+
+        for (var i = 0; i < b.length; i++) {
+            b[i].update()
+        }
+
+        requestAnimationFrame(cb)
+    })
+
+    window.addEventListener("resize", on_resize)
+    on_resize()
+
+    window.addEventListener("touchmove", function(event) {
+        event.preventDefault()
+    })
+
+    var event_types = [
+        "touchstart", "touchmove", "touchend", "touchcancel", "click", "keydown", "keyup", "keypress", "mouseenter"
+      , "mousemove", "mouseleave"
+    ]
+
+    for (var i = 0; i < event_types.length; i++) {
+        (function(event_type) {
+            document.body.addEventListener(event_type, function(event) {
+                K.b(event_type, event)
+            })
+        }).call(this, event_types[i]);
+    }
+
+    module.exports = {
+        C: function(a) {
             0 > d.indexOf(a) && d.push(a)
-        },nb: function(a) {
+        }
+      , nb: function(a) {
             a = d.indexOf(a);
             0 <= a && d.splice(a, 1)
-        },kd: function(a) {
+        }
+      , reset: function(a) {
             d = a.slice(0)
-        },m: function(a) {
+        }
+      , m: function(a) {
             return K.m(a)
-        },za: function(a) {
+        }
+      , za: function(a) {
             return K.za(a)
-        },Xf: function() {
+        }
+        /* Not used
+      , Xf: function() {
             return eventMultiplex.Xf()
-        },Kd: function(d) {
-            d || (d = document.createElement("div"), console.warn("Tried to create context on non-existent element"));
-            var c = d.V ? d.V : new a(d, {Rb: -1E5});
+        }
+        */
+      , Kd: function(d) {
+            if (!d) {
+                d = document.createElement("div")
+                console.warn("Tried to create context on non-existent element")
+            }
+            var c = d.V ? d.V : new a(d, {Rb: -100000});
             d.V = c;
             d = new f(c);
             b.push(d);
             return d
-        },rg: function() {
-            return E
-        },Pc: c}
-});
-define("0/b", ["require", "exports", "module", "./7", "./6"], function(e, k, j) {
+        }
+        /* Not used
+      , rg: function() {
+            return fps
+        }
+        */
+      , Pc: c
+    }
+})
+
+define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, exports, module) {
     function g(a, b) {
         this.id = g.nf++;
         this.D = {};
@@ -1219,49 +1407,59 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(e, k, j) 
         "undefined" != typeof b && this.T(b);
         g.Zd[this.id] = this
     }
-    var c = e("./7"), f = e("./6");
+    var c = require("./7"), f = require("./6");
     g.nf = 0;
     g.Zd = {};
     g.qg = function(a) {
         return g.Zd[a]
     };
     g.He = ["touchstart", "touchmove", "touchend", "touchcancel", "click"];
-    g.prototype = {g: function(a, 
-        b) {
+    g.prototype = {
+        g: function(a, b) {
             this.fb.on(a, b)
-        },b: function(a, b) {
+        }
+      , b: function(a, b) {
             b && (b.origin = this);
             this.fb.b(a, b);
             this.Dc.b(a, b)
-        },u: function() {
+        }
+      , u: function() {
             return this
-        },m: function(a) {
+        }
+      , m: function(a) {
             return this.Dc = new c(a)
-        },pb: function(a) {
+        }
+      , pb: function(a) {
             for (n in a)
                 a.hasOwnProperty(n) && (this.Y[n] = a[n], this.wa = true)
-        },h: function(a) {
+        }
+      , h: function(a) {
             0 > this.classList.indexOf(a) && (this.classList.push(a), this.wa = true)
-        },T: function(a) {
+        }
+      , T: function(a) {
             this.content != a && (this.content = a, this.wa = true)
-        },Ve: function(a) {
+        }
+      , Ve: function(a) {
             for (var b in this.D)
                 this.D.hasOwnProperty(b) && a.addEventListener(b, this.Jb);
             b = g.He;
             for (var d = 0; d < b.length; d++)
                 a.addEventListener(b[d], 
                 this.Jb)
-        },cf: function(a) {
+        }
+      , cf: function(a) {
             for (var b in this.D)
                 this.D.hasOwnProperty(b) && a.removeEventListener(b, this.Jb);
             b = g.He;
             for (var d = 0; d < b.length; d++)
                 a.removeEventListener(b[d], this.Jb)
-        },wd: function(a) {
+        }
+      , wd: function(a) {
             for (var b = 0; b < this.sc.length; b++)
                 a.classList.remove(this.sc[b]);
             this.sc = []
-        },bg: function(a) {
+        }
+      , bg: function(a) {
             this.size ? (a.style.width = this.size[0] + "px", a.style.height = this.size[1] + "px") : this.rc = void 0;
             for (var b in this.Y)
                 this.Y.hasOwnProperty(b) && (a.style[b] = this.Y[b]);
@@ -1273,7 +1471,8 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(e, k, j) 
             this.Ve(a);
             this.wa = false;
             this.xb = a
-        },lf: function(a) {
+        }
+      , lf: function(a) {
             this.bd();
             a.style.width = "";
             a.style.height = "";
@@ -1285,11 +1484,14 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(e, k, j) 
                 a.classList.remove(b[d]);
             this.cf(a);
             this.xb = void 0
-        },Ld: function(a) {
+        }
+      , Ld: function(a) {
             a.innerHTML = this.content;
             this.b("deploy", a)
-        },bd: function() {
-        },Kc: function() {
+        }
+      , bd: function() {
+        }
+      , Kc: function() {
             if (this.size)
                 return this.size.slice(0);
             if (this.xb) {
@@ -1301,13 +1503,15 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(e, k, j) 
                 return [a, b]
             }
             return [0, 0]
-        },ka: function(a) {
+        }
+      , ka: function(a) {
             this.size = a.slice(0, 2);
             this.wa = true
         }};
-    j.exports = g
-});
-define("0/2", "require exports module ./c ./b ./a".split(" "), function(e, k, j) {
+    module.exports = g
+})
+
+define("0/2", ["require", "exports", "module", "./c", "./b", "./a"], function(require, exports, module) {
     function g() {
         f.apply(this, arguments);
         this.K = document.createElement("div");
@@ -1318,8 +1522,9 @@ define("0/2", "require exports module ./c ./b ./a".split(" "), function(e, k, j)
         this.wa = true;
         this.Eb = void 0
     }
-    var c = e("./c"), f = e("./b"), a = e("./a");
-    g.prototype = {Ld: function(a) {
+    var c = require("./c"), f = require("./b"), a = require("./a");
+    g.prototype = {
+        Ld: function(a) {
             if (this.Ia) {
                 if (this.Ia == a)
                     return;
@@ -1328,29 +1533,35 @@ define("0/2", "require exports module ./c ./b ./a".split(" "), function(e, k, j)
             a.innerHTML = "";
             this.Ia = a;
             this.Ia.appendChild(this.Ib.removeChild(this.Ib.firstChild))
-        },
-        bd: function() {
+        }
+      , bd: function() {
             this.Ib.appendChild(this.Ia.removeChild(this.Ia.firstChild));
             this.Ia = void 0
-        },update: function(a) {
+        }
+      , update: function(a) {
             this.V.update(a)
-        },u: function(a) {
+        }
+      , u: function(a) {
             !a && this.Eb && (a = this.Eb.execute());
             this.update(a);
             return f.prototype.u.call(this)
-        },Db: function(b) {
+        }
+      , Db: function(b) {
             return this.Eb = new a(b)
-        },fc: function(a) {
+        }
+      , fc: function(a) {
             this.V.fc(a)
-        },ka: function(a) {
+        }
+      , ka: function(a) {
             f.prototype.ka.apply(this, arguments);
             this.V && this.V.ka(a)
         }};
     for (var b in f.prototype)
         f.prototype.hasOwnProperty(b) && !g.prototype.hasOwnProperty(b) && (g.prototype[b] = f.prototype[b]);
-    j.exports = g
-});
-define("0/e", ["require", "exports", "module"], function(e, k, j) {
+    module.exports = g
+})
+
+define("0/e", ["require", "exports", "module"], function(require, exports, module) {
     function g(c) {
         this.ca = null;
         this.zb = [];
@@ -1359,23 +1570,32 @@ define("0/e", ["require", "exports", "module"], function(e, k, j) {
         this.Ta({duration: 500,q: g.w.Nf});
         this.set(c)
     }
-    g.w = {Nf: function(c) {
+    g.w = {
+        Nf: function(c) {
             return c
-        },rf: function(c) {
+        }
+      , rf: function(c) {
             return c * c
-        },Ja: function(c) {
+        }
+      , Ja: function(c) {
             return c * (2 - c)
-        },eb: function(c) {
+        }
+      , eb: function(c) {
             return 0.5 >= c ? 2 * c * c : -2 * c * c + 4 * c - 1
-        },sf: function(c) {
+        }
+      , sf: function(c) {
             return c * (2.25 - 1.25 * c)
-        },hc: function(c) {
+        }
+      , hc: function(c) {
             return (1 - c) * Math.sin(6 * Math.PI * c) + c
-        }};
-    g.prototype = {Cd: function() {
+        }
+    };
+    g.prototype = {
+        Cd: function() {
             0 >= this.zb.length ? this.set(this.state) : (this.ca = this.zb.shift(), this.startTime = this.getTime(), 
             this.Fe = this.xd(this.state))
-        },df: function(c) {
+        }
+      , df: function(c) {
             if (this.ca && (c || (c = this.getTime()), this.ce != c)) {
                 this.ce = c;
                 var f = this.Fe, a = this.ca[0], b = this.ca[2], c = (c - this.startTime) / this.ca[1], d = Math.min(Math.max(c, 0), 1);
@@ -1386,9 +1606,11 @@ define("0/e", ["require", "exports", "module"], function(e, k, j) {
                     this.state = this.Ad(f, a, b(d));
                 1 <= c && (f = this.xc.shift(), this.Cd(), f && f())
             }
-        },Ad: function(c, f, a) {
+        }
+      , Ad: function(c, f, a) {
             return (1 - a) * c + a * f
-        },xd: function(c) {
+        }
+      , xd: function(c) {
             if ("object" == typeof c) {
                 if (c.slice)
                     return c.slice(0);
@@ -1398,7 +1620,8 @@ define("0/e", ["require", "exports", "module"], function(e, k, j) {
                 return f
             }
             return c
-        },$e: function(c) {
+        }
+      , $e: function(c) {
             var f = this.yd, a = {q: f.q};
             f.duration && (a.duration = f.duration);
             f.speed && (a.speed = f.speed);
@@ -1408,11 +1631,13 @@ define("0/e", ["require", "exports", "module"], function(e, k, j) {
             c.q && (a.q = c.q);
             c.speed && (a.speed = c.speed);
             return a
-        },Ta: function(c) {
+        }
+      , Ta: function(c) {
             this.yd = {};
             for (var f in c)
                 c.hasOwnProperty(f) && (this.yd[f] = c[f])
-        },set: function(c, f, a) {
+        }
+      , set: function(c, f, a) {
             if (f) {
                 f = this.$e(f);
                 if (f.speed) {
@@ -1430,19 +1655,24 @@ define("0/e", ["require", "exports", "module"], function(e, k, j) {
                 this.ca || this.Cd()
             } else
                 this.startTime = 0, this.Fe = this.state = this.xd(c), this.ca = null, this.zb = [], this.xc = [], a && a()
-        },getTime: function() {
+        }
+      , getTime: function() {
             return this.Of ? this.Of : (new Date).getTime()
-        },get: function(c) {
+        }
+      , get: function(c) {
             this.df(c);
             return this.state
-        },Tb: function() {
+        }
+      , Tb: function() {
             return !!this.ca
-        },n: function() {
+        }
+      , n: function() {
             this.set(this.get())
         }};
-    j.exports = g
-});
-define("0/d", ["require", "exports", "module", "./Matrix", "./e"], function(require, k, j) {
+    module.exports = g
+})
+
+define("0/d", ["require", "exports", "module", "./Matrix", "./e"], function(require, exports, module) {
     var Matrix = require("./Matrix")
       , f = require("./e")
 
@@ -1461,56 +1691,75 @@ define("0/d", ["require", "exports", "module", "./Matrix", "./e"], function(requ
     g.Ze = function(a) {
         return {translate: [a[0], a[1], a[2]],rotate: [a[3], a[4], a[5]],Ba: [a[6], a[7], a[8]],scale: [a[9], a[10], a[11]]}
     };
-    g.prototype = {O: function() {
+    g.prototype = {
+        O: function() {
             return this.qa.Tb() ? Matrix.jf(g.Ze(this.qa.get())) : 
             this.Hc
-        },setTransform: function(a, b, d) {
+        }
+      , setTransform: function(a, b, d) {
             b ? (this.Gd && (this.qa.set(g.zd(Matrix.fa(this.Hc))), this.Gd = false), this.qa.set(g.zd(Matrix.fa(a)), b, d)) : (this.qa.n(), this.Gd = true);
             this.Hc = a
-        },Jc: function() {
+        }
+      , Jc: function() {
             return this.ac.get()
-        },Ua: function(a, b, d) {
+        }
+      , Ua: function(a, b, d) {
             this.ac.set(a, b, d)
-        },fc: setter_factory("ea"),ve: function(a) {
+        }
+      , fc: setter_factory("ea"),ve: function(a) {
             this.qa.Ta(a);
             this.ac.Ta(a)
-        },n: function() {
+        }
+      , n: function() {
             this.qa.n();
             this.ac.n()
-        },jb: function() {
+        }
+      , jb: function() {
             return this.qa.Tb()
-        },u: function(a) {
+        }
+      , u: function(a) {
             return {transform: this.O(),opacity: this.Jc(),ea: this.ea,target: a}
         }};
-    j.exports = g
-});
-define("0/1", ["require", "exports", "module", "./a"], function(e, k, j) {
-    function g() {
+    module.exports = g
+})
+
+define("0/1", ["require", "exports", "module", "./a"], function(require, exports, module) {
+    var c = require("./a")
+
+    function Module() {
         this.reset()
     }
-    var c = e("./a");
-    g.prototype = {f: function(f) {
-            f = new c(f);
-            this.R.push(f);
+
+    Module.prototype = {
+        f: function(f) {
+            f = new c(f)
+            this.R.push(f)
             return f
-        },reset: function() {
+        }
+      , reset: function() {
             this.R = []
-        },u: function() {
-            for (var c = [], a = 0; a < this.R.length; a++)
-                c.push(this.R[a].execute());
+        }
+      , u: function() {
+            var c = []
+            for (var i = 0, ii = this.R.length; i < ii; i++) {
+                c.push(this.R[i].execute())
+            }
             return c
-        }};
-    j.exports = g
-});
-define("0/5", ["require", "exports", "module", "./8", "./7"], function(e, k, j) {
+        }
+    }
+
+    module.exports = Module
+})
+
+define("0/5", ["require", "exports", "module", "./8", "./7"], function(require, exports, module) {
     function g() {
     }
     function c(a) {
         this.Fb = {};
         this.zc = a
     }
-    e("./8");
-    var f = e("./7");
+    require("./8");
+    var f = require("./7");
     g.prototype.b = function(a, b) {
         return [a, b]
     };
@@ -1526,11 +1775,12 @@ define("0/5", ["require", "exports", "module", "./8", "./7"], function(e, k, j) 
                     return d.b(a, b)
             }
         }};
-    j.exports = c
-});
-define("1/g", ["require", "exports", "module", "0/Matrix", "0/e"], function(e, k, j) {
-    var c = e("0/Matrix")
-      , f = e("0/e");
+    module.exports = c
+})
+
+define("1/g", ["require", "exports", "module", "0/Matrix", "0/e"], function(require, exports, module) {
+    var Matrix = require("0/Matrix")
+      , f = require("0/e");
 
     function g(a) {
         this.a = a;
@@ -1541,102 +1791,119 @@ define("1/g", ["require", "exports", "module", "0/Matrix", "0/e"], function(e, k
         this.Qa = new f([0, 0, 0]);
         this.Sa = new f([0, 0, 0]);
         this.Ca = new f([0, 0, 0]);
-        this.Qa.Ta({duration: 3E3,q: f.w.Ja});
-        this.Sa.Ta({duration: 1E3,q: f.w.Ja});
-        this.Ca.Ta({duration: 1E3,q: f.w.Ja})
+        this.Qa.Ta({duration: 3000,q: f.w.Ja});
+        this.Sa.Ta({duration: 1000,q: f.w.Ja});
+        this.Ca.Ta({duration: 1000,q: f.w.Ja})
     }
 
-    g.prototype = {ab: function() {
+    g.prototype = {
+        ab: function() {
             var a = this.Qa.get()
               , b = this.Sa.get()
               , d = this.Ca.get()
-              , d = c.rotate(-d[0], -d[1], -d[2])
-              , b = c.multiply(c.rotate_z(b[2])
-              , c.rotate_y_cw(b[1])
-              , c.rotate_x(b[0]))
-              , h = c.translate(a[0], a[1], a[2])
-              , a = c.translate(-a[0], -a[1], -a[2])
+              , d = Matrix.rotate(-d[0], -d[1], -d[2])
+              , b = Matrix.multiply(Matrix.rotate_z(b[2])
+              , Matrix.rotate_y_cw(b[1])
+              , Matrix.rotate_x(b[0]))
+              , h = Matrix.translate(a[0], a[1], a[2])
+              , a = Matrix.translate(-a[0], -a[1], -a[2])
 
-            return c.multiply(a, b, h, d, a)
-        },u: function(a) {
+            return Matrix.multiply(a, b, h, d, a)
+        }
+      , u: function(a) {
             a || (a = []);
             return {transform: this.ab(),target: a,group: true}
-        },jb: function() {
+        }
+      , jb: function() {
             return this.Qa.Tb() || this.Ca.Tb()
-        },n: function() {
+        }
+      , n: function() {
             this.Qa.n();
             this.Sa.n();
             this.Ca.n()
-        },F: function() {
+        }
+      , F: function() {
             return this.Qa.get()
-        },s: function(a, b, d) {
-            a[0] < this.a.nc[0] && 
-            (a[0] = this.a.nc[0]);
+        }
+      , s: function(a, b, d) {
+            a[0] < this.a.nc[0] && (a[0] = this.a.nc[0]);
             a[0] > this.a.nc[1] && (a[0] = this.a.nc[1]);
             a[1] < this.a.oc[0] && (a[1] = this.a.oc[0]);
             a[1] > this.a.oc[1] && (a[1] = this.a.oc[1]);
             a[2] < this.a.pc[0] && (a[2] = this.a.pc[0]);
             a[2] > this.a.pc[1] && (a[2] = this.a.pc[1]);
             this.Qa.set(a, b, d)
-        },da: function() {
+        }
+      , da: function() {
             return this.Sa.get()
-        },A: function(a, b, d) {
+        }
+      , A: function(a, b, d) {
             if (b) {
                 for (var c = this.da(), f = 0; 3 > f; f++)
                     a[f] > 0.5 * Math.PI && c[f] <= -0.5 * Math.PI && (c[f] += 2 * Math.PI), a[f] < -0.5 * Math.PI && c[f] >= 0.5 * Math.PI && (c[f] -= 2 * Math.PI);
                 this.Sa.set(c)
             }
             this.Sa.set(a, b, d)
-        },La: function() {
+        }
+      , La: function() {
             return this.Ca.get()
-        },
-        J: function(a, b, d) {
+        }
+      , J: function(a, b, d) {
             if (b) {
                 for (var c = this.La(), f = 0; 3 > f; f++)
                     a[f] > 0.5 * Math.PI && c[f] <= -0.5 * Math.PI && (c[f] += 2 * Math.PI), a[f] < -0.5 * Math.PI && c[f] >= 0.5 * Math.PI && (c[f] -= 2 * Math.PI);
                 this.Ca.set(c)
             }
             this.Ca.set(a, b, d)
-        },ge: function() {
+        }
+      , ge: function() {
             var a = this.La();
             if (a[0] || a[1] || a[2])
-                a = c.fa(c.inverse(this.ab())), this.s(a.translate), this.A([-a.rotate[0], -a.rotate[1], -a.rotate[2]]), this.J([0, 0, 0])
-        },Sc: function() {
+                a = Matrix.fa(Matrix.inverse(this.ab())), this.s(a.translate), this.A([-a.rotate[0], -a.rotate[1], -a.rotate[2]]), this.J([0, 0, 0])
+        }
+      , Sc: function() {
             var a = this.da();
             if (a[0] || a[1] || a[2])
-                a = c.fa(this.ab()), this.s([-a.translate[0], -a.translate[1], -a.translate[2]]), this.J([-a.rotate[0], 
+                a = Matrix.fa(this.ab()), this.s([-a.translate[0], -a.translate[1], -a.translate[2]]), this.J([-a.rotate[0], 
                     -a.rotate[1], -a.rotate[2]]), this.A([0, 0, 0])
-        },Cf: function() {
+        }
+      , Cf: function() {
             var a = this.La();
             if (!a[0] && !a[1] && !a[2])
                 return this.da();
-            a = c.fa(c.inverse(this.ab()));
+            a = Matrix.fa(Matrix.inverse(this.ab()));
             return [-a.rotate[0], -a.rotate[1], -a.rotate[2]]
-        },Pf: function(a, b, d) {
-            var h = c.fa(c.inverse(a)), a = h.translate, h = c.Sc(h.rotate);
+        }
+      , Pf: function(a, b, d) {
+            var h = Matrix.fa(Matrix.inverse(a)), a = h.translate, h = Matrix.Sc(h.rotate);
             this.A([0, 0, 0], b);
             this.J([-h[0], -h[1], -h[2]], b);
             this.s([-a[0], -a[1], -a[2]], b, d)
         }};
-    j.exports = g
-});
-define("1/i", ["require", "exports", "module"], function(e, k, j) {
+    module.exports = g
+})
+
+define("1/i", ["require", "exports", "module"], function(require, exports, module) {
     function g(c) {
         this.e = c
     }
-    g.prototype = {move: function(c, f, a) {
+    g.prototype = {
+        move: function(c, f, a) {
             var b = this.e.F();
             this.e.s([b[0] + c[0], b[1] + c[1], b[2] + c[2]], f, a)
-        },rotate: function(c, f, a) {
+        }
+      , rotate: function(c, f, a) {
             var b = this.e.da();
             this.e.A([b[0] + c[0], b[1] + c[1], b[2] + c[2]], f, a)
-        },p: function(c, f, a) {
+        }
+      , p: function(c, f, a) {
             var b = this.e.La();
             this.e.J([b[0] + c[0], b[1] + c[1], b[2] + c[2]], f, a)
         }};
-    j.exports = g
-});
-define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
+    module.exports = g
+})
+
+define("1/h", ["require", "exports", "module", "./i"], function(require, exports, module) {
     function g(a, b) {
         this.e = a;
         this.a = b;
@@ -1646,12 +1913,12 @@ define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
         this.a.re || (this.a.re = 0.0030);
         this.a.Ae || (this.a.Ae = 0.0030);
         this.a.oe || (this.a.oe = 700);
-        this.a.Le || (this.a.Le = 1E3);
+        this.a.Le || (this.a.Le = 1000);
         this.a.ed || (this.a.ed = 50);
         this.a.md || (this.a.md = 50);
         this.a.Ie || (this.a.Ie = 100);
-        this.a.ne || (this.a.ne = 2E3);
-        this.a.Ke || (this.a.Ke = 2E3);
+        this.a.ne || (this.a.ne = 2000);
+        this.a.Ke || (this.a.Ke = 2000);
         this.a.S || (this.a.S = 0.5);
         this.a.U || (this.a.U = 0.5);
         this.a.tb || (this.a.tb = Math.PI / 12);
@@ -1667,18 +1934,22 @@ define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
         this.l = new this.a.z(this.e, this.a);
         this.state = null
     }
-    var c = e("./i");
+    var c = require("./i");
     g.td = {Fa: 1,ba: 2,aa: 3};
     var f = g.td;
-    g.prototype = {ob: function() {
+
+    g.prototype = {
+        ob: function() {
             return Math.max(this.e.F()[2] / 300, 1)
-        },Zc: function(a) {
+        }
+      , Zc: function(a) {
             this.e.n();
             this.ha = a.targetTouches[0].pageX;
             this.ia = a.targetTouches[0].pageY;
             this.Za = this.Ya = 0;
             this.G = (new Date).getTime()
-        },Yc: function(a) {
+        }
+      , Yc: function(a) {
             var b = a.targetTouches[0].pageX, a = a.targetTouches[0].pageY, d = b - this.ha, c = a - this.ia;
             this.e.Cf();
             var f = this.a.me * this.ob(), d = -f * d, c = -f * c;
@@ -1690,7 +1961,8 @@ define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
             this.Ya = d / (b - this.G);
             this.Za = c / (b - this.G);
             this.G = b
-        },Xc: function() {
+        }
+      , Xc: function() {
             var a = this.a.oe, b = this.ob() * this.a.ne, d = a * this.Ya, a = a * this.Za;
             d > b && (d = b);
             a > b && (a = b);
@@ -1698,12 +1970,14 @@ define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
             a < -b && (a = -b);
             (d || a) && 
             this.l.move([d, a, 0], this.a.$c)
-        },lc: function(a) {
+        }
+      , lc: function(a) {
             this.e.n();
             this.be = this.Oe(a);
             this.ye = 0;
             this.G = (new Date).getTime()
-        },kc: function(a) {
+        }
+      , kc: function(a) {
             a = this.Oe(a);
             diffDistance = a - this.be;
             var b = 3 * Math.min(Math.abs(diffDistance) / this.a.Ie, 1) + 1;
@@ -1715,19 +1989,22 @@ define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
             if (1 < b || 0 < b && 0 != dZ)
                 this.ye = dZ / b;
             this.G = a
-        },jc: function() {
+        }
+      , jc: function() {
             var a = this.a.Le * this.ye, b = this.ob() * this.a.Ke;
             a > b && (a = b);
             a < -b && (a = -b);
             a && this.l.move([0, 0, a], this.a.Me)
-        },hd: function(a) {
+        }
+      , hd: function(a) {
             this.e.n();
             var b = a.changedTouches.length - 1;
             this.ub = a.changedTouches[b].identifier;
             this.ha = a.changedTouches[b].pageX;
             this.ia = a.changedTouches[b].pageY;
             this.se = false
-        },fd: function(a) {
+        }
+      , fd: function(a) {
             for (var b, d = 0; d < a.changedTouches.length; d++)
                 a.changedTouches[d].identifier == this.ub && (b = a.changedTouches[d]);
             if (b) {
@@ -1744,7 +2021,8 @@ define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
                 this.ha = a;
                 this.ia = b
             }
-        },dd: function(a) {
+        }
+      , dd: function(a) {
             for (var b, d = 0; d < a.changedTouches.length; d++)
                 a.changedTouches[d].identifier == this.ub && (b = a.changedTouches[d]);
             if (b)
@@ -1762,17 +2040,19 @@ define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
                     (a || b) && this.l.rotate([-b, -a, 0], this.a.jd)
                 } else
                     this.ya()
-        },
-        ya: function() {
+        }
+      , ya: function() {
             this.e.A([0, 0, 0], {duration: this.a.cd})
-        },De: function(a) {
+        }
+      , De: function(a) {
             this.e.n();
             var b = a.changedTouches.length - 1;
             this.ub = a.changedTouches[b].identifier;
             this.ha = a.changedTouches[b].pageX;
             this.ia = a.changedTouches[b].pageY;
             this.Ce = false
-        },Be: function(a) {
+        }
+      , Be: function(a) {
             for (var b, d = 0; d < a.changedTouches.length; d++)
                 a.changedTouches[d].identifier == this.ub && (b = a.changedTouches[d]);
             if (b) {
@@ -1789,7 +2069,8 @@ define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
                 this.ha = a;
                 this.ia = b
             }
-        },ze: function(a) {
+        }
+      , ze: function(a) {
             for (var b, d = 0; d < a.changedTouches.length; d++)
                 a.changedTouches[d].identifier == this.ub && (b = a.changedTouches[d]);
             if (b)
@@ -1808,113 +2089,173 @@ define("1/h", ["require", "exports", "module", "./i"], function(e, k, j) {
                     (a || b) && this.l.p([-b, -a, 0], this.a.Ee)
                 } else
                     this.Da()
-        },Da: function() {
+        }
+      , Da: function() {
             this.e.J([0, 0, 0], {duration: this.a.cd})
-        },Oe: function(a) {
+        }
+      , Oe: function(a) {
             var b = a.touches[0], d = a.touches[1], a = d.pageX - b.pageX, b = d.pageY - b.pageY;
             return Math.sqrt(a * a + b * b)
-        },pa: function(a) {
+        }
+      , pa: function(a) {
             !this.state && 1 >= a.touches.length ? (this.state = f.Fa, this.Zc(a)) : this.state != f.ba && 2 == a.touches.length ? (this.state = f.ba, this.lc(a)) : this.state != f.aa && 3 == a.touches.length && (this.state = f.aa, this.hd(a))
-        },oa: function(a) {
+        }
+      , oa: function(a) {
             this.state == f.Fa && this.Yc(a);
             this.state == 
             f.ba && this.kc(a);
             this.state == f.aa && this.fd(a)
-        },na: function(a) {
+        }
+      , na: function(a) {
             this.state == f.Fa && (this.Xc(a), this.state = null);
             this.state == f.ba && 2 > a.touches.length && (this.jc(a), this.state = null);
             this.state == f.aa && 3 > a.touches.length && (this.dd(a), this.state = null)
-        },b: function(a, b) {
+        }
+      , b: function(a, b) {
             "touchstart" == a ? this.pa(b) : "touchmove" == a ? this.oa(b) : "touchend" == a && this.na(b)
-        }};
+        }
+    };
+
     g.prototype.trigger = g.prototype.b;
-    j.exports = g
-});
-define("1/p", ["require", "exports", "module", "./h"], function(e, k, j) {
+    module.exports = g
+})
+
+define("1/p", ["require", "exports", "module", "./h"], function(require, exports, module) {
+    var c = require("./h");
+
     function g() {
         c.apply(this, arguments)
     }
-    var c = e("./h");
-    g.prototype = {pa: function(a) {
+
+    g.prototype = {
+        pa: function(a) {
             !this.state && 1 >= a.touches.length ? (this.state = "pan", this.Zc(a)) : "swim" != this.state && 2 == a.touches.length ? (this.state = "swim", this.lc(a)) : "spin" != this.state && 3 == a.touches.length && (this.state = "spin", this.De(a))
-        },oa: function(a) {
+        }
+      , oa: function(a) {
             "pan" == this.state && this.Yc(a);
             "swim" == this.state && this.kc(a);
             "spin" == this.state && this.Be(a)
-        },na: function(a) {
+        }
+      , na: function(a) {
             "pan" == this.state && (this.Xc(a), 
             this.state = null);
             "swim" == this.state && 2 > a.touches.length && (this.jc(a), this.state = null);
             "spin" == this.state && 3 > a.touches.length && (this.ze(a), this.state = null)
-        },Da: function() {
+        }
+      , Da: function() {
             c.prototype.Da.call(this, arguments);
             c.prototype.ya.call(this, arguments)
-        }};
+        }
+    }
+
     for (var f in c.prototype)
         c.prototype.hasOwnProperty(f) && !g.prototype.hasOwnProperty(f) && (g.prototype[f] = c.prototype[f]);
-    j.exports = g
-});
-define("1/o", ["require", "exports", "module", "./h", "0/Matrix"], function(e, k, j) {
+
+    module.exports = g
+})
+
+define("1/o", ["require", "exports", "module", "./h", "0/Matrix"], function(require, exports, module) {
+    /**
+     * This thing is a subclass of ./h.
+     */
+    var c = require("./h")
+      , Matrix = require("0/Matrix")
+
     function g() {
         c.apply(this, arguments);
         this.a.I || (this.a.I = 0);
         this.a.Bb || (this.a.Bb = [0, 0, 0])
     }
-    var c = e("./h"), f = e("0/Matrix");
-    g.prototype = {pa: function(a) {
+
+    g.prototype = {
+        pa: function(a) {
             if (!this.state && 1 >= a.touches.length) {
-                var d = f.fa(this.e.ab()), c = this.a.Bb[0] - d.translate[0], e = this.a.Bb[1] - d.translate[1], d = this.a.Bb[2] - d.translate[2];
-                Math.sqrt(c * c + e * e + d * d) > this.a.I ? (this.e.Sc(), this.state = 4, this.De(a)) : (this.e.ge(), this.state = 3, this.hd(a))
-            } else
-                2 != this.state && 2 == a.touches.length && 
-                (this.state = 2, this.lc(a))
-        },oa: function(a) {
+                var d = Matrix.fa(this.e.ab())
+                  , c = this.a.Bb[0] - d.translate[0]
+                  , e = this.a.Bb[1] - d.translate[1]
+                  , d = this.a.Bb[2] - d.translate[2]
+
+                if (Math.sqrt(c * c + e * e + d * d) > this.a.I) {
+                    this.e.Sc()
+                    this.state = 4
+                    this.De(a)
+                } else {
+                    this.e.ge()
+                    this.state = 3
+                    this.hd(a)
+                }
+            } else {
+                2 != this.state && 2 == a.touches.length && (this.state = 2, this.lc(a))
+            }
+        }
+      , oa: function(a) {
             2 == this.state && this.kc(a);
             3 == this.state && this.fd(a);
             4 == this.state && this.Be(a)
-        },na: function(a) {
+        }
+      , na: function(a) {
             2 == this.state && 2 > a.touches.length && (this.jc(a), this.state = null);
             3 == this.state && (this.dd(a), this.state = null);
             4 == this.state && (this.ze(a), this.state = null)
-        },Da: function() {
-            c.prototype.ya.call(this, arguments);
+        }
+      , Da: function() {
+            c.prototype.ya.call(this, arguments)
             c.prototype.Da.call(this, arguments)
-        },ya: function() {
-            c.prototype.ya.call(this, arguments);
+        }
+      , ya: function() {
+            c.prototype.ya.call(this, arguments)
             c.prototype.Da.call(this, arguments)
-        }};
-    for (var a in c.prototype)
-        c.prototype.hasOwnProperty(a) && 
-        !g.prototype.hasOwnProperty(a) && (g.prototype[a] = c.prototype[a]);
-    j.exports = g
-});
-define("1/n", ["require", "exports", "module", "./h"], function(e, k, j) {
+        }
+    }
+
+    for (var a in c.prototype) {
+        c.prototype.hasOwnProperty(a) && !g.prototype.hasOwnProperty(a) && (g.prototype[a] = c.prototype[a]);
+    }
+
+    module.exports = g
+})
+
+define("1/n", ["require", "exports", "module", "./h"], function(require, exports, module) {
+    var c = require("./h")
+      , f = c.td
+
     function g() {
         c.apply(this, arguments)
     }
-    var c = e("./h"), f = c.td;
-    g.prototype = {ob: function() {
+
+    g.prototype = {
+        ob: function() {
             return 2
-        },pa: function(a) {
+        }
+      , pa: function(a) {
             !this.state && 1 >= a.touches.length ? (this.state = f.Fa, this.Zc(a)) : this.state != f.ba && 2 == a.touches.length ? (this.state = f.ba, this.lc(a)) : this.state != f.aa && 3 == a.touches.length && (this.state = f.aa, this.hd(a))
-        },oa: function(a) {
+        }
+      , oa: function(a) {
             this.state == f.Fa && (this.e.ge(), this.Yc(a));
             this.state == f.ba && this.kc(a);
             this.state == f.aa && this.fd(a)
-        },na: function(a) {
+        }
+      , na: function(a) {
             this.state == 
             f.Fa && (this.Xc(a), this.state = null);
             this.state == f.ba && 2 > a.touches.length && (this.jc(a), this.state = null);
             this.state == f.aa && 3 > a.touches.length && (this.dd(a), this.state = null)
-        },ya: function() {
+        }
+      , ya: function() {
             c.prototype.ya.call(this, arguments);
             c.prototype.Da.call(this, arguments)
-        }};
+        }
+    }
+
     for (var a in c.prototype)
         c.prototype.hasOwnProperty(a) && !g.prototype.hasOwnProperty(a) && (g.prototype[a] = c.prototype[a]);
-    j.exports = g
-});
-define("1/j", ["require", "exports", "module", "./i"], function(e, k, j) {
+
+    module.exports = g
+})
+
+define("1/j", ["require", "exports", "module", "./i"], function(require, exports, module) {
+    var c = require("./i")
+
     function g(f, a) {
         this.e = f;
         this.a = a;
@@ -1939,12 +2280,14 @@ define("1/j", ["require", "exports", "module", "./i"], function(e, k, j) {
         this.timestamp = (new Date).getTime();
         this.Ed()
     }
-    var c = e("./i");
-    g.prototype = {Ed: function() {
+
+    g.prototype = {
+        Ed: function() {
             this.r = [0, 0, 0];
             this.j = [0, 0, 0];
             this.k = [0, 0, 0]
-        },update: function() {
+        }
+      , update: function() {
             var c = (new Date).getTime(), a = c - this.timestamp;
             c - this.Nc > this.a.ae && this.Ed();
             (this.r[0] || this.r[1] || this.r[2]) && this.l.move([this.r[0] * this.a.Wb * a, this.r[1] * this.a.Wb * a, this.r[2] * this.a.Wb * a]);
@@ -1952,24 +2295,32 @@ define("1/j", ["require", "exports", "module", "./i"], function(e, k, j) {
             (this.k[0] || this.k[1] || this.k[2]) && this.l.p([this.k[0] * 
                 this.a.$ * a, this.k[1] * this.a.$ * a, this.k[2] * this.a.$ * a]);
             this.timestamp = c
-        },b: function(c, a) {
+        }
+      , b: function(c, a) {
             function b(a, b) {
                 this.a.p ? (38 == a.keyCode ? this.k[0] = -b : 40 == a.keyCode ? this.k[0] = b : 37 == a.keyCode ? this.k[1] = b : 39 == a.keyCode && (this.k[1] = -b), this.a.Q && (this.k[1] *= -1), this.a.ga && (this.k[0] *= -1)) : (38 == a.keyCode ? this.j[0] = b : 40 == a.keyCode ? this.j[0] = -b : 37 == a.keyCode ? this.j[1] = -b : 39 == a.keyCode && (this.j[1] = b), this.a.Q && (this.j[1] *= -1), this.a.ga && (this.j[0] *= -1));
                 87 == a.keyCode ? a.shiftKey ? this.r[1] = -b : this.r[2] = -b : 65 == a.keyCode ? 
                 this.r[0] = -b : 83 == a.keyCode ? a.shiftKey ? this.r[1] = b : this.r[2] = b : 68 == a.keyCode && (this.r[0] = b)
             }
             "keydown" == c ? (this.Nc = (new Date).getTime(), b.call(this, a, 1), this.update()) : "keyup" == c && b.call(this, a, 0)
-        }};
+        }
+    }
+
     g.prototype.trigger = g.prototype.b;
-    j.exports = g
-});
-define("1/q", ["require", "exports", "module", "./i", "./j"], function(e, k, j) {
+
+    module.exports = g
+})
+
+define("1/q", ["require", "exports", "module", "./i", "./j"], function(require, exports, module) {
+    require("./i");
+    var c = require("./j");
+
     function g(a, b) {
         c.apply(this, arguments)
     }
-    e("./i");
-    var c = e("./j");
-    g.prototype = {b: function(a, b) {
+
+    g.prototype = {
+        b: function(a, b) {
             function d(a, b) {
                 this.a.p ? (a.keyCode == c.KEY_UP ? this.k[0] = -b : a.keyCode == c.KEY_DOWN ? this.k[0] = b : a.keyCode == c.KEY_LEFT ? this.k[1] = b : a.keyCode == c.KEY_RIGHT && (this.k[1] = -b), this.a.Q && (this.k[1] *= -1), this.a.ga && (this.k[0] *= -1)) : (a.keyCode == c.KEY_UP ? this.j[0] = b : a.keyCode == c.KEY_DOWN ? this.j[0] = -b : a.keyCode == c.KEY_LEFT ? this.j[1] = -b : a.keyCode == c.KEY_RIGHT && 
                 (this.j[1] = b), this.a.Q && (this.j[1] *= -1), this.a.ga && (this.j[0] *= -1));
@@ -1979,14 +2330,21 @@ define("1/q", ["require", "exports", "module", "./i", "./j"], function(e, k, j) 
                 var c = new Common.API.TVKeyValue;
                 "keydown" == a ? (this.Nc = (new Date).getTime(), d.call(this, b, 1), this.update()) : "keyup" == a && d.call(this, b, 0)
             }
-        }};
+        }
+    }
+
     for (var f in c.prototype)
         c.prototype.hasOwnProperty(f) && !g.prototype.hasOwnProperty(f) && (g.prototype[f] = 
         c.prototype[f]);
+
     g.prototype.trigger = g.prototype.b;
-    j.exports = g
-});
-define("1/l", ["require", "exports", "module", "./i"], function(e, k, j) {
+
+    module.exports = g
+})
+
+define("1/l", ["require", "exports", "module", "./i"], function(require, exports, module) {
+    var c = require("./i");
+
     function g(f, a) {
         this.e = f;
         this.a = a;
@@ -2001,8 +2359,9 @@ define("1/l", ["require", "exports", "module", "./i"], function(e, k, j) {
         this.a.va || (this.a.va = false);
         this.l = new this.a.z(f, a)
     }
-    var c = e("./i");
-    g.prototype = {b: function(c, a) {
+
+    g.prototype = {
+        b: function(c, a) {
             if ("mouseenter" == c)
                 this.a.va && !a.ctrlKey && (this.xa = void 0), this.xa = [a.screenX, a.screenY];
             else if ("mousemove" == c)
@@ -2019,38 +2378,51 @@ define("1/l", ["require", "exports", "module", "./i"], function(e, k, j) {
                 }
             else
                 "mouseleave" == c && (this.xa = void 0)
-        }};
-    g.prototype.trigger = 
-    g.prototype.b;
-    j.exports = g
-});
-define("1/m", ["require", "exports", "module", "./i", "0/e"], function(e, k, j) {
+        }
+    }
+    g.prototype.trigger = g.prototype.b;
+
+    module.exports = g
+})
+
+define("1/m", ["require", "exports", "module", "./i", "0/e"], function(require, exports, module) {
+    var c = require("./i")
+      , f = require("0/e");
+
     function g(a, b) {
         this.e = a;
         this.a = b;
         this.a || (this.a = {});
         this.a.I || (this.a.I = 0);
         this.a.Xa || (this.a.Xa = 0);
-        this.a.ad || (this.a.ad = {duration: 3E3,q: f.w.Ja});
+        this.a.ad || (this.a.ad = {duration: 3000,q: f.w.Ja});
         this.l = new c(this.e)
     }
-    var c = e("./i"), f = e("0/e");
-    g.prototype = {move: function(a, b, d) {
+
+    g.prototype = {
+        move: function(a, b, d) {
             var c = this.e.F(), c = [c[0], c[1], c[2] + 300], c = Math.max(Math.sqrt(c[0] * c[0] + c[2] * c[2]), 300), f = a[0] / c;
             c < this.a.I && (f = -f);
             b === true && (b = this.a.ad);
             this.l.p([0, f, 0], b);
             this.l.move([0, a[1] + this.a.Xa * f, a[2]], b, d)
-        },rotate: function(a, 
-        b, d) {
+        }
+      , rotate: function(a, b, d) {
             this.l.rotate(a, b, d)
-        },p: function(a, b, d) {
+        }
+      , p: function(a, b, d) {
             this.l.move([0, this.a.Xa * a[1], 0], b);
             this.l.p(a, b, d)
-        }};
-    j.exports = g
-});
-define("1/k", ["require", "exports", "module", "0/Matrix", "0/e"], function(e, k, j) {
+        }
+    }
+
+    module.exports = g
+})
+
+define("1/k", ["require", "exports", "module", "0/Matrix", "0/e"], function(require, exports, module) {
+    var c = require("0/Matrix")
+      , f = require("0/e")
+
     function g(a, b, d, c) {
         b || (b = [-Infinity, Infinity]);
         d || (d = [-Infinity, Infinity]);
@@ -2060,20 +2432,27 @@ define("1/k", ["require", "exports", "module", "0/Matrix", "0/e"], function(e, k
         this.Se = new f(c);
         this.Vf = a
     }
-    var c = e("0/Matrix"), f = e("0/e");
-    g.prototype = {Ef: function() {
+
+    g.prototype = {
+        Ef: function() {
             return this.Qe.get()
-        },qb: function(a, b, d) {
+        }
+      , qb: function(a, b, d) {
             this.Qe.set(a, b, d)
-        },Ff: function() {
+        }
+      , Ff: function() {
             return this.Re.get()
-        },rb: function(a, b, d) {
+        }
+      , rb: function(a, b, d) {
             this.Re.set(a, b, d)
-        },Gf: function() {
+        }
+      , Gf: function() {
             return this.Se.get()
-        },sb: function(a, b, d) {
+        }
+      , sb: function(a, b, d) {
             this.Se.set(a, b, d)
-        },Dd: function(a) {
+        }
+      , Dd: function(a) {
             var b = this.Vf.F()
               , d = this.Ef()
               , f = this.Ff()
@@ -2106,42 +2485,60 @@ define("1/k", ["require", "exports", "module", "0/Matrix", "0/e"], function(e, k
             e = Math.min(0.0050 * (g[2] - e[0]), 0.0050 * (e[1] - g[2]));
             e = Math.min(b, f, e, 1);
             return {transform: c.move(a, t),opacity: e}
-        },Bf: function(a) {
+        }
+      , Bf: function(a) {
             return this.Dd(a).transform
-        },u: function(a) {
+        }
+      , u: function(a) {
             for (var b = [], d = 0; d < a.length; d++) {
                 var c = this.Dd(a[d].transform);
                 b.push({transform: c.transform,opacity: c.opacity * a[d].opacity,target: a[d].target})
             }
             return b
-        }};
-    j.exports = g
-});
-define("3/v", ["require", "exports", "module", "0/e"], function(e, k, j) {
+        }
+    }
+
+    module.exports = g
+})
+
+define("3/v", ["require", "exports", "module", "0/e"], function(require, exports, module) {
+    var c = require("0/e");
+
     function g(f, a) {
         "undefined" == typeof f && (f = 0);
         "undefined" == typeof a && (a = true);
         this.ra = new c(f);
         this.vb = a
     }
-    var c = e("0/e");
-    g.prototype = {show: function(c) {
+
+    g.prototype = {
+        show: function(c) {
             this.set(1, this.vb, c)
-        },Na: function(c) {
+        }
+      , Na: function(c) {
             this.set(0, this.vb, c)
-        },set: function(c, a, b) {
+        }
+      , set: function(c, a, b) {
             this.ra.n();
             this.ra.set(c, a, b)
-        },u: function(c) {
+        }
+      , u: function(c) {
             var a = this.ra.get();
             return a ? {opacity: a,target: c} : null
-        },Lf: function(c) {
+        }
+      , Lf: function(c) {
             c || (c = 0);
             return 1 <= c ? 1 == this.ra.get() : this.ra.get() > c
-        }};
-    j.exports = g
-});
-define("3/w", ["require", "exports", "module", "0/Matrix", "0/e"], function(e, k, j) {
+        }
+    }
+
+    module.exports = g
+})
+
+define("3/w", ["require", "exports", "module", "0/Matrix", "0/e"], function(require, exports, module) {
+    var c = require("0/Matrix")
+      , f = require("0/e")
+
     function g(a) {
         "undefined" == typeof a && (a = true);
         this.Fd = 0;
@@ -2149,115 +2546,160 @@ define("3/w", ["require", "exports", "module", "0/Matrix", "0/e"], function(e, k
         this.vb = a;
         this.xf = 0.1
     }
-    var c = e("0/Matrix"), f = e("0/e");
-    g.prototype = {Mb: function(a, b) {
+
+    g.prototype = {
+        Mb: function(a, b) {
             "undefined" == typeof a && (a = 1 == this.Fd ? 0 : 1);
             this.Fd = a;
             this.ra.set(a, this.vb, b)
-        },u: function(a) {
+        }
+      , u: function(a) {
             var b = this.ra.get(), d = {transform: c.rotate_y_cw(Math.PI * b),target: a[0]}, a = {transform: c.rotate_y_cw(Math.PI * (b - 1)),target: a[1]};
             return {transform: c.scale(1, 1, this.xf),target: [d, a]}
-        }};
-    j.exports = g
-});
-define("3/x", ["require", "exports", "module", "0/e"], function(e, k, j) {
+        }
+    }
+
+    module.exports = g
+})
+
+define("3/x", ["require", "exports", "module", "0/e"], function(require, exports, module) {
+    require("0/e");
+
     function g(c, f) {
         this.Yd = c;
         this.timeout = f;
         this.enabled = 0 < f;
         this.reset()
     }
-    e("0/e");
-    g.prototype = {enable: function() {
+
+    g.prototype = {
+        enable: function() {
             this.enabled = true
-        },disable: function() {
+        }
+      , disable: function() {
             this.enabled = false
-        },update: function() {
+        }
+      , update: function() {
             !this.ib && (this.enabled && this.Yd) && (new Date).getTime() - this.Mf > this.timeout && (this.ib = true, this.Yd.call(this))
-        },reset: function() {
+        }
+      , reset: function() {
             this.Mf = (new Date).getTime();
             this.ib = false
-        },b: function() {
+        }
+      , b: function() {
             this.reset()
-        }};
-    j.exports = g
-});
-define("3/z", ["require", "exports", "module"], function(e, k, j) {
+        }
+    }
+
+    module.exports = g
+})
+
+define("3/z", ["require", "exports", "module"], function(require, exports, module) {
     function g() {
         this.Dg = this.startTime = 0;
         this.ec = [];
         this.ja = -1
     }
-    g.prototype = {Ye: function(c) {
+    g.prototype = {
+        Ye: function(c) {
             0 > this.ja && (this.ja = 0);
             for (; this.ja < this.ec.length && this.ec[this.ja].Ag <= c; )
                 this.ec[this.ja].action.call(this), this.ja++
-        },update: function() {
+        }
+      , update: function() {
             0 > this.ja || this.ja >= this.ec.length || this.Ye((new Date).getTime() - this.startTime)
-        }};
-    j.exports = g
-});
-define("3/10", "require exports module 0/Matrix 0/e 0/d".split(" "), function(e, k, j) {
+        }
+    }
+
+    module.exports = g
+})
+
+define("3/10", ["require", "exports", "module", "0/Matrix", "0/e", "0/d"], function(require, exports, module) {
+    var c = require("0/Matrix")
+      , f = require("0/e")
+      , a = require("0/d")
+
     function g(b) {
         this.cc = b;
         this.v = {};
         this.Oc = {};
         for (var d in this.cc)
-            this.v[d] = new a, this.v[d].ve({duration: 1E3,q: f.w.eb})
+            this.v[d] = new a, this.v[d].ve({duration: 1000,q: f.w.eb})
     }
-    var c = e("0/Matrix"), f = e("0/e"), a = e("0/d");
-    g.prototype = {n: function(a) {
+
+    g.prototype = {
+        n: function(a) {
             this.v[a].n()
-        },Vd: function(a) {
+        }
+      , Vd: function(a) {
             for (var d = 0; d < a.length; d++)
                 this.n(d)
-        },Hf: function() {
+        }
+      , Hf: function() {
             this.Vd(this.all())
-        },set: function(a, d, c, f) {
+        }
+      , set: function(a, d, c, f) {
             this.v[a].setTransform(d, c, f)
-        },$f: function(a, d, c, f) {
+        }
+      , $f: function(a, d, c, f) {
             for (var e = 0; e < a.length; e++)
                 this.set(a[e], d(e), c, 0 == e ? f : void 0)
-        },Wa: function(a, 
-        d, c) {
+        }
+      , Wa: function(a, d, c) {
             this.$f(this.all(), a, d, c)
-        },modify: function(a, d, f, e) {
+        }
+      , modify: function(a, d, f, e) {
             d = c.multiply(this.v[a].Hc, d);
             this.set(a, d, f, e)
-        },Ua: function(a, d, c, f) {
+        }
+      , Ua: function(a, d, c, f) {
             this.v[a].Ua(d, c, f)
-        },Yf: function(a, d, c, f) {
+        }
+      , Yf: function(a, d, c, f) {
             for (var e = 0; e < a.length; e++)
                 this.Ua(a[e], d, c, 0 == e ? f : void 0)
-        },Va: function(a, d, c) {
+        }
+      , Va: function(a, d, c) {
             this.Yf(this.all(), a, d, c)
-        },all: function() {
+        }
+      , all: function() {
             var a = [], d;
             for (d in this.cc)
                 a.push(d);
             return a
-        },O: function(a) {
+        }
+      , O: function(a) {
             return this.v[a].O()
-        },Jc: function(a) {
+        }
+      , Jc: function(a) {
             return this.v[a].Jc()
-        },Vb: function(a) {
+        }
+      , Vb: function(a) {
             this.Oc[a] = true
-        },mc: function(a) {
+        }
+      , mc: function(a) {
             this.Oc[a] = false
-        },$d: function(a) {
+        }
+      , $d: function(a) {
             return this.Oc[a]
-        },jb: function(a) {
+        }
+      , jb: function(a) {
             return this.v[a].jb()
-        },
-        u: function() {
+        }
+      , u: function() {
             var a = [], d;
             for (d in this.cc)
                 a.push(this.v[d].u(this.cc[d]));
             return a
-        }};
-    j.exports = g
-});
-define("6/19", ["require", "exports", "module", "0/Matrix"], function(e, k, j) {
+        }
+    }
+
+    module.exports = g
+})
+
+define("6/19", ["require", "exports", "module", "0/Matrix"], function(require, exports, module) {
+    var c = require("0/Matrix");
+
     function g(c, a) {
         this.gc = c;
         this.Ab = a;
@@ -2265,20 +2707,24 @@ define("6/19", ["require", "exports", "module", "0/Matrix"], function(e, k, j) {
         this.$a = [];
         this.vc = {}
     }
-    var c = e("0/Matrix");
-    g.prototype = {Ec: function(c) {
+
+    g.prototype = {
+        Ec: function(c) {
             0 > this.Ka.indexOf(c) && this.Ka.push(c);
             this.update()
-        },dg: function(c) {
+        }
+      , dg: function(c) {
             c = this.Ka.indexOf(c);
             0 <= c && this.Ka.splice(c, 1);
             this.update()
-        },kf: function(c) {
+        }
+      , kf: function(c) {
             var a = [], b;
             for (b in this.Ab)
                 this.Ab.hasOwnProperty(b) && 0 <= this.Ab[b].indexOf(c) && a.push(b);
             return a
-        },update: function() {
+        }
+      , update: function() {
             for (var f = [], a = 0; a < this.Ka.length; a++)
                 for (var b = this.Ab[this.Ka[a]], 
                 d = 0; d < b.length; d++)
@@ -2312,15 +2758,22 @@ define("6/19", ["require", "exports", "module", "0/Matrix"], function(e, k, j) {
                 }).call(this, a, d)
             }
             this.$a = f
-        },Kf: function(c) {
+        }
+      , Kf: function(c) {
             return 0 <= this.$a.indexOf(c)
-        }};
-    j.exports = g
-});
-define("6/1b", ["require", "exports", "module", "0/Matrix", "0/e"], function(e, k, j) {
+        }
+    }
+
+    module.exports = g
+})
+
+define("6/1b", ["require", "exports", "module", "0/Matrix", "0/e"], function(require, exports, module) {
+    var c = require("0/Matrix")
+      , f = require("0/e");
+
     function g(a, b, d) {
         "undefined" == typeof a && (a = 300);
-        "undefined" == typeof b && (b = 2E3);
+        "undefined" == typeof b && (b = 2000);
         "undefined" == typeof d && (d = 0.5);
         this.H = [];
         this.gb = [];
@@ -2329,23 +2782,29 @@ define("6/1b", ["require", "exports", "module", "0/Matrix", "0/e"], function(e, 
         this.Ic = d;
         this.enabled = true
     }
-    var c = e("0/Matrix"), f = e("0/e");
-    g.prototype = {enable: function() {
+
+    g.prototype = {
+        enable: function() {
             this.enabled = true
-        },disable: function() {
+        }
+      , disable: function() {
             if (this.enabled) {
                 this.enabled = false;
                 for (var a = 0; a < this.H.length; a++)
                     this.Te(a)
             }
-        },Ec: function(a) {
+        }
+      , Ec: function(a) {
             0 > this.gb.indexOf(a) && this.gb.push(a)
-        },If: function(a) {
+        }
+      , If: function(a) {
             a = this.gb.indexOf(a);
             0 <= a && this.gb.splice(a, 1)
-        },Te: function(a, b) {
+        }
+      , Te: function(a, b) {
             this.H.hasOwnProperty(a) && ("undefined" == typeof b && (b = 500), this.H[a].n(), this.H[a].set(0, {duration: b,q: f.w.eb}))
-        },update: function() {
+        }
+      , update: function() {
             if (this.enabled && this.H.length && !(Math.random() > this.Ic)) {
                 var a = Math.floor(Math.random() * this.H.length);
                 if (!(0 <= this.gb.indexOf(a))) {
@@ -2354,7 +2813,8 @@ define("6/1b", ["require", "exports", "module", "0/Matrix", "0/e"], function(e, 
                     this.H[a].set(b, {duration: d,q: f.w.eb})
                 }
             }
-        },u: function(a) {
+        }
+      , u: function(a) {
             this.update();
             for (var b = Array(a.length), 
             d = 0; d < a.length; d++) {
@@ -2363,18 +2823,26 @@ define("6/1b", ["require", "exports", "module", "0/Matrix", "0/e"], function(e, 
                 b[d] = e.transform ? {transform: c.move(e.transform, [0, 0, this.H[d].get()]),opacity: e.opacity,target: e.target} : {transform: c.translate(0, 0, this.H[d].get()),target: e}
             }
             return b
-        }};
-    j.exports = g
-});
-define("6/1a", "require exports module 0/Matrix 0/e 3/10".split(" "), function(e, k, j) {
+        }
+    }
+
+    module.exports = g
+})
+
+define("6/1a", ["require", "exports", "module", "0/Matrix", "0/e", "3/10"], function(require, exports, module) {
+    var c = require("0/Matrix")
+      , f = require("0/e");
+
+    require("3/10");
+
     function g(a, b) {
         b || (b = 0.1);
         this.gc = a;
         this.Ic = b
     }
-    var c = e("0/Matrix"), f = e("0/e");
-    e("3/10");
-    g.prototype = {cg: function(a, b) {
+
+    g.prototype = {
+        cg: function(a, b) {
             var d = this.gc;
             d.Vb(a);
             d.Vb(b);
@@ -2387,8 +2855,8 @@ define("6/1a", "require exports module 0/Matrix 0/e 3/10".split(" "), function(e
               , D = 100 * Math.random() - 50
               , C = 100 * Math.random() - 50
               , m = 100 * Math.random() - 50
-              , w = {duration: 2E3,q: f.w.Ja}
-              , r = {duration: 1E3,q: f.w.eb};
+              , w = {duration: 2000,q: f.w.Ja}
+              , r = {duration: 1000,q: f.w.eb};
 
             d.modify(a, c.translate(0, 0, e), w);
             d.modify(a, c.translate(j + g, 0, 0), w);
@@ -2404,21 +2872,25 @@ define("6/1a", "require exports module 0/Matrix 0/e 3/10".split(" "), function(e
             d.modify(b, c.translate(0, -m, 0), r, function() {
                 d.mc(b)
             })
-        },update: function() {
+        }
+      , update: function() {
             if (!(Math.random() > this.Ic)) {
                 var a = this.gc, b = a.all(), d = b[Math.floor(Math.random() * b.length)], b = b[Math.floor(Math.random() * b.length)];
                 d == b || (a.jb(d) || a.jb(b) || a.$d(d) || a.$d(b)) || 
                 this.cg(d, b)
             }
-        }};
-    j.exports = g
-});
-define("2/s", ["require", "exports", "module"], function(e, k, j) {
+        }
+    }
+
+    module.exports = g
+})
+
+define("2/s", ["require", "exports", "module"], function(require, exports, module) {
     function g(c, f) {
         this.B = this.x = 0;
         this.Ha = [];
         this.Gc = 0.5;
-        this.Mc = 1E-4;
+        this.Mc = 0.0001;
         this.Qf = 1;
         this.kb = (new Date).getTime();
         this.ua = false;
@@ -2454,41 +2926,52 @@ define("2/s", ["require", "exports", "module"], function(e, k, j) {
             return -(-f / Math.max(Math.abs(a), 0.5) - b)
         }
     };
-    g.prototype = {Hd: function() {
+    g.prototype = {
+        Hd: function() {
             this.kb = (new Date).getTime();
             this.ua = false
-        },set: function(c, f) {
+        }
+      , set: function(c, f) {
             "number" == typeof c && this.s(c);
             "number" == typeof f && this.ld(f)
-        },s: function(c) {
+        }
+      , s: function(c) {
             this.x = c;
             this.Hd()
-        },ld: function(c) {
+        }
+      , ld: function(c) {
             this.B = c;
             this.Hd()
-        },C: function(c) {
+        }
+      , C: function(c) {
             "function" != typeof c && console.error("Invalid agent");
             0 > this.Ha.indexOf(c) && (this.Ha.push(c), this.ua = false)
-        },nb: function(c) {
+        }
+      , nb: function(c) {
             c = this.Ha.indexOf(c);
             0 <= c && (this.Ha.splice(c, 1), this.ua = false)
-        },kd: function(c) {
+        }
+      , reset: function(c) {
             this.Ha = c.slice(0);
             this.ua = false
-        },F: function() {
+        }
+      , F: function() {
             this.update();
             return this.x
-        },Df: function() {
+        }
+      , Df: function() {
             this.update();
             return this.B
-        },update: function(c) {
+        }
+      , update: function(c) {
             for (c || (c = (new Date).getTime()); this.kb < c; ) {
                 var f = c - this.kb;
                 this.B && (f = Math.min(f, this.Gc / Math.abs(this.B)));
                 f = Math.max(f, this.Qf);
                 this.bf(f)
             }
-        },bf: function(c) {
+        }
+      , bf: function(c) {
             function f(b, c, d) {
                 for (var f = a.Ha, e = 0, g = 0; g < f.length; g++)
                     e += f[g](b, c, d);
@@ -2509,29 +2992,34 @@ define("2/s", ["require", "exports", "module"], function(e, k, j) {
                 0 > e ? (this.x += this.B * c * (e / b), this.B = 0) : (b = d * Math.sqrt(2 * Math.abs(e)), this.x += this.B * c, this.B = b);
                 this.ua && (this.x = Math.round(this.x / this.Gc) * this.Gc)
             }
-        }};
-    j.exports = g
-});
-define("2/t", ["require", "exports", "module", "0/Matrix", "./s"], function(e, k, j) {
+        }
+    }
+
+    module.exports = g
+})
+
+define("2/t", ["require", "exports", "module", "0/Matrix", "./s"], function(require, exports, module) {
+    var c = require("0/Matrix")
+      , f = require("./s")
+
     function g(a, b) {
         this.dir = a;
         this.a = b;
         this.a || (this.a = {});
         this.a.Od || (this.a.Od = 0.5);
         this.a.de || (this.a.de = 50);
-        this.a.Nb || (this.a.Nb = 1E-4);
+        this.a.Nb || (this.a.Nb = 0.0001);
         this.a.Gb || (this.a.Gb = 0.0020);
         this.a.Td || (this.a.Td = 1);
-        this.a.Bc || (this.a.Bc = 2E-4);
+        this.a.Bc || (this.a.Bc = 0.0002);
         this.a.Ac || (this.a.Ac = 1);
         this.a.Wc || (this.a.Wc = false);
         this.a.Uc || (this.a.Uc = 0.1);
         this.a.le || (this.a.le = 300);
         this.a.Vc || (this.a.Vc = 1);
-        this.a.ke || (this.a.ke = 2E-4);
+        this.a.ke || (this.a.ke = 0.0002);
         this.a.je || (this.a.je = 1);
-        this.a.Cb || (this.a.Cb = "x" == this.dir ? 
-        window.innerWidth : window.innerHeight);
+        this.a.Cb || (this.a.Cb = "x" == this.dir ? window.innerWidth : window.innerHeight);
         this.a.M || (this.a.M = 0);
         this.a.N || (this.a.N = 0);
         this.a.Id || (this.a.Id = false);
@@ -2552,17 +3040,19 @@ define("2/t", ["require", "exports", "module", "0/Matrix", "./s"], function(e, k
         this.Zf();
         this.disabled = false
     }
-    var c = e("0/Matrix"), f = e("./s");
-    g.prototype = {g: function(a, b) {
+    g.prototype = {
+        g: function(a, b) {
             this.D[a] || (this.D[a] = []);
             b in this.D[a] || 
             this.D[a].push(b)
-        },b: function(a, b) {
+        }
+      , b: function(a, b) {
             this.mf.b(a, b);
             if (this.D[a])
                 for (var c = 0; c < this.D[a].length; c++)
                     this.D[a][c](b)
-        },u: function(a) {
+        }
+      , u: function(a) {
             if (this.a.Id) {
                 var b = 0;
                 "object" == typeof a && ("function" == typeof a.Kc && (b = a.Kc(), b = "x" == this.a.dir ? b[0] : b[1]), "object" == typeof a.size && (b = "x" == this.a.dir ? a.size[0] : a.size[1]));
@@ -2585,12 +3075,13 @@ define("2/t", ["require", "exports", "module", "0/Matrix", "./s"], function(e, k
             }
             if (!this.W || 0 <= this.ta.indexOf("edge"))
                 if (b < this.a.M || b > this.a.N)
-                    this.Hb || (this.o.kd([]), this.Hb = true), this.od && (b < this.a.M && 0 >= d) && (this.o.C(this.od), this.dc && (this.b("pullDown"), this.dc = false)), this.Cc && (b > this.a.N && 0 <= d) && this.o.C(this.Cc);
+                    this.Hb || (this.o.reset([]), this.Hb = true), this.od && (b < this.a.M && 0 >= d) && (this.o.C(this.od), this.dc && (this.b("pullDown"), this.dc = false)), this.Cc && (b > this.a.N && 0 <= d) && this.o.C(this.Cc);
             this.b("render", {position: b,Eg: d});
             0 == b && (this.dc = true);
             return {transform: "x" == this.dir ? 
                 c.translate(-b, 0) : c.translate(0, -b),target: a,group: true}
-        },We: function() {
+        }
+      , We: function() {
             var a = this, b = {};
             return {b: function(c, f) {
                     if ("touchmove" == c) {
@@ -2620,45 +3111,55 @@ define("2/t", ["require", "exports", "module", "0/Matrix", "./s"], function(e, k
                             a.Md()
                         }
                 }}
-        },disable: function() {
+        }
+      , disable: function() {
             this.disabled = true
-        },enable: function() {
+        }
+      , enable: function() {
             this.disabled = false
-        },F: function() {
+        }
+      , F: function() {
             return this.o.F()
-        },Sd: function() {
+        }
+      , Sd: function() {
             return this.a.N - this.a.M
-        },ag: function(a, b) {
+        }
+      , ag: function(a, b) {
             if (b || a != this.a.M)
-                this.a.M = 
-                a, this.o.nb(this.od), this.od = -Infinity < a ? f.hc(a, this.a.Bc, this.a.Ac) : null, this.Hb = false
-        },we: function(a, b) {
+                this.a.M = a, this.o.nb(this.od), this.od = -Infinity < a ? f.hc(a, this.a.Bc, this.a.Ac) : null, this.Hb = false
+        }
+      , we: function(a, b) {
             if (b || a != this.a.N)
                 this.a.N = a, this.o.nb(this.Cc), this.Cc = Infinity > a ? f.hc(a, this.a.Bc, this.a.Ac) : null, this.Hb = false
-        },gf: function(a) {
+        }
+      , gf: function(a) {
             a || (a = this.F());
             return a <= this.a.M || a >= this.a.N
-        },Jd: function(a) {
+        }
+      , Jd: function(a) {
             var b = 0, c = Infinity;
             for (i = 0; i < this.a.mb.length; i++) {
                 var f = this.a.mb[i] - a;
                 Math.abs(f) < c && (b = i, c = Math.abs(f))
             }
             return b
-        },Zf: function(a) {
+        }
+      , Zf: function(a) {
             if (Infinity > this.Sd() && !a)
-                for (var a = [], b = this.a.Cb, c = Math.round(this.Sd() / b), f = 0; f < 
-                c; f++)
+                for (var a = [], b = this.a.Cb, c = Math.round(this.Sd() / b), f = 0; f < c; f++)
                     a.push(f * b);
             this.a.mb = a;
             this.b("pageStopsChange")
-        },s: function(a) {
+        }
+      , s: function(a) {
             this.o.s(a)
-        },n: function() {
+        }
+      , n: function() {
             this.o.ld(0)
-        },he: function() {
+        }
+      , he: function() {
             this.Hb = false;
-            this.o.kd([]);
+            this.o.reset([]);
             if (!this.W || 0 <= this.ta.indexOf("resist"))
                 this.o.C(this.zf), this.o.C(this.qf);
             if (!this.W || 0 <= this.ta.indexOf("external"))
@@ -2667,7 +3168,8 @@ define("2/t", ["require", "exports", "module", "0/Matrix", "./s"], function(e, k
             if (this.W)
                 for (a = 0; a < this.sa.length; a++)
                     this.o.C(this.sa[a])
-        },hf: function(a, b) {
+        }
+      , hf: function(a, b) {
             a || (a = []);
             b || (b = []);
             this.W && this.Md();
@@ -2682,7 +3184,8 @@ define("2/t", ["require", "exports", "module", "0/Matrix", "./s"], function(e, k
             this.Ga = 0;
             this.uc = (new Date).getTime();
             return ++this.tc
-        },Md: function(a) {
+        }
+      , Md: function(a) {
             if (a && a != this.Af())
                 return 0;
             (new Date).getTime() - this.uc > this.a.de && (this.Ga = 0);
@@ -2696,18 +3199,23 @@ define("2/t", ["require", "exports", "module", "0/Matrix", "./s"], function(e, k
             this.a.Wc && (a = this.Jd(this.F()), 1 < Math.abs(a - this.qc) && (this.t = a), this.Ga > this.a.Uc ? this.t++ : this.Ga < -this.a.Uc ? this.t-- : this.t = a, 0 > this.t && 
             (this.t = 0), this.t >= this.a.mb.length && (this.t = this.a.mb.length - 1), a = (new Date).getTime(), Math.abs(this.Ga) > this.a.Vc && a - this.Bd < this.a.le && (this.t = -1), this.Bd = a);
             return this.tc
-        },Af: function() {
+        }
+      , Af: function() {
             return this.W ? this.tc : 0
-        },Sf: function(a) {
+        }
+      , Sf: function(a) {
             var b = this.gf() ? this.a.Od * a : a;
             this.s(this.F() + b);
             var b = (new Date).getTime(), c = b - this.uc;
             this.uc = b;
             c && (this.Ga = a / c)
-        }};
-    j.exports = g
-});
-define("4/13", ["require", "exports", "module"], function(e, k, j) {
+        }
+    }
+
+    module.exports = g
+})
+
+define("4/13", ["require", "exports", "module"], function(require, exports, module) {
     function g(c) {
         this.touches = {};
         this.yb = false;
@@ -2718,7 +3226,8 @@ define("4/13", ["require", "exports", "module"], function(e, k, j) {
         "undefined" == typeof this.a.Pe && (this.a.Pe = true);
         this.Pd = []
     }
-    g.prototype = {pa: function(c) {
+    g.prototype = {
+        pa: function(c) {
             for (var f = this, a = 0; a < c.changedTouches.length; a++) {
                 var b = c.changedTouches[a], d = b.identifier;
                 this.touches[d] = {pe: b.pageX,qe: b.pageY,timestamp: (new Date).getTime(),qd: 0,rd: 0};
@@ -2732,7 +3241,8 @@ define("4/13", ["require", "exports", "module"], function(e, k, j) {
             }
             this.yb = 1 == c.touches.length;
             this.Pd = []
-        },oa: function(c) {
+        }
+      , oa: function(c) {
             for (var f = (new Date).getTime(), a = 0; a < c.changedTouches.length; a++) {
                 var b = c.changedTouches[a], d = b.identifier;
                 if (this.touches[d]) {
@@ -2747,7 +3257,8 @@ define("4/13", ["require", "exports", "module"], function(e, k, j) {
                 }
             }
             this.yb = false
-        },na: function(c) {
+        }
+      , na: function(c) {
             for (var f = (new Date).getTime(), 
             a = 0; a < c.changedTouches.length; a++) {
                 var b = c.changedTouches[a].identifier;
@@ -2761,17 +3272,23 @@ define("4/13", ["require", "exports", "module"], function(e, k, j) {
                 }
             }
             0 == c.touches.length && (this.yb = false)
-        },b: function(c, f) {
+        }
+      , b: function(c, f) {
             "touchmove" == c ? this.oa(f) : "touchstart" == c ? this.pa(f) : 
             "touchend" == c && this.na(f)
-        }};
-    j.exports = g
-});
-define("4/12", ["require", "exports", "module"], function(e, k, j) {
+        }
+    }
+
+    module.exports = g
+})
+
+define("4/12", ["require", "exports", "module"], function(require, exports, module) {
     function g() {
         this.Ea = {}
     }
-    g.prototype = {pa: function(c) {
+
+    g.prototype = {
+        pa: function(c) {
             this.Lb && (this.ma = this.la = void 0);
             for (var f = 0; f < c.changedTouches.length; f++) {
                 var a = c.changedTouches[f];
@@ -2781,7 +3298,8 @@ define("4/12", ["require", "exports", "module"], function(e, k, j) {
             this.timestamp = (new Date).getTime();
             this.cb = this.vd(this.Ea[this.la], this.Ea[this.ma]);
             this.wb = 0
-        },oa: function(c) {
+        }
+      , oa: function(c) {
             for (var f = 0; f < c.changedTouches.length; f++) {
                 var a = 
                 c.changedTouches[f];
@@ -2796,30 +3314,92 @@ define("4/12", ["require", "exports", "module"], function(e, k, j) {
                 this.cb = a;
                 this.timestamp = c
             }
-        },na: function(c) {
+        }
+      , na: function(c) {
             for (var f = (new Date).getTime(), a = 0; a < c.changedTouches.length; a++) {
                 var b = c.changedTouches[a];
                 this.la == b.identifier && (this.la = void 0);
                 this.ma == b.identifier && (this.ma = void 0);
                 delete this.Ea[b.identifier]
             }
-            this.Lb && 
-            ("undefined" == typeof this.la && "undefined" == typeof this.ma) && (this.Lb = false, a = f - this.timestamp, 300 > a && 0 > this.wb ? c.origin.b("pinch", {B: this.wb,of: this.cb}) : 300 > a && 0 < this.wb && c.origin.b("spread", {B: this.wb,of: this.cb}));
+            this.Lb && ("undefined" == typeof this.la && "undefined" == typeof this.ma) && (this.Lb = false, a = f - this.timestamp, 300 > a && 0 > this.wb ? c.origin.b("pinch", {B: this.wb,of: this.cb}) : 300 > a && 0 < this.wb && c.origin.b("spread", {B: this.wb,of: this.cb}));
             this.timestamp = f
-        },vd: function(c, f) {
+        }
+      , vd: function(c, f) {
             if (c && f) {
                 var a = f.x - c.x, b = f.y - c.y;
                 return Math.sqrt(a * a + b * b)
             }
-        },b: function(c, f) {
+        }
+      , b: function(c, f) {
             "touchstart" == c ? this.pa(f) : "touchmove" == c ? this.oa(f) : "touchend" == c && this.na(f)
-        }};
-    j.exports = g
-});
-define("6/18", {wf: "H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Rf Db Sg Bh Hs Mt Ds Rg Cn Rv Fl Uup Lv Uus Ur".split(" "),tf: {zg: [0, 5, 6, 7, 14, 15, 33],yg: [1, 9, 17, 35, 53, 85, 117],sg: [8, 16, 34, 52, 84, 116],wg: [4, 13, 31, 32, 50, 51, 83],vb: [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 
-            38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 71, 72, 73, 74, 75, 76, 77, 78, 79, 103, 104, 105, 106, 107, 108, 109, 110, 111],Bg: [12, 30, 48, 49, 80, 81, 82, 112, 113, 114, 115],jg: [2, 10, 18, 36, 54, 86],kg: [3, 11, 19, 37, 55, 87],ug: [56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70],ig: [88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102]},vf: "Hydrogen Helium Lithium Beryllium Boron Carbon Nitrogen Oxygen Fluorine Neon Sodium Magnesium Aluminium Silicon Phosphorus Sulfur Chlorine Argon Potassium Calcium Scandium Titanium Vanadium Chromium Manganese Iron Cobalt Nickel Copper Zinc Gallium Germanium Arsenic Selenium Bromine Krypton Rubidium Strontium Yttrium Zirconium Niobium Molybdenum Technetium Ruthenium Rhodium Palladium Silver Cadmium Indium Tin Antimony Tellurium Iodine Xenon Cesium Barium Lanthanum Cerium Praseodymium Neodymium Promethium Samarium Europium Gadolinium Terbium Dysprosium Holmium Erbium Thulium Ytterbium Lutetium Hafnium Tantalum Tungsten Rhenium Osmium Iridium Platinum Gold Mercury Thallium Lead Bismuth Polonium Astatine Radon Francium Radium Actinium Thorium Protactinium Uranium Neptunium Plutonium Americium Curium Berkelium Californium Einsteinium Fermium Mendelevium Nobelium Lawrencium Rutherfordium Dubnium Seaborgium Bohrium Hassium Meitnerium Darmstadtium Roentgenium Copernicium Ravikantium Flerovium Ununpentium Livermorium Ununseptium Urasium".split(" "),
-    uf: "1.008;4.003;6.941;9.012;10.812;12.011;14.007;15.999;18.998;20.180;22.990;24.305;26.982;28.086;30.974;32.066;35.453;39.948;39.098;40.078;44.956;47.867;50.942;51.996;54.938;55.845;58.933;58.693;63.546;65.382;69.723;72.631;74.922;78.963;79.904;83.798;85.468;87.621;88.906;91.224;92.906;95.962;(98);101.072;102.916;106.421;107.868;112.411;114.818;118.712;121.760;127.603;126.904;131.294;132.905;137.328;138.905;140.116;140.908;144.242;(145);150.362;151.964;157.253;158.925;162.500;164.930;167.259;168.934;173.055;174.967;178.492;180.948;183.841;186.207;190.233;192.217;195.085;196.967;200.592;204.383;207.21;208.980;(209);(210);(222);(223);(226);(227);232.038;231.036;238.029;(237);(244);(243);(247);(247);(251);(252);(257);(258);(259);(262);(267);(268);(269);(270);(269);(278);(281);(281);(285);Angellist Maximus;(289);(288);(293);(294);Michael Arrington".split(";")});
-define("app", "require exports module 0/4 0/b 0/2 0/Matrix 0/d 0/e 0/1 0/5 0/7 0/6 1/g 1/h 1/p 1/o 1/n 1/j 1/q 1/l 1/m 1/k 3/v 3/w 3/x 3/z 3/10 6/19 6/1b 6/1a 2/t 4/13 4/12 6/18 6/18 6/18 6/18".split(" "), function(e) {
+        }
+    }
+
+    module.exports = g
+})
+
+define("6/18", {
+    wf: [
+        "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne", "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "K", "Ca"
+      , "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr", "Rb", "Sr", "Y"
+      , "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te", "I", "Xe", "Cs", "Ba", "La", "Ce"
+      , "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu", "Hf", "Ta", "W", "Re", "Os", "Ir"
+      , "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn", "Fr", "Ra", "Ac", "Th", "Pa", "U", "Np", "Pu", "Am", "Cm"
+      , "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Rv", "Fl"
+      , "Uup", "Lv", "Uus", "Ur"
+    ]
+  , tf: {
+        zg: [0, 5, 6, 7, 14, 15, 33]
+      , yg: [1, 9, 17, 35, 53, 85, 117]
+      , sg: [8, 16, 34, 52, 84, 116]
+      , wg: [4, 13, 31, 32, 50, 51, 83]
+      , vb: [
+            20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 71, 72, 73, 74, 75, 76, 77
+          , 78, 79, 103, 104, 105, 106, 107, 108, 109, 110, 111
+        ]
+      , Bg: [12, 30, 48, 49, 80, 81, 82, 112, 113, 114, 115]
+      , jg: [2, 10, 18, 36, 54, 86]
+      , kg: [3, 11, 19, 37, 55, 87]
+      , ug: [56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70]
+      , ig: [88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102]
+    }
+  , vf: [
+        "Hydrogen", "Helium", "Lithium", "Beryllium", "Boron", "Carbon", "Nitrogen", "Oxygen", "Fluorine", "Neon"
+      , "Sodium", "Magnesium", "Aluminium", "Silicon", "Phosphorus", "Sulfur", "Chlorine", "Argon", "Potassium"
+      , "Calcium", "Scandium", "Titanium", "Vanadium", "Chromium", "Manganese", "Iron", "Cobalt", "Nickel", "Copper"
+      , "Zinc", "Gallium", "Germanium", "Arsenic", "Selenium", "Bromine", "Krypton", "Rubidium", "Strontium", "Yttrium"
+      , "Zirconium", "Niobium", "Molybdenum", "Technetium", "Ruthenium", "Rhodium", "Palladium", "Silver", "Cadmium"
+      , "Indium", "Tin", "Antimony", "Tellurium", "Iodine", "Xenon", "Cesium", "Barium", "Lanthanum", "Cerium"
+      , "Praseodymium", "Neodymium", "Promethium", "Samarium", "Europium", "Gadolinium", "Terbium", "Dysprosium"
+      , "Holmium", "Erbium", "Thulium", "Ytterbium", "Lutetium", "Hafnium", "Tantalum", "Tungsten", "Rhenium", "Osmium"
+      , "Iridium", "Platinum", "Gold", "Mercury", "Thallium", "Lead", "Bismuth", "Polonium", "Astatine", "Radon"
+      , "Francium", "Radium", "Actinium", "Thorium", "Protactinium", "Uranium", "Neptunium", "Plutonium", "Americium"
+      , "Curium", "Berkelium", "Californium", "Einsteinium", "Fermium", "Mendelevium", "Nobelium", "Lawrencium"
+      , "Rutherfordium", "Dubnium", "Seaborgium", "Bohrium", "Hassium", "Meitnerium", "Darmstadtium", "Roentgenium"
+      , "Copernicium", "Ravikantium", "Flerovium", "Ununpentium", "Livermorium", "Ununseptium", "Urasium"
+    ]
+  , uf: [
+        "1.008", "4.003", "6.941", "9.012", "10.812", "12.011", "14.007", "15.999", "18.998", "20.180", "22.990"
+      , "24.305", "26.982", "28.086", "30.974", "32.066", "35.453", "39.948", "39.098", "40.078", "44.956", "47.867"
+      , "50.942", "51.996", "54.938", "55.845", "58.933", "58.693", "63.546", "65.382", "69.723", "72.631", "74.922"
+      , "78.963", "79.904", "83.798", "85.468", "87.621", "88.906", "91.224", "92.906", "95.962", "(98)", "101.072"
+      , "102.916", "106.421", "107.868", "112.411", "114.818", "118.712", "121.760", "127.603", "126.904", "131.294"
+      , "132.905", "137.328", "138.905", "140.116", "140.908", "144.242", "(145)", "150.362", "151.964", "157.253"
+      , "158.925", "162.500", "164.930", "167.259", "168.934", "173.055", "174.967", "178.492", "180.948", "183.841"
+      , "186.207", "190.233", "192.217", "195.085", "196.967", "200.592", "204.383", "207.21", "208.980", "(209)"
+      , "(210)", "(222)", "(223)", "(226)", "(227)", "232.038", "231.036", "238.029", "(237)", "(244)", "(243)"
+      , "(247)", "(247)", "(251)", "(252)", "(257)", "(258)", "(259)", "(262)", "(267)", "(268)", "(269)", "(270)"
+      , "(269)", "(278)", "(281)", "(281)", "(285)", "Angellist Maximus", "(289)", "(288)", "(293)", "(294)"
+      , "Michael Arrington"
+    ]
+})
+
+define("app", [
+    "require", "exports", "module", "0/4", "0/b", "0/2", "0/Matrix", "0/d", "0/e", "0/1", "0/5", "0/7", "0/6", "1/g"
+  , "1/h", "1/p", "1/o", "1/n", "1/j", "1/q", "1/l", "1/m", "1/k", "3/v", "3/w", "3/x", "3/z", "3/10", "6/19", "6/1b"
+  , "6/1a", "2/t", "4/13", "4/12", "6/18", "6/18", "6/18", "6/18"], function(e) {
+
     function k(a) {
         117 == a ? a = 62 : 62 == a && (a = 117);
         return Matrix.translate(hb * (Math.floor(a / 15) - 3.5), ib * (a % 5 - 2), -jb * (Math.floor(a / 5) % 3) - 500)
@@ -2868,21 +3448,19 @@ define("app", "require exports module 0/4 0/b 0/2 0/Matrix 0/d 0/e 0/1 0/5 0/7 0
         return Matrix.multiply(Matrix.translate(0, 250 * (Math.floor(a / 30) - 1), -900), Matrix.rotate_y_cw(-0.06667 * a * Math.PI))
     }
     function a(a, b) {
-        var d = 
-        J != a;
+        var d = J != a;
         J = "undefined" != typeof a ? a : (J + 1) % 5;
         0 <= L && h(L);
         u.n();
         z.Hf();
-        var e = {duration: 1E3,q: M.w.Ja};
-        3 == J ? (z.Wa(g, e, b), z.Va(1, e), u.s([0, 0, 700], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), F.qb([-5E3, 5E3], e), F.rb([-3E3, 3E3], e), F.sb([-5E3, 5E3], e), X.setTransform(Matrix.translate(120, 0, 0), true), d && s("periodic table")) : 1 == J ? (u.s([0, 0, 700], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), z.Wa(c, e, b), z.Va(1, e), F.qb([-5E3, 5E3], e), F.rb([-3E3, 3E3], e), F.sb([-5E3, 5E3], e), X.setTransform(Matrix.translate(0, 0, 0), true), d && s("helix")) : 2 == J ? (u.s([0, 0, -500], e), u.A([0, 
-            0, 0], e), u.J([0, 0, 0], e), z.Wa(f, e, b), z.Va(1, e), F.qb([-5E3, 5E3], e), F.rb([-3E3, 3E3], e), F.sb([-5E3, 5E3], e), X.setTransform(Matrix.translate(60, 0, 0), true), d && s("wall of fame")) : 0 == J ? (u.s([0, 0, 800], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), z.Wa(j, e, b), z.Va(1, e), F.qb([-5E3, 5E3], e), F.rb([-3E3, 3E3], e), F.sb([-5E3, 5E3], e), X.setTransform(Matrix.translate(-60, 0, 0), true), d && s("sphere")) : 4 == J && (u.s([0, 0, -600], e), u.A([0, -Math.PI / 11, 0], e), u.J([0, 0, 0], e), z.Wa(k, e, b), z.Va(1, e), X.setTransform(Matrix.translate(-120, 0, 0), true), d && s("paraflow"));
-        4 == J ? Y.enable() : 
-        Y.disable();
+        var e = {duration: 1000,q: M.w.Ja};
+        3 == J ? (z.Wa(g, e, b), z.Va(1, e), u.s([0, 0, 700], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), F.qb([-5000, 5000], e), F.rb([-3000, 3000], e), F.sb([-5000, 5000], e), X.setTransform(Matrix.translate(120, 0, 0), true), d && s("periodic table")) : 1 == J ? (u.s([0, 0, 700], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), z.Wa(c, e, b), z.Va(1, e), F.qb([-5000, 5000], e), F.rb([-3000, 3000], e), F.sb([-5000, 5000], e), X.setTransform(Matrix.translate(0, 0, 0), true), d && s("helix")) : 2 == J ? (u.s([0, 0, -500], e), u.A([0, 
+            0, 0], e), u.J([0, 0, 0], e), z.Wa(f, e, b), z.Va(1, e), F.qb([-5000, 5000], e), F.rb([-3000, 3000], e), F.sb([-5000, 5000], e), X.setTransform(Matrix.translate(60, 0, 0), true), d && s("wall of fame")) : 0 == J ? (u.s([0, 0, 800], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), z.Wa(j, e, b), z.Va(1, e), F.qb([-5000, 5000], e), F.rb([-3000, 3000], e), F.sb([-5000, 5000], e), X.setTransform(Matrix.translate(-60, 0, 0), true), d && s("sphere")) : 4 == J && (u.s([0, 0, -600], e), u.A([0, -Math.PI / 11, 0], e), u.J([0, 0, 0], e), z.Wa(k, e, b), z.Va(1, e), X.setTransform(Matrix.translate(-120, 0, 0), true), d && s("paraflow"));
+        4 == J ? Y.enable() : Y.disable();
         Z.Aa(J)
     }
     function b() {
-        var a = {duration: 1E3};
+        var a = {duration: 1000};
         h(L);
         u.s(La, a);
         u.A(lb, a);
@@ -2908,7 +3486,7 @@ define("app", "require exports module 0/4 0/b 0/2 0/Matrix 0/d 0/e 0/1 0/5 0/7 0
         Ma = u.La().slice(0);
         da.pb({backgroundColor: ca[a].Y.backgroundColor});
         c = Matrix.multiply(Matrix.translate(0, 0, -200), F.Bf(z.O(a)));
-        u.Pf(c, {duration: 1E3}, function() {
+        u.Pf(c, {duration: 1000}, function() {
             L == a && (z.set(a, Matrix.scale(0, 0, 0)), G.Pc(function() {
                 Na.show()
             }))
@@ -2974,39 +3552,39 @@ define("app", "require exports module 0/4 0/b 0/2 0/Matrix 0/d 0/e 0/1 0/5 0/7 0
         document.title = "famo.us Stress Test Demo";
         var r = "Common" in window && "API" in Common
           , t = false
-          , G = e("0/4")
-          , A = e("0/b")
-          , I = e("0/2")
-          , Matrix = e("0/Matrix")
-          , y = e("0/d")
-          , M = e("0/e")
-          , O = e("0/1")
-          , W = e("0/5")
-          , Eb = e("0/7")
-          , va = e("0/6")
-          , Fb = e("1/g");
+          , G = require("0/4")
+          , A = require("0/b")
+          , I = require("0/2")
+          , Matrix = require("0/Matrix")
+          , y = require("0/d")
+          , M = require("0/e")
+          , O = require("0/1")
+          , W = require("0/5")
+          , Eb = require("0/7")
+          , va = require("0/6")
+          , Fb = require("1/g");
 
-        e("1/h");
-        var Ra = e("1/p")
-          , Gb = e("1/o")
-          , Hb = e("1/n")
-          , ma = e("1/j")
-          , Ib = e("1/q")
-          , wa = e("1/l")
-          , fa = e("1/m")
-          , Jb = e("1/k")
-          , na = e("3/v")
-          , Kb = e("3/w")
-          , Lb = e("3/x");
+        require("1/h");
+        var Ra = require("1/p")
+          , Gb = require("1/o")
+          , Hb = require("1/n")
+          , ma = require("1/j")
+          , Ib = require("1/q")
+          , wa = require("1/l")
+          , fa = require("1/m")
+          , Jb = require("1/k")
+          , na = require("3/v")
+          , Kb = require("3/w")
+          , Lb = require("3/x");
 
-        e("3/z");
-        var Mb = e("3/10")
-          , Nb = e("6/19")
-          , Ob = e("6/1b")
-          , Pb = e("6/1a");
+        require("3/z");
+        var Mb = require("3/10")
+          , Nb = require("6/19")
+          , Ob = require("6/1b")
+          , Pb = require("6/1a");
 
-        e("2/t");
-        for (var P = e("4/13"), Qb = e("4/12"), Sa = e("6/18").wf, Rb = e("6/18").tf, nb = e("6/18").vf, ob = e("6/18").uf, oa = Sa.length, Ta = Array(oa), Ua = 0; Ua < oa; Ua++)
+        require("2/t");
+        for (var P = require("4/13"), Qb = require("4/12"), Sa = require("6/18").wf, Rb = require("6/18").tf, nb = require("6/18").vf, ob = require("6/18").uf, oa = Sa.length, Ta = Array(oa), Ua = 0; Ua < oa; Ua++)
             Ta[Ua] = 0.1 + 0.7 * Math.random();
         for (var ca, Va = Array(oa), U = 0; U < Va.length; U++) {
             var xa = new A([120, 160]);
@@ -3026,7 +3604,7 @@ define("app", "require exports module 0/4 0/b 0/2 0/Matrix 0/d 0/e 0/1 0/5 0/7 0
         }
         S = Wa;
         var u = new Fb;
-        u.s([0, 0, 5E3]);
+        u.s([0, 0, 5000]);
         u.A([0, 0, 0]);
         u.J([0, -3 * Math.PI, 0]);
         var F = new Jb(u)
@@ -3048,7 +3626,7 @@ define("app", "require exports module 0/4 0/b 0/2 0/Matrix 0/d 0/e 0/1 0/5 0/7 0
                 I: 900
               , z: fa
               , ad: {
-                    duration: 2E3
+                    duration: 2000
                   , q: M.w.sf
                 }
               ,Pa: true
@@ -3074,23 +3652,22 @@ define("app", "require exports module 0/4 0/b 0/2 0/Matrix 0/d 0/e 0/1 0/5 0/7 0
                     if (d.ib) {
                         var a = u.da().slice(0), b = a.slice(0), c = 0.5 > Math.random() ? -1 : 1;
                         0.5 > Math.random() ? b[0] += 2 * c * Math.PI : b[1] += 2 * c * Math.PI;
-                        u.A(b, {duration: 3E3}, function() {
+                        u.A(b, {duration: 3000}, function() {
                             u.A(a);
-                            setTimeout(cc, 1E4)
+                            setTimeout(cc, 10000)
                         })
                     }
-                }, 1E4)
+                }, 10000)
             }
             function c() {
-                d.ib && 
-                (z.Vd(z.all()), a(4, b))
+                d.ib && (z.Vd(z.all()), a(4, b))
             }
             var d = this;
             0 == J ? c() : (a(0), setTimeout(c, 200))
-        }, 15E3);
+        }, 15000);
         ia.disable();
         G.C(ia);
-        var Y = new Ob(300, 2E3, 1);
+        var Y = new Ob(300, 2000, 1);
         Y.disable();
         for (var hb = 270, ib = 350, jb = 400, kb, za = [], rb = Math.floor(7), Xa = 0; Xa <= rb; Xa++) {
             var sb = Math.PI / 2 - Xa * (Math.PI / rb), Aa = Math.floor(1400 * Math.PI * Math.cos(sb) / 160);
@@ -3163,7 +3740,7 @@ define("app", "require exports module 0/4 0/b 0/2 0/Matrix 0/d 0/e 0/1 0/5 0/7 0
         ub.h("caption");
         var Oa = new A([600, 50], "");
         Oa.h("shape-flash");
-        var Pa = new na(0, {duration: 1E3,q: M.w.rf}), X = new y(Matrix.translate(-120, 0, 0), 1, "b");
+        var Pa = new na(0, {duration: 1000,q: M.w.rf}), X = new y(Matrix.translate(-120, 0, 0), 1, "b");
         X.ve({duration: 250,q: M.w.eb});
         var vb = new A([60, 60], '<div class="shape-button-indicator-box"></div>');
         vb.h("shape-button-indicator");
@@ -3240,8 +3817,7 @@ define("app", "require exports module 0/4 0/b 0/2 0/Matrix 0/d 0/e 0/1 0/5 0/7 0
                 var b = new Common.API.TVKeyValue;
                 a.keyCode == b.KEY_EXIT && w()
             } else
-                27 == a.keyCode && w(), 13 == a.keyCode && (document.activeElement && 
-                "INPUT" != document.activeElement.nodeName) && w()
+                27 == a.keyCode && w(), 13 == a.keyCode && (document.activeElement && "INPUT" != document.activeElement.nodeName) && w()
         });
         var T = new W(0);
         T.L(0).m(ba);
@@ -3260,11 +3836,10 @@ define("app", "require exports module 0/4 0/b 0/2 0/Matrix 0/d 0/e 0/1 0/5 0/7 0
         Ga.g("click", function() {
             window._gaq && _gaq.push(["_trackEvent", "demo", "tweet", , , false])
         });
-        var Ab = 
-        new A([300, 60], "&copy; 2012 Famous Industries, Inc.");
+        var Ab = new A([300, 60], "&copy; 2012 Famous Industries, Inc.");
         Ab.h("copyright");
         var kc = G.Kd(document.querySelector("#main")), Bb = G.Kd(document.querySelector("#overlay")), bb = new O;
-        bb.f(new y(Matrix.move(Matrix.scale(3, 3, 3), [0, -1E3, 0]))).append(ub);
+        bb.f(new y(Matrix.move(Matrix.scale(3, 3, 3), [0, -1000, 0]))).append(ub);
         bb.f(F).append(Y).append(z);
         var cb = new O;
         cb.f(u).append(bb);
