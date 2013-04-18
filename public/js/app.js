@@ -1066,7 +1066,9 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, ex
 
                     t = "object" == typeof a.transform ? a.transform : Matrix.identity;
 
-                    var r = "number" == typeof a.opacity ? a.opacity : 1, A = a.group, a = a.ea;
+                    var r = "number" == typeof a.opacity ? a.opacity : 1
+                      , A = a.group
+                      , a = a.ea
 
                     A && (g.X = t, j.X = r);
 
@@ -1388,6 +1390,9 @@ define("0/4", ["require", "exports", "module", "./3", "./7", "./8", "./c"], func
 })
 
 define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, exports, module) {
+    var c = require("./7")
+      , f = require("./6")
+
     function g(a, b) {
         this.id = g.nf++;
         this.D = {};
@@ -1407,7 +1412,6 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, 
         "undefined" != typeof b && this.T(b);
         g.Zd[this.id] = this
     }
-    var c = require("./7"), f = require("./6");
     g.nf = 0;
     g.Zd = {};
     g.qg = function(a) {
@@ -1512,6 +1516,10 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, 
 })
 
 define("0/2", ["require", "exports", "module", "./c", "./b", "./a"], function(require, exports, module) {
+    var c = require("./c")
+      , f = require("./b")
+      , a = require("./a")
+
     function g() {
         f.apply(this, arguments);
         this.K = document.createElement("div");
@@ -1522,7 +1530,7 @@ define("0/2", ["require", "exports", "module", "./c", "./b", "./a"], function(re
         this.wa = true;
         this.Eb = void 0
     }
-    var c = require("./c"), f = require("./b"), a = require("./a");
+
     g.prototype = {
         Ld: function(a) {
             if (this.Ia) {
@@ -1555,9 +1563,13 @@ define("0/2", ["require", "exports", "module", "./c", "./b", "./a"], function(re
       , ka: function(a) {
             f.prototype.ka.apply(this, arguments);
             this.V && this.V.ka(a)
-        }};
-    for (var b in f.prototype)
+        }
+    }
+
+    for (var b in f.prototype) {
         f.prototype.hasOwnProperty(b) && !g.prototype.hasOwnProperty(b) && (g.prototype[b] = f.prototype[b]);
+    }
+
     module.exports = g
 })
 
@@ -1570,6 +1582,7 @@ define("0/e", ["require", "exports", "module"], function(require, exports, modul
         this.Ta({duration: 500,q: g.w.Nf});
         this.set(c)
     }
+
     g.w = {
         Nf: function(c) {
             return c
@@ -1589,7 +1602,8 @@ define("0/e", ["require", "exports", "module"], function(require, exports, modul
       , hc: function(c) {
             return (1 - c) * Math.sin(6 * Math.PI * c) + c
         }
-    };
+    }
+
     g.prototype = {
         Cd: function() {
             0 >= this.zb.length ? this.set(this.state) : (this.ca = this.zb.shift(), this.startTime = this.getTime(), 
@@ -1668,7 +1682,9 @@ define("0/e", ["require", "exports", "module"], function(require, exports, modul
         }
       , n: function() {
             this.set(this.get())
-        }};
+        }
+    }
+
     module.exports = g
 })
 
@@ -1685,12 +1701,15 @@ define("0/d", ["require", "exports", "module", "./Matrix", "./e"], function(requ
         this.Ua(b);
         this.fc(d)
     }
+
     g.zd = function(a) {
         return [].concat(a.translate, a.rotate, a.Ba, a.scale)
-    };
+    }
+
     g.Ze = function(a) {
         return {translate: [a[0], a[1], a[2]],rotate: [a[3], a[4], a[5]],Ba: [a[6], a[7], a[8]],scale: [a[9], a[10], a[11]]}
-    };
+    }
+
     g.prototype = {
         O: function() {
             return this.qa.Tb() ? Matrix.jf(g.Ze(this.qa.get())) : 
@@ -1719,7 +1738,9 @@ define("0/d", ["require", "exports", "module", "./Matrix", "./e"], function(requ
         }
       , u: function(a) {
             return {transform: this.O(),opacity: this.Jc(),ea: this.ea,target: a}
-        }};
+        }
+    }
+
     module.exports = g
 })
 
@@ -1752,21 +1773,28 @@ define("0/1", ["require", "exports", "module", "./a"], function(require, exports
 })
 
 define("0/5", ["require", "exports", "module", "./8", "./7"], function(require, exports, module) {
+    require("./8")
+    var f = require("./7")
+
     function g() {
     }
+
     function c(a) {
         this.Fb = {};
         this.zc = a
     }
-    require("./8");
-    var f = require("./7");
+
     g.prototype.b = function(a, b) {
         return [a, b]
-    };
-    c.prototype = {Aa: setter_factory("zc"),L: function(a) {
+    }
+
+    c.prototype = {
+        Aa: setter_factory("zc")
+      , L: function(a) {
             this.Fb[a] || (this.Fb[a] = new f(new g));
             return this.Fb[a]
-        },b: function(a, b) {
+        }
+      , b: function(a, b) {
             if ("undefined" != typeof this.zc) {
                 b || (b = {});
                 b.origin = this;
@@ -1774,7 +1802,9 @@ define("0/5", ["require", "exports", "module", "./8", "./7"], function(require, 
                 if (d)
                     return d.b(a, b)
             }
-        }};
+        }
+    }
+
     module.exports = c
 })
 
@@ -1879,7 +1909,9 @@ define("1/g", ["require", "exports", "module", "0/Matrix", "0/e"], function(requ
             this.A([0, 0, 0], b);
             this.J([-h[0], -h[1], -h[2]], b);
             this.s([-a[0], -a[1], -a[2]], b, d)
-        }};
+        }
+    }
+
     module.exports = g
 })
 
@@ -1887,6 +1919,7 @@ define("1/i", ["require", "exports", "module"], function(require, exports, modul
     function g(c) {
         this.e = c
     }
+
     g.prototype = {
         move: function(c, f, a) {
             var b = this.e.F();
@@ -1899,11 +1932,15 @@ define("1/i", ["require", "exports", "module"], function(require, exports, modul
       , p: function(c, f, a) {
             var b = this.e.La();
             this.e.J([b[0] + c[0], b[1] + c[1], b[2] + c[2]], f, a)
-        }};
+        }
+    }
+
     module.exports = g
 })
 
 define("1/h", ["require", "exports", "module", "./i"], function(require, exports, module) {
+    var c = require("./i")
+
     function g(a, b) {
         this.e = a;
         this.a = b;
@@ -1934,9 +1971,14 @@ define("1/h", ["require", "exports", "module", "./i"], function(require, exports
         this.l = new this.a.z(this.e, this.a);
         this.state = null
     }
-    var c = require("./i");
-    g.td = {Fa: 1,ba: 2,aa: 3};
-    var f = g.td;
+
+    g.td = {
+        Fa: 1
+      , ba: 2
+      , aa: 3
+    }
+
+    var f = g.td
 
     g.prototype = {
         ob: function() {
@@ -2148,8 +2190,9 @@ define("1/p", ["require", "exports", "module", "./h"], function(require, exports
         }
     }
 
-    for (var f in c.prototype)
+    for (var f in c.prototype) {
         c.prototype.hasOwnProperty(f) && !g.prototype.hasOwnProperty(f) && (g.prototype[f] = c.prototype[f]);
+    }
 
     module.exports = g
 })
@@ -2247,8 +2290,9 @@ define("1/n", ["require", "exports", "module", "./h"], function(require, exports
         }
     }
 
-    for (var a in c.prototype)
+    for (var a in c.prototype) {
         c.prototype.hasOwnProperty(a) && !g.prototype.hasOwnProperty(a) && (g.prototype[a] = c.prototype[a]);
+    }
 
     module.exports = g
 })
@@ -2312,8 +2356,8 @@ define("1/j", ["require", "exports", "module", "./i"], function(require, exports
 })
 
 define("1/q", ["require", "exports", "module", "./i", "./j"], function(require, exports, module) {
-    require("./i");
-    var c = require("./j");
+    require("./i")
+    var c = require("./j")
 
     function g(a, b) {
         c.apply(this, arguments)
@@ -2333,9 +2377,9 @@ define("1/q", ["require", "exports", "module", "./i", "./j"], function(require, 
         }
     }
 
-    for (var f in c.prototype)
-        c.prototype.hasOwnProperty(f) && !g.prototype.hasOwnProperty(f) && (g.prototype[f] = 
-        c.prototype[f]);
+    for (var f in c.prototype) {
+        c.prototype.hasOwnProperty(f) && !g.prototype.hasOwnProperty(f) && (g.prototype[f] = c.prototype[f])
+    }
 
     g.prototype.trigger = g.prototype.b;
 
@@ -2380,6 +2424,7 @@ define("1/l", ["require", "exports", "module", "./i"], function(require, exports
                 "mouseleave" == c && (this.xa = void 0)
         }
     }
+
     g.prototype.trigger = g.prototype.b;
 
     module.exports = g
@@ -2563,7 +2608,7 @@ define("3/w", ["require", "exports", "module", "0/Matrix", "0/e"], function(requ
 })
 
 define("3/x", ["require", "exports", "module", "0/e"], function(require, exports, module) {
-    require("0/e");
+    require("0/e")
 
     function g(c, f) {
         this.Yd = c;
@@ -2600,6 +2645,7 @@ define("3/z", ["require", "exports", "module"], function(require, exports, modul
         this.ec = [];
         this.ja = -1
     }
+
     g.prototype = {
         Ye: function(c) {
             0 > this.ja && (this.ja = 0);
@@ -2831,9 +2877,9 @@ define("6/1b", ["require", "exports", "module", "0/Matrix", "0/e"], function(req
 
 define("6/1a", ["require", "exports", "module", "0/Matrix", "0/e", "3/10"], function(require, exports, module) {
     var c = require("0/Matrix")
-      , f = require("0/e");
+      , f = require("0/e")
 
-    require("3/10");
+    require("3/10")
 
     function g(a, b) {
         b || (b = 0.1);
@@ -2896,16 +2942,19 @@ define("2/s", ["require", "exports", "module"], function(require, exports, modul
         this.ua = false;
         this.set(c, f)
     }
+
     g.Gb = function(c) {
         return function(f, a, b) {
             return -c * a * a * b
         }
-    };
+    }
+
     g.Nb = function(c) {
         return function(f, a, b) {
             return -c * Math.abs(a) * b
         }
-    };
+    }
+
     g.hc = function(c, f, a) {
         f || (f = 0);
         a || (a = 0);
@@ -2914,7 +2963,8 @@ define("2/s", ["require", "exports", "module"], function(require, exports, modul
             var a = a - c, j = a + e * g, k = 0.5 * f * a * a, D = 0.5 * f * j * j;
             return -(0 > a / j ? k : D - k) - b * e * e * g
         }
-    };
+    }
+
     g.vg = function(c, f) {
         f || (f = 0);
         return function(a, 
@@ -2925,7 +2975,8 @@ define("2/s", ["require", "exports", "module"], function(require, exports, modul
             b = -f / Math.max(Math.abs(e), 0.5);
             return -(-f / Math.max(Math.abs(a), 0.5) - b)
         }
-    };
+    }
+
     g.prototype = {
         Hd: function() {
             this.kb = (new Date).getTime();
@@ -3040,11 +3091,11 @@ define("2/t", ["require", "exports", "module", "0/Matrix", "./s"], function(requ
         this.Zf();
         this.disabled = false
     }
+
     g.prototype = {
         g: function(a, b) {
             this.D[a] || (this.D[a] = []);
-            b in this.D[a] || 
-            this.D[a].push(b)
+            b in this.D[a] || this.D[a].push(b)
         }
       , b: function(a, b) {
             this.mf.b(a, b);
@@ -3226,6 +3277,7 @@ define("4/13", ["require", "exports", "module"], function(require, exports, modu
         "undefined" == typeof this.a.Pe && (this.a.Pe = true);
         this.Pd = []
     }
+
     g.prototype = {
         pa: function(c) {
             for (var f = this, a = 0; a < c.changedTouches.length; a++) {
@@ -3404,10 +3456,12 @@ define("app", [
         117 == a ? a = 62 : 62 == a && (a = 117);
         return Matrix.translate(hb * (Math.floor(a / 15) - 3.5), ib * (a % 5 - 2), -jb * (Math.floor(a / 5) % 3) - 500)
     }
+
     function j(a) {
         0 == a ? a = 112 : 112 == a && (a = 0);
         return kb(a)
     }
+
     function g(a) {
         if (1 > a)
             a = [0, 0];
@@ -3441,12 +3495,15 @@ define("app", [
             return Matrix.scale(0, 0, 0);
         return Matrix.translate(150 * (a[0] - 8.5), 190 * (a[1] - 4.5), 0)
     }
+
     function c(a) {
         return Matrix.multiply(Matrix.translate(0, 20 * (a - 59), 700), Matrix.rotate_y_cw(0.1 * a * Math.PI))
     }
+
     function f(a) {
         return Matrix.multiply(Matrix.translate(0, 250 * (Math.floor(a / 30) - 1), -900), Matrix.rotate_y_cw(-0.06667 * a * Math.PI))
     }
+
     function a(a, b) {
         var d = J != a;
         J = "undefined" != typeof a ? a : (J + 1) % 5;
@@ -3459,6 +3516,7 @@ define("app", [
         4 == J ? Y.enable() : Y.disable();
         Z.Aa(J)
     }
+
     function b() {
         var a = {duration: 1000};
         h(L);
@@ -3466,6 +3524,7 @@ define("app", [
         u.A(lb, a);
         u.J(Ma, a)
     }
+
     function d(a) {
         Matrix.fa(z.O(a));
         L = a;
@@ -3495,6 +3554,7 @@ define("app", [
         Y.Te(a, 500);
         ia.disable()
     }
+
     function h(a) {
         ja.Mb(0);
         z.set(a, mb);
@@ -3502,11 +3562,13 @@ define("app", [
         Y.If(a);
         L == a && (ia.enable(), L = -1, ba.Aa(0), Na.Na())
     }
+
     function s(a) {
         Oa.T(a);
         Pa.set(1, false);
         Pa.Na()
     }
+
     function E(b, c, d) {
         c = new A([60, 60], c);
         c.h("shape-button");
@@ -3516,9 +3578,11 @@ define("app", [
         });
         return c
     }
+
     function K() {
         ua.Lf(1) && (ka.Na(), ua.Na(), T.Aa(0))
     }
+
     function D(a, b, c) {
         var d = "http://famo.us";
         b && (d += "/r/" + b);
@@ -3526,9 +3590,11 @@ define("app", [
         return '<a href="https://twitter.com/share?text=' + encodeURIComponent(c) + "&url=" + encodeURIComponent(d) + 
         "&via=befamous\" onclick=\"event.preventDefault(); window.open(event.currentTarget.href, '_blank', 'width=700,height=260');\">" + a + "</a>"
     }
+
     function C(a) {
         return D('<img src="content/icons/twitter.png" alt="Tweet" />', a, void 0)
     }
+
     function m() {
         ea.T("");
         ka.show();
@@ -3537,6 +3603,7 @@ define("app", [
         Qa.Na();
         T.Aa(2)
     }
+
     function w() {
         ka.Na();
         la.setTransform(Matrix.move(Matrix.scale(0.0010, 0.0010, 0.0010), [-0.5 * window.innerWidth, 0, 0]), true, function() {
@@ -3546,6 +3613,7 @@ define("app", [
         T.Aa(0);
         t = true
     }
+
     if (!("WebKitCSSMatrix" in window) || !("m11" in new WebKitCSSMatrix))
         window.location.pathname = "/c" + window.location.pathname;
     else {
@@ -3894,5 +3962,6 @@ define("app", [
         });
         a(4)
     }
-});
-require(["app"]);
+})
+
+require(["app"])
