@@ -1,9 +1,3 @@
-function setter_factory(key) {
-    return function(value) {
-        this[key] = value
-    }
-}
-
 /**
  * almond 0.2.5 Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
@@ -1072,15 +1066,41 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, ex
 
                     A && (g.X = t, j.X = r);
 
-                    var I = this.wc(G), G = I.v, p = I.$b, y = I.Ob, M = I.i, O = I.Sb, W = I.Qb, I = I.Pb;
-                    for (m in G)
-                        G.hasOwnProperty(m) && (h[m] = A || M.hasOwnProperty(m) ? G[m] : Matrix.multiply(G[m], t), d[m] = A || M.hasOwnProperty(m) ? p[m] : r * p[m], c[m] = y[m] || a, M.hasOwnProperty(m) ? e[m] = M[m] : A && (e[m] = "X"));
-                    for (w in O)
-                        O.hasOwnProperty(w) && (g[w] = Matrix.multiply(O[w], t));
-                    for (w in W)
-                        W.hasOwnProperty(w) && (j[w] = r * W[w]);
-                    for (w in I)
-                        I.hasOwnProperty(w) && (k[w] = I[w])
+                    var I = this.wc(G)
+                      , G = I.v
+                      , p = I.$b
+                      , y = I.Ob
+                      , M = I.i
+                      , O = I.Sb
+                      , W = I.Qb
+                      , I = I.Pb
+
+                    for (m in G) {
+                        if (G.hasOwnProperty(m)) {
+                            h[m] = A || M.hasOwnProperty(m) ? G[m] : Matrix.multiply(G[m], t)
+                            d[m] = A || M.hasOwnProperty(m) ? p[m] : r * p[m]
+                            c[m] = y[m] || a
+                            M.hasOwnProperty(m) ? e[m] = M[m] : A && (e[m] = "X")
+                        }
+                    }
+
+                    for (key in O) {
+                        if (O.hasOwnProperty(key)) {
+                            g[key] = Matrix.multiply(O[key], t)
+                        }
+                    }
+
+                    for (key in W) {
+                        if (W.hasOwnProperty(key)) {
+                            j[key] = r * W[key]
+                        }
+                    }
+
+                    for (key in I) {
+                        if (I.hasOwnProperty(key)) {
+                            k[key] = I[key]
+                        }
+                    }
                 }
             }
 
@@ -1195,15 +1215,16 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, ex
             }
         }
       , eg: function(a, d, h, e) {
-            if (a = this.i[a])
+            if (a = this.i[a]) {
                 for (var g = 0; g < a.length; g++) {
                     if (!Matrix.equal(a[g].ee, d)) {
-                        a[g].ee = d;
-                        var j = Matrix.multiply(Matrix.translate(0, 0, this.a.Rb), this.ud(d, e));
+                        a[g].ee = d
+                        var j = Matrix.multiply(Matrix.translate(0, 0, this.a.Rb), this.ud(d, e))
                         c(a[g].K, j)
                     }
                     a[g].opacity != h && (a[g].opacity = h, a[g].K.style.opacity = h)
                 }
+            }
         }
       , ff: function(a, d) {
             this.i[a] || (this.i[a] = []);
@@ -1213,29 +1234,72 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, ex
         }
       , Uf: function(a) {
             this.i.hasOwnProperty(a) || (this.i[a] = []);
-            for (var d = this.i[a], h = 0, c = this.a.fe; h < d.length && !(0 < d[h].bb.length || d[h].Rc < c); )
+
+            for (var d = this.i[a], h = 0, c = this.a.fe; h < d.length && !(0 < d[h].bb.length || d[h].Rc < c); ) {
                 h++;
-            h >= d.length && (c = document.createElement("div"), c.classList.add(this.a.Ud), this.K.appendChild(c), d.push({hb: a,K: c,Rc: 0,bb: []}));
+            }
+
+            if (h >= d.length) {
+                c = document.createElement("div")
+                c.classList.add(this.a.Ud)
+                this.K.appendChild(c)
+                d.push({
+                    hb: a
+                  , K: c
+                  , Rc: 0
+                  , bb: []
+                })
+            }
             return d[h]
         }
       , fg: function(a, d, h, e, g) {
-            var j = this.pd[a], k = this.Qc[a];
-            k && h && (k.hb || this.ff(h, k), k.hb != h && this.detach(a));
-            this.Oa[a] = h;
-            this.R[a] || this.ef(a, h);
-            k = this.R[a];
-            if (j.wa || this.Xb[a])
-                j.bg(k), this.Xb[a] = false;
-            d = this.Ue(j.Kc(), d, g);
-            Matrix.equal(d, this.Yb[a]) || (this.Yb[a] = d, h ? (h = Matrix.move(d, [0, 0, -this.a.Rb]), c(k, h)) : c(k, this.ud(d, g)));
-            e != this.Zb[a] && (this.Zb[a] = e, k.style.opacity = 0.999999 < e ? 0.999999 : e)
+            var j = this.pd[a]
+              , k = this.Qc[a]
+
+            k && h && (k.hb || this.ff(h, k), k.hb != h && this.detach(a))
+
+            this.Oa[a] = h
+            this.R[a] || this.ef(a, h)
+            k = this.R[a]
+
+            if (j.wa || this.Xb[a]) {
+                j.bg(k)
+                this.Xb[a] = false
+            }
+
+            d = this.Ue(j.Kc(), d, g)
+
+            if (!Matrix.equal(d, this.Yb[a])) {
+                this.Yb[a] = d
+                if (h) {
+                    h = Matrix.move(d, [0, 0, -this.a.Rb])
+                    c(k, h)
+                } else {
+                    c(k, this.ud(d, g))
+                }
+            }
+
+            if (e != this.Zb[a]) {
+                this.Zb[a] = e
+                k.style.opacity = 0.999999 < e ? 0.999999 : e
+            }
         }
       , ef: function(a, d) {
-            var h = d != void 0 ? this.Uf(d) : this.pf, c;
-            h.bb.length ? c = h.bb.pop() : (h.Rc++, c = document.createElement("div"), c.classList.add(this.a.Ge), h.K.appendChild(c));
-            this.Qc[a] = h;
-            this.R[a] = c;
-            this.Xb[a] = true;
+            var h = d != void 0 ? this.Uf(d) : this.pf
+              , c;
+
+            if (h.bb.length) {
+                c = h.bb.pop()
+            } else {
+                h.Rc++
+                c = document.createElement("div")
+                c.classList.add(this.a.Ge)
+                h.K.appendChild(c)
+            }
+
+            this.Qc[a] = h
+            this.R[a] = c
+            this.Xb[a] = true
             return c
         }
       , detach: function(a) {
@@ -1464,7 +1528,13 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, 
             this.sc = []
         }
       , bg: function(a) {
-            this.size ? (a.style.width = this.size[0] + "px", a.style.height = this.size[1] + "px") : this.rc = void 0;
+            if (this.size) {
+                a.style.width = this.size[0] + "px"
+                a.style.height = this.size[1] + "px"
+            } else {
+                this.rc = void 0
+            }
+
             for (var b in this.Y)
                 this.Y.hasOwnProperty(b) && (a.style[b] = this.Y[b]);
             b = this.classList;
@@ -1567,36 +1637,55 @@ define("0/2", ["require", "exports", "module", "./c", "./b", "./a"], function(re
     }
 
     for (var b in f.prototype) {
-        f.prototype.hasOwnProperty(b) && !g.prototype.hasOwnProperty(b) && (g.prototype[b] = f.prototype[b]);
+        if (f.prototype.hasOwnProperty(b)) {
+            if (!g.prototype.hasOwnProperty(b)) {
+                g.prototype[b] = f.prototype[b]
+            }
+        }
     }
 
     module.exports = g
 })
 
 define("0/e", ["require", "exports", "module"], function(require, exports, module) {
+    /**
+     * These look like easing functions.
+     *
+     * http://www.gizma.com/easing/
+     * http://developer.yahoo.com/yui/docs/Easing.js.html
+     */
     function g(c) {
-        this.ca = null;
-        this.zb = [];
-        this.xc = [];
-        this.ce = 0;
-        this.Ta({duration: 500,q: g.w.Nf});
+        this.ca = null
+        this.zb = []
+        this.xc = []
+        this.ce = 0
+        this.Ta({
+            duration: 500
+          , q: g.w.linear
+        })
         this.set(c)
     }
 
+    // Input is current time/duration = c
     g.w = {
-        Nf: function(c) {
+        linear: function(c) {
             return c
         }
-      , rf: function(c) {
+      , ease_in_quad: function(c) {
             return c * c
         }
-      , Ja: function(c) {
+      , ease_out_quad: function(c) {
             return c * (2 - c)
         }
-      , eb: function(c) {
-            return 0.5 >= c ? 2 * c * c : -2 * c * c + 4 * c - 1
+      , ease_in_out_quad: function(c) {
+            if (0.5 >= c) {
+                return 2 * c * c
+            } else {
+                return -2 * c * c + 4 * c - 1
+            }
         }
       , sf: function(c) {
+            // This is just c * (2.25 - 1.25c) = 2.25c - 1.25cc
             return c * (2.25 - 1.25 * c)
         }
       , hc: function(c) {
@@ -1606,16 +1695,27 @@ define("0/e", ["require", "exports", "module"], function(require, exports, modul
 
     g.prototype = {
         Cd: function() {
-            0 >= this.zb.length ? this.set(this.state) : (this.ca = this.zb.shift(), this.startTime = this.getTime(), 
-            this.Fe = this.xd(this.state))
+            if (0 >= this.zb.length) {
+                this.set(this.state)
+            } else {
+                this.ca = this.zb.shift()
+                this.startTime = this.getTime()
+                this.Fe = this.xd(this.state)
+            }
         }
       , df: function(c) {
             if (this.ca && (c || (c = this.getTime()), this.ce != c)) {
                 this.ce = c;
-                var f = this.Fe, a = this.ca[0], b = this.ca[2], c = (c - this.startTime) / this.ca[1], d = Math.min(Math.max(c, 0), 1);
+                var f = this.Fe
+                  , a = this.ca[0]
+                  , b = this.ca[2]
+                  , c = (c - this.startTime) / this.ca[1]
+                  , d = Math.min(Math.max(c, 0), 1)
+
                 if ("object" == typeof this.state)
-                    for (var h in this.state)
+                    for (var h in this.state) {
                         this.state.hasOwnProperty(h) && (this.state[h] = this.Ad(f[h], a[h], b(d)));
+                    }
                 else
                     this.state = this.Ad(f, a, b(d));
                 1 <= c && (f = this.xc.shift(), this.Cd(), f && f())
@@ -1626,11 +1726,17 @@ define("0/e", ["require", "exports", "module"], function(require, exports, modul
         }
       , xd: function(c) {
             if ("object" == typeof c) {
-                if (c.slice)
+                if (c.slice) {
                     return c.slice(0);
-                var f = {}, a;
-                for (a in c)
+                }
+
+                var f = {}
+                  , a
+
+                for (a in c) {
                     c.hasOwnProperty(a) && (f[a] = c[a]);
+                }
+
                 return f
             }
             return c
@@ -1658,8 +1764,7 @@ define("0/e", ["require", "exports", "module"], function(require, exports, modul
                     var b = this.get(), d = 0;
                     if ("object" == typeof b)
                         for (var h in b)
-                            b.hasOwnProperty(h) && 
-                            (d += Math.pow(c[h] - b[h], 2));
+                            b.hasOwnProperty(h) && (d += Math.pow(c[h] - b[h], 2));
                     else
                         d = Math.pow(c - b, 2);
                     f.duration = Math.sqrt(d) / f.speed
@@ -1667,8 +1772,14 @@ define("0/e", ["require", "exports", "module"], function(require, exports, modul
                 this.zb.push([c, f.duration, f.q]);
                 this.xc.push(a);
                 this.ca || this.Cd()
-            } else
-                this.startTime = 0, this.Fe = this.state = this.xd(c), this.ca = null, this.zb = [], this.xc = [], a && a()
+            } else {
+                this.startTime = 0
+                this.Fe = this.state = this.xd(c)
+                this.ca = null
+                this.zb = []
+                this.xc = []
+                a && a()
+            }
         }
       , getTime: function() {
             return this.Of ? this.Of : (new Date).getTime()
@@ -1693,12 +1804,18 @@ define("0/d", ["require", "exports", "module", "./Matrix", "./e"], function(requ
       , f = require("./e")
 
     function g(a, b, d) {
-        a || (a = Matrix.identity);
-        "number" != typeof b && (b = 1);
-        this.qa = new f([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1]);
-        this.ac = new f(b);
-        this.setTransform(a);
-        this.Ua(b);
+        if (!a) {
+            a = Matrix.identity
+        }
+
+        if ("number" != typeof b) {
+            b = 1
+        }
+
+        this.qa = new f([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1])
+        this.ac = new f(b)
+        this.setTransform(a)
+        this.Ua(b)
         this.fc(d)
     }
 
@@ -1707,16 +1824,29 @@ define("0/d", ["require", "exports", "module", "./Matrix", "./e"], function(requ
     }
 
     g.Ze = function(a) {
-        return {translate: [a[0], a[1], a[2]],rotate: [a[3], a[4], a[5]],Ba: [a[6], a[7], a[8]],scale: [a[9], a[10], a[11]]}
+        return {
+            translate: [a[0], a[1], a[2]]
+          , rotate: [a[3], a[4], a[5]]
+          , Ba: [a[6], a[7], a[8]]
+          , scale: [a[9], a[10], a[11]]
+        }
     }
 
     g.prototype = {
         O: function() {
-            return this.qa.Tb() ? Matrix.jf(g.Ze(this.qa.get())) : 
-            this.Hc
+            return this.qa.Tb() ? Matrix.jf(g.Ze(this.qa.get())) : this.Hc
         }
       , setTransform: function(a, b, d) {
-            b ? (this.Gd && (this.qa.set(g.zd(Matrix.fa(this.Hc))), this.Gd = false), this.qa.set(g.zd(Matrix.fa(a)), b, d)) : (this.qa.n(), this.Gd = true);
+            if (b) {
+                if (this.Gd) {
+                    this.qa.set(g.zd(Matrix.fa(this.Hc)))
+                    this.Gd = false
+                }
+                this.qa.set(g.zd(Matrix.fa(a)), b, d)
+            } else {
+                this.qa.n()
+                this.Gd = true
+            }
             this.Hc = a
         }
       , Jc: function() {
@@ -1725,8 +1855,11 @@ define("0/d", ["require", "exports", "module", "./Matrix", "./e"], function(requ
       , Ua: function(a, b, d) {
             this.ac.set(a, b, d)
         }
-      , fc: setter_factory("ea"),ve: function(a) {
-            this.qa.Ta(a);
+      , fc: function(value) {
+            this.ea = value
+        }
+      , ve: function(a) {
+            this.qa.Ta(a)
             this.ac.Ta(a)
         }
       , n: function() {
@@ -1737,7 +1870,12 @@ define("0/d", ["require", "exports", "module", "./Matrix", "./e"], function(requ
             return this.qa.Tb()
         }
       , u: function(a) {
-            return {transform: this.O(),opacity: this.Jc(),ea: this.ea,target: a}
+            return {
+                transform: this.O()
+              , opacity: this.Jc()
+              , ea: this.ea
+              , target: a
+            }
         }
     }
 
@@ -1789,7 +1927,9 @@ define("0/5", ["require", "exports", "module", "./8", "./7"], function(require, 
     }
 
     c.prototype = {
-        Aa: setter_factory("zc")
+        Aa: function(value) {
+            this.zc = value
+        }
       , L: function(a) {
             this.Fb[a] || (this.Fb[a] = new f(new g));
             return this.Fb[a]
@@ -1821,9 +1961,9 @@ define("1/g", ["require", "exports", "module", "0/Matrix", "0/e"], function(requ
         this.Qa = new f([0, 0, 0]);
         this.Sa = new f([0, 0, 0]);
         this.Ca = new f([0, 0, 0]);
-        this.Qa.Ta({duration: 3000,q: f.w.Ja});
-        this.Sa.Ta({duration: 1000,q: f.w.Ja});
-        this.Ca.Ta({duration: 1000,q: f.w.Ja})
+        this.Qa.Ta({duration: 3000,q: f.w.ease_out_quad});
+        this.Sa.Ta({duration: 1000,q: f.w.ease_out_quad});
+        this.Ca.Ta({duration: 1000,q: f.w.ease_out_quad})
     }
 
     g.prototype = {
@@ -1869,8 +2009,15 @@ define("1/g", ["require", "exports", "module", "0/Matrix", "0/e"], function(requ
         }
       , A: function(a, b, d) {
             if (b) {
-                for (var c = this.da(), f = 0; 3 > f; f++)
-                    a[f] > 0.5 * Math.PI && c[f] <= -0.5 * Math.PI && (c[f] += 2 * Math.PI), a[f] < -0.5 * Math.PI && c[f] >= 0.5 * Math.PI && (c[f] -= 2 * Math.PI);
+                for (var c = this.da(), f = 0; 3 > f; f++) {
+                    if (a[f] > 0.5 * Math.PI && c[f] <= -0.5 * Math.PI) {
+                        c[f] += 2 * Math.PI
+                    }
+
+                    if (a[f] < -0.5 * Math.PI && c[f] >= 0.5 * Math.PI) {
+                        c[f] -= 2 * Math.PI
+                    }
+                }
                 this.Sa.set(c)
             }
             this.Sa.set(a, b, d)
@@ -1880,22 +2027,36 @@ define("1/g", ["require", "exports", "module", "0/Matrix", "0/e"], function(requ
         }
       , J: function(a, b, d) {
             if (b) {
-                for (var c = this.La(), f = 0; 3 > f; f++)
-                    a[f] > 0.5 * Math.PI && c[f] <= -0.5 * Math.PI && (c[f] += 2 * Math.PI), a[f] < -0.5 * Math.PI && c[f] >= 0.5 * Math.PI && (c[f] -= 2 * Math.PI);
+                for (var c = this.La(), f = 0; 3 > f; f++) {
+                    if (a[f] > 0.5 * Math.PI && c[f] <= -0.5 * Math.PI) {
+                        c[f] += 2 * Math.PI
+                    }
+
+                    if (a[f] < -0.5 * Math.PI && c[f] >= 0.5 * Math.PI) {
+                        c[f] -= 2 * Math.PI
+                    }
+                }
                 this.Ca.set(c)
             }
             this.Ca.set(a, b, d)
         }
       , ge: function() {
             var a = this.La();
-            if (a[0] || a[1] || a[2])
-                a = Matrix.fa(Matrix.inverse(this.ab())), this.s(a.translate), this.A([-a.rotate[0], -a.rotate[1], -a.rotate[2]]), this.J([0, 0, 0])
+            if (a[0] || a[1] || a[2]) {
+                a = Matrix.fa(Matrix.inverse(this.ab()))
+                this.s(a.translate)
+                this.A([-a.rotate[0], -a.rotate[1], -a.rotate[2]])
+                this.J([0, 0, 0])
+            }
         }
       , Sc: function() {
             var a = this.da();
-            if (a[0] || a[1] || a[2])
-                a = Matrix.fa(this.ab()), this.s([-a.translate[0], -a.translate[1], -a.translate[2]]), this.J([-a.rotate[0], 
-                    -a.rotate[1], -a.rotate[2]]), this.A([0, 0, 0])
+            if (a[0] || a[1] || a[2]) {
+                a = Matrix.fa(this.ab())
+                this.s([-a.translate[0], -a.translate[1], -a.translate[2]])
+                this.J([-a.rotate[0], -a.rotate[1], -a.rotate[2]])
+                this.A([0, 0, 0])
+            }
         }
       , Cf: function() {
             var a = this.La();
@@ -1922,15 +2083,15 @@ define("1/i", ["require", "exports", "module"], function(require, exports, modul
 
     g.prototype = {
         move: function(c, f, a) {
-            var b = this.e.F();
+            var b = this.e.F()
             this.e.s([b[0] + c[0], b[1] + c[1], b[2] + c[2]], f, a)
         }
       , rotate: function(c, f, a) {
-            var b = this.e.da();
+            var b = this.e.da()
             this.e.A([b[0] + c[0], b[1] + c[1], b[2] + c[2]], f, a)
         }
       , p: function(c, f, a) {
-            var b = this.e.La();
+            var b = this.e.La()
             this.e.J([b[0] + c[0], b[1] + c[1], b[2] + c[2]], f, a)
         }
     }
@@ -1992,9 +2153,16 @@ define("1/h", ["require", "exports", "module", "./i"], function(require, exports
             this.G = (new Date).getTime()
         }
       , Yc: function(a) {
-            var b = a.targetTouches[0].pageX, a = a.targetTouches[0].pageY, d = b - this.ha, c = a - this.ia;
+            var b = a.targetTouches[0].pageX
+              , a = a.targetTouches[0].pageY
+              , d = b - this.ha
+              , c = a - this.ia
+
             this.e.Cf();
-            var f = this.a.me * this.ob(), d = -f * d, c = -f * c;
+            var f = this.a.me * this.ob()
+              , d = -f * d
+              , c = -f * c
+
             this.a.Pa && (Math.abs(d) > Math.abs(c) && (c = 0), Math.abs(c) > Math.abs(d) && (d = 0));
             this.l.move([d, c, 0]);
             this.ha = b;
@@ -2005,7 +2173,11 @@ define("1/h", ["require", "exports", "module", "./i"], function(require, exports
             this.G = b
         }
       , Xc: function() {
-            var a = this.a.oe, b = this.ob() * this.a.ne, d = a * this.Ya, a = a * this.Za;
+            var a = this.a.oe
+              , b = this.ob() * this.a.ne
+              , d = a * this.Ya
+              , a = a * this.Za
+
             d > b && (d = b);
             a > b && (a = b);
             d < -b && (d = -b);
@@ -2440,7 +2612,7 @@ define("1/m", ["require", "exports", "module", "./i", "0/e"], function(require, 
         this.a || (this.a = {});
         this.a.I || (this.a.I = 0);
         this.a.Xa || (this.a.Xa = 0);
-        this.a.ad || (this.a.ad = {duration: 3000,q: f.w.Ja});
+        this.a.ad || (this.a.ad = {duration: 3000,q: f.w.ease_out_quad});
         this.l = new c(this.e)
     }
 
@@ -2641,16 +2813,21 @@ define("3/x", ["require", "exports", "module", "0/e"], function(require, exports
 
 define("3/z", ["require", "exports", "module"], function(require, exports, module) {
     function g() {
-        this.Dg = this.startTime = 0;
-        this.ec = [];
+        this.Dg = this.startTime = 0
+        this.ec = []
         this.ja = -1
     }
 
     g.prototype = {
         Ye: function(c) {
-            0 > this.ja && (this.ja = 0);
-            for (; this.ja < this.ec.length && this.ec[this.ja].Ag <= c; )
-                this.ec[this.ja].action.call(this), this.ja++
+            if (this.js < 0) {
+                this.ja = 0
+            }
+
+            for (; this.ja < this.ec.length && this.ec[this.ja].Ag <= c; ) {
+                this.ec[this.ja].action.call(this)
+                this.ja++
+            }
         }
       , update: function() {
             0 > this.ja || this.ja >= this.ec.length || this.Ye((new Date).getTime() - this.startTime)
@@ -2670,7 +2847,7 @@ define("3/10", ["require", "exports", "module", "0/Matrix", "0/e", "0/d"], funct
         this.v = {};
         this.Oc = {};
         for (var d in this.cc)
-            this.v[d] = new a, this.v[d].ve({duration: 1000,q: f.w.eb})
+            this.v[d] = new a, this.v[d].ve({duration: 1000,q: f.w.ease_in_out_quad})
     }
 
     g.prototype = {
@@ -2848,7 +3025,7 @@ define("6/1b", ["require", "exports", "module", "0/Matrix", "0/e"], function(req
             0 <= a && this.gb.splice(a, 1)
         }
       , Te: function(a, b) {
-            this.H.hasOwnProperty(a) && ("undefined" == typeof b && (b = 500), this.H[a].n(), this.H[a].set(0, {duration: b,q: f.w.eb}))
+            this.H.hasOwnProperty(a) && ("undefined" == typeof b && (b = 500), this.H[a].n(), this.H[a].set(0, {duration: b,q: f.w.ease_in_out_quad}))
         }
       , update: function() {
             if (this.enabled && this.H.length && !(Math.random() > this.Ic)) {
@@ -2856,7 +3033,7 @@ define("6/1b", ["require", "exports", "module", "0/Matrix", "0/e"], function(req
                 if (!(0 <= this.gb.indexOf(a))) {
                     var b = Math.round(this.Jf * (Math.random() - 0.5)), d = Math.round(this.duration * (Math.random() + 0.5));
                     this.H[a].n();
-                    this.H[a].set(b, {duration: d,q: f.w.eb})
+                    this.H[a].set(b, {duration: d,q: f.w.ease_in_out_quad})
                 }
             }
         }
@@ -2901,8 +3078,8 @@ define("6/1a", ["require", "exports", "module", "0/Matrix", "0/e", "3/10"], func
               , D = 100 * Math.random() - 50
               , C = 100 * Math.random() - 50
               , m = 100 * Math.random() - 50
-              , w = {duration: 2000,q: f.w.Ja}
-              , r = {duration: 1000,q: f.w.eb};
+              , w = {duration: 2000,q: f.w.ease_out_quad}
+              , r = {duration: 1000,q: f.w.ease_in_out_quad};
 
             d.modify(a, c.translate(0, 0, e), w);
             d.modify(a, c.translate(j + g, 0, 0), w);
@@ -2959,16 +3136,20 @@ define("2/s", ["require", "exports", "module"], function(require, exports, modul
         f || (f = 0);
         a || (a = 0);
         var b = 2 * a * Math.sqrt(f);
+
         return function(a, e, g) {
-            var a = a - c, j = a + e * g, k = 0.5 * f * a * a, D = 0.5 * f * j * j;
+            var a = a - c
+              , j = a + e * g
+              , k = 0.5 * f * a * a
+              , D = 0.5 * f * j * j;
+
             return -(0 > a / j ? k : D - k) - b * e * e * g
         }
     }
 
     g.vg = function(c, f) {
         f || (f = 0);
-        return function(a, 
-        b, d) {
+        return function(a, b, d) {
             var e = a - c, a = e + b * d;
             if (0.5 > Math.abs(e) && 0.5 > Math.abs(a))
                 return -0.5 * b * b * d;
@@ -3032,8 +3213,7 @@ define("2/s", ["require", "exports", "module"], function(require, exports, modul
             if (!this.ua) {
                 var a = this, b = 0, d = 0;
                 if (Math.abs(this.B) > this.Mc)
-                    b = f(this.x, 
-                    this.B, c), d = 0 < this.B ? 1 : -1;
+                    b = f(this.x, this.B, c), d = 0 < this.B ? 1 : -1;
                 else {
                     var e = f(this.x, this.Mc, c), g = f(this.x, -this.Mc, c), b = Math.max(e, g), d = e > g ? 1 : -1;
                     0 >= e && 0 >= g && (this.ua = true)
@@ -3227,8 +3407,7 @@ define("2/t", ["require", "exports", "module", "0/Matrix", "./s"], function(requ
             0 > a.indexOf("flow") && this.n();
             this.W = true;
             this.ta = a;
-            this.sa = 
-            b;
+            this.sa = b;
             for (var c = 0; c < this.sa.length; c++)
                 this.og.C(this.sa[c]);
             this.he();
@@ -3285,8 +3464,7 @@ define("4/13", ["require", "exports", "module"], function(require, exports, modu
                 this.touches[d] = {pe: b.pageX,qe: b.pageY,timestamp: (new Date).getTime(),qd: 0,rd: 0};
                 c.origin.b("grab", {target: c.target});
                 (function(a, b) {
-                    f.touches[a].Xd = 
-                    setTimeout(function() {
+                    f.touches[a].Xd = setTimeout(function() {
                         b.b("hold", {id: a})
                     }, f.a.Wd)
                 }).call(this, d, c.origin)
@@ -3311,8 +3489,7 @@ define("4/13", ["require", "exports", "module"], function(require, exports, modu
             this.yb = false
         }
       , na: function(c) {
-            for (var f = (new Date).getTime(), 
-            a = 0; a < c.changedTouches.length; a++) {
+            for (var f = (new Date).getTime(), a = 0; a < c.changedTouches.length; a++) {
                 var b = c.changedTouches[a].identifier;
                 if (this.touches[b]) {
                     var d = this.touches[b], e = f - d.timestamp;
@@ -3326,8 +3503,7 @@ define("4/13", ["require", "exports", "module"], function(require, exports, modu
             0 == c.touches.length && (this.yb = false)
         }
       , b: function(c, f) {
-            "touchmove" == c ? this.oa(f) : "touchstart" == c ? this.pa(f) : 
-            "touchend" == c && this.na(f)
+            "touchmove" == c ? this.oa(f) : "touchstart" == c ? this.pa(f) : "touchend" == c && this.na(f)
         }
     }
 
@@ -3353,8 +3529,7 @@ define("4/12", ["require", "exports", "module"], function(require, exports, modu
         }
       , oa: function(c) {
             for (var f = 0; f < c.changedTouches.length; f++) {
-                var a = 
-                c.changedTouches[f];
+                var a = c.changedTouches[f];
                 this.Ea[a.identifier] = {x: a.pageX,y: a.pageY}
             }
             if (this.Lb && "undefined" != typeof this.la && "undefined" != typeof this.ma) {
@@ -3510,7 +3685,7 @@ define("app", [
         0 <= L && h(L);
         u.n();
         z.Hf();
-        var e = {duration: 1000,q: M.w.Ja};
+        var e = {duration: 1000,q: M.w.ease_out_quad};
         3 == J ? (z.Wa(g, e, b), z.Va(1, e), u.s([0, 0, 700], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), F.qb([-5000, 5000], e), F.rb([-3000, 3000], e), F.sb([-5000, 5000], e), X.setTransform(Matrix.translate(120, 0, 0), true), d && s("periodic table")) : 1 == J ? (u.s([0, 0, 700], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), z.Wa(c, e, b), z.Va(1, e), F.qb([-5000, 5000], e), F.rb([-3000, 3000], e), F.sb([-5000, 5000], e), X.setTransform(Matrix.translate(0, 0, 0), true), d && s("helix")) : 2 == J ? (u.s([0, 0, -500], e), u.A([0, 
             0, 0], e), u.J([0, 0, 0], e), z.Wa(f, e, b), z.Va(1, e), F.qb([-5000, 5000], e), F.rb([-3000, 3000], e), F.sb([-5000, 5000], e), X.setTransform(Matrix.translate(60, 0, 0), true), d && s("wall of fame")) : 0 == J ? (u.s([0, 0, 800], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), z.Wa(j, e, b), z.Va(1, e), F.qb([-5000, 5000], e), F.rb([-3000, 3000], e), F.sb([-5000, 5000], e), X.setTransform(Matrix.translate(-60, 0, 0), true), d && s("sphere")) : 4 == J && (u.s([0, 0, -600], e), u.A([0, -Math.PI / 11, 0], e), u.J([0, 0, 0], e), z.Wa(k, e, b), z.Va(1, e), X.setTransform(Matrix.translate(-120, 0, 0), true), d && s("paraflow"));
         4 == J ? Y.enable() : Y.disable();
@@ -3808,8 +3983,11 @@ define("app", [
         ub.h("caption");
         var Oa = new A([600, 50], "");
         Oa.h("shape-flash");
-        var Pa = new na(0, {duration: 1000,q: M.w.rf}), X = new y(Matrix.translate(-120, 0, 0), 1, "b");
-        X.ve({duration: 250,q: M.w.eb});
+
+        var Pa = new na(0, {duration: 1000,q: M.w.ease_in_quad})
+          , X = new y(Matrix.translate(-120, 0, 0), 1, "b")
+
+        X.ve({duration: 250,q: M.w.ease_in_out_quad});
         var vb = new A([60, 60], '<div class="shape-button-indicator-box"></div>');
         vb.h("shape-button-indicator");
         var fc = E(4, '<img src="content/icons/paraflow.png" alt="PF" />', "paraflow"), gc = E(3, '<img src="content/icons/periodic.png" alt="P" />', "periodic table"), hc = 
