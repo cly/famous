@@ -1241,67 +1241,79 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, ex
               , d = d.Pb
               , k = this.Xe(h)
 
-            this.af(k);
+            this.af(k)
 
-            for (var m in this.R) {
-                a.hasOwnProperty(m) || this.detach(m);
+            for (var key in this.R) {
+                a.hasOwnProperty(key) || this.detach(key)
             }
 
-            for (m in a) {
-                if (a.hasOwnProperty(m)) {
-                    this.fg(m, a[m], h[m], c[m], e[m], h.hasOwnProperty(m) ? Matrix.multiply(a[m], g[h[m]]) : a[m]);
+            for (var key in a) {
+                if (a.hasOwnProperty(key)) {
+                    var temp = h.hasOwnProperty(key) ? Matrix.multiply(a[key], g[h[key]]) : a[key]
+                    this.fg(key, a[key], h[key], c[key], e[key], temp)
                 }
             }
 
-            for (m in g) {
-                if (g.hasOwnProperty(m)) {
-                    this.eg(m, g[m], j[m], d[m])
+            for (var key in g) {
+                if (g.hasOwnProperty(key)) {
+                    this.eg(key, g[key], j[key], d[key])
                 }
             }
         }
       , eg: function(a, d, h, e) {
             if (a = this.i[a]) {
-                for (var g = 0; g < a.length; g++) {
-                    if (!Matrix.equal(a[g].ee, d)) {
-                        a[g].ee = d
+                for (var i = 0; i < a.length; i++) {
+                    if (!Matrix.equal(a[i].ee, d)) {
+                        a[i].ee = d
                         var j = Matrix.multiply(Matrix.translate(0, 0, this.a.Rb), this.ud(d, e))
-                        c(a[g].K, j)
+                        c(a[i].K, j)
                     }
-                    a[g].opacity != h && (a[g].opacity = h, a[g].K.style.opacity = h)
+
+                    if (a[i].opacity != h) {
+                        a[i].opacity = h
+                        a[i].K.style.opacity = h
+                    }
                 }
             }
         }
       , ff: function(a, d) {
-            this.i[a] || (this.i[a] = []);
-            var h = this.i[a];
-            d.hb = a;
+            this.i[a] || (this.i[a] = [])
+            var h = this.i[a]
+            d.hb = a
             h.push(d)
         }
       , Uf: function(a) {
-            this.i.hasOwnProperty(a) || (this.i[a] = []);
+            this.i.hasOwnProperty(a) || (this.i[a] = [])
 
-            for (var d = this.i[a], h = 0, c = this.a.fe; h < d.length && !(0 < d[h].bb.length || d[h].Rc < c); ) {
-                h++;
+            var d = this.i[a]
+              , c = this.a.fe
+
+            for (var i = 0; i < d.length && !(0 < d[i].bb.length || d[i].Rc < c); ) {
+                i++;
             }
 
-            if (h >= d.length) {
-                c = document.createElement("div")
-                c.classList.add(this.a.Ud)
-                this.K.appendChild(c)
+            // K is a DOM element
+            if (i >= d.length) {
+                var element = document.createElement("div")
+                element.classList.add(this.a.Ud)
+                this.K.appendChild(element)
                 d.push({
                     hb: a
-                  , K: c
+                  , K: element
                   , Rc: 0
                   , bb: []
                 })
             }
-            return d[h]
+            return d[i]
         }
       , fg: function(a, d, h, e, g) {
             var j = this.pd[a]
               , k = this.Qc[a]
 
-            k && h && (k.hb || this.ff(h, k), k.hb != h && this.detach(a))
+            if (k && h) {
+                k.hb || this.ff(h, k)
+                k.hb != h && this.detach(a)
+            }
 
             this.Oa[a] = h
             this.R[a] || this.ef(a, h)
@@ -1359,12 +1371,16 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, ex
             this.a.ea = a
         }
       , ka: function(a) {
-            this.a.size = a.slice(0);
-            this.Yb = {};
-            this.Zb = {};
-            for (var d in this.i)
-                for (var a = this.i[d], c = 0; c < a.length; c++)
-                    delete a[c].ee, delete a[c].opacity
+            this.a.size = a.slice(0)
+            this.Yb = {}
+            this.Zb = {}
+            for (var key in this.i) {
+                var a = this.i[key]
+                for (var i = 0; i < a.length; i++) {
+                    delete a[c].ee
+                    delete a[c].opacity
+                }
+            }
         }
     }
 
@@ -1511,7 +1527,7 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, 
         this.content = "";
         this.wa = false;
         this.classList = [];
-        this.sc = [];
+        this.sc = []; //dom class names
         var d = this;
         this.listener = function(a) {
             d.b(a.type, a)
@@ -1545,9 +1561,9 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, 
             return this.Dc = new c(a)
         }
       , pb: function(a) {
-            for (n in a) {
-                if (a.hasOwnProperty(n)) {
-                    this.Y[n] = a[n]
+            for (key in a) {
+                if (a.hasOwnProperty(key)) {
+                    this.Y[key] = a[key]
                     this.wa = true
                 }
             }
@@ -1589,8 +1605,10 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, 
             }
         }
       , wd: function(a) {
-            for (var b = 0; b < this.sc.length; b++)
-                a.classList.remove(this.sc[b]);
+            for (var i = 0; i < this.sc.length; i++) {
+                a.classList.remove(this.sc[i])
+            }
+
             this.sc = []
         }
       , bg: function(a) {
@@ -1601,32 +1619,47 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, 
                 this.rc = void 0
             }
 
-            for (var b in this.Y)
-                this.Y.hasOwnProperty(b) && (a.style[b] = this.Y[b]);
-            b = this.classList;
-            this.wd(a);
-            for (var d = 0; d < b.length; d++)
-                a.classList.add(b[d]);
-            this.Ld(a);
+            for (var key in this.Y) {
+                if (this.Y.hasOwnProperty(key)) {
+                    a.style[key] = this.Y[key]
+                }
+            }
+
+            b = this.classList
+            this.wd(a)
+
+            for (var i = 0; i < b.length; i++) {
+                a.classList.add(b[i])
+            }
+
+            this.Ld(a)
             this.add_all_event_listeners(a)
-            this.wa = false;
+            this.wa = false
             this.xb = a
         }
       , lf: function(a) {
-            this.bd();
-            a.style.width = "";
-            a.style.height = "";
-            for (var b in this.Y)
-                this.Y.hasOwnProperty(b) && (a.style[b] = "");
-            b = this.classList;
-            this.wd(a);
-            for (var d = 0; d < b.length; d++)
-                a.classList.remove(b[d]);
+            this.bd()
+            a.style.width = ""
+            a.style.height = ""
+
+            for (var key in this.Y) {
+                if (this.Y.hasOwnProperty(key)) {
+                    a.style[key] = ""
+                }
+            }
+
+            this.wd(a)
+
+            var class_list = this.classList
+            for (var d = 0; d < class_list.length; d++) {
+                a.classList.remove(class_list[d])
+            }
+
             this.remove_all_event_listeners(a)
             this.xb = void 0
         }
       , Ld: function(a) {
-            a.innerHTML = this.content;
+            a.innerHTML = this.content
             this.b("deploy", a)
         }
       , bd: function() {
@@ -1709,10 +1742,10 @@ define("0/2", ["require", "exports", "module", "./c", "./b", "./a"], function(re
         }
     }
 
-    for (var b in f.prototype) {
-        if (f.prototype.hasOwnProperty(b)) {
-            if (!g.prototype.hasOwnProperty(b)) {
-                g.prototype[b] = f.prototype[b]
+    for (var key in f.prototype) {
+        if (f.prototype.hasOwnProperty(key)) {
+            if (!g.prototype.hasOwnProperty(key)) {
+                g.prototype[key] = f.prototype[key]
             }
         }
     }
@@ -1785,13 +1818,21 @@ define("0/e", ["require", "exports", "module"], function(require, exports, modul
                   , c = (c - this.startTime) / this.ca[1]
                   , d = Math.min(Math.max(c, 0), 1)
 
-                if ("object" == typeof this.state)
-                    for (var h in this.state) {
-                        this.state.hasOwnProperty(h) && (this.state[h] = this.Ad(f[h], a[h], b(d)));
+                if ("object" == typeof this.state) {
+                    for (var key in this.state) {
+                        if (this.state.hasOwnProperty(key)) {
+                            this.state[key] = this.Ad(f[key], a[key], b(d))
+                        }
                     }
-                else
-                    this.state = this.Ad(f, a, b(d));
-                1 <= c && (f = this.xc.shift(), this.Cd(), f && f())
+                } else {
+                    this.state = this.Ad(f, a, b(d))
+                }
+
+                if (1 <= c) {
+                    f = this.xc.shift()
+                    this.Cd()
+                    f && f()
+                }
             }
         }
       , Ad: function(c, f, a) {
@@ -1804,10 +1845,10 @@ define("0/e", ["require", "exports", "module"], function(require, exports, modul
                 }
 
                 var f = {}
-                  , a
-
-                for (a in c) {
-                    c.hasOwnProperty(a) && (f[a] = c[a]);
+                for (var key in c) {
+                    if (c.hasOwnProperty(key)) {
+                        f[key] = c[key]
+                    }
                 }
 
                 return f
@@ -1815,35 +1856,68 @@ define("0/e", ["require", "exports", "module"], function(require, exports, modul
             return c
         }
       , $e: function(c) {
-            var f = this.yd, a = {q: f.q};
-            f.duration && (a.duration = f.duration);
-            f.speed && (a.speed = f.speed);
-            if ("boolean" == typeof c)
-                return a;
-            "number" == typeof c.duration && (a.duration = c.duration);
-            c.q && (a.q = c.q);
-            c.speed && (a.speed = c.speed);
+            var f = this.yd
+              , a = {
+                    q: f.q
+                }
+
+            if (f.duration) {
+                a.duration = f.duration
+            }
+
+            if (f.speed) {
+                a.speed = f.speed
+            }
+
+            if ("boolean" == typeof c) {
+                return a
+            }
+
+            if ("number" == typeof c.duration) {
+                a.duration = c.duration
+            }
+
+            if (c.q) {
+                a.q = c.q
+            }
+
+            if (c.speed) {
+                a.speed = c.speed
+            }
+
             return a
         }
       , Ta: function(c) {
-            this.yd = {};
-            for (var f in c)
-                c.hasOwnProperty(f) && (this.yd[f] = c[f])
+            this.yd = {}
+
+            for (var key in c) {
+                if (c.hasOwnProperty(key)) {
+                    this.yd[key] = c[key]
+                }
+            }
         }
       , set: function(c, f, a) {
             if (f) {
-                f = this.$e(f);
+                f = this.$e(f)
+
                 if (f.speed) {
-                    var b = this.get(), d = 0;
-                    if ("object" == typeof b)
-                        for (var h in b)
-                            b.hasOwnProperty(h) && (d += Math.pow(c[h] - b[h], 2));
-                    else
-                        d = Math.pow(c - b, 2);
+                    var b = this.get()
+                      , d = 0
+
+                    if ("object" == typeof b) {
+                        for (var key in b) {
+                            if (b.hasOwnProperty(key)) {
+                                d += Math.pow(c[key] - b[key], 2)
+                            }
+                        }
+                    } else {
+                        d = Math.pow(c - b, 2)
+                    }
+
                     f.duration = Math.sqrt(d) / f.speed
                 }
-                this.zb.push([c, f.duration, f.q]);
-                this.xc.push(a);
+                this.zb.push([c, f.duration, f.q])
+                this.xc.push(a)
                 this.ca || this.Cd()
             } else {
                 this.startTime = 0
@@ -2054,8 +2128,12 @@ define("1/g", ["require", "exports", "module", "0/Matrix", "0/e"], function(requ
             return Matrix.multiply(a, b, h, d, a)
         }
       , u: function(a) {
-            a || (a = []);
-            return {transform: this.ab(),target: a,group: true}
+            a || (a = [])
+            return {
+                transform: this.ab()
+              , target: a
+              , group: true
+            }
         }
       , jb: function() {
             return this.Qa.Tb() || this.Ca.Tb()
@@ -2082,13 +2160,15 @@ define("1/g", ["require", "exports", "module", "0/Matrix", "0/e"], function(requ
         }
       , A: function(a, b, d) {
             if (b) {
-                for (var c = this.da(), f = 0; 3 > f; f++) {
-                    if (a[f] > 0.5 * Math.PI && c[f] <= -0.5 * Math.PI) {
-                        c[f] += 2 * Math.PI
+                var c = this.da()
+
+                for (var i = 0; 3 > i; i++) {
+                    if (a[i] > 0.5 * Math.PI && c[i] <= -0.5 * Math.PI) {
+                        c[i] += 2 * Math.PI
                     }
 
-                    if (a[f] < -0.5 * Math.PI && c[f] >= 0.5 * Math.PI) {
-                        c[f] -= 2 * Math.PI
+                    if (a[i] < -0.5 * Math.PI && c[i] >= 0.5 * Math.PI) {
+                        c[i] -= 2 * Math.PI
                     }
                 }
                 this.Sa.set(c)
@@ -2100,21 +2180,26 @@ define("1/g", ["require", "exports", "module", "0/Matrix", "0/e"], function(requ
         }
       , J: function(a, b, d) {
             if (b) {
-                for (var c = this.La(), f = 0; 3 > f; f++) {
-                    if (a[f] > 0.5 * Math.PI && c[f] <= -0.5 * Math.PI) {
-                        c[f] += 2 * Math.PI
+                var c = this.La()
+
+                for (var i = 0; 3 > i; i++) {
+                    if (a[i] > 0.5 * Math.PI && c[i] <= -0.5 * Math.PI) {
+                        c[i] += 2 * Math.PI
                     }
 
-                    if (a[f] < -0.5 * Math.PI && c[f] >= 0.5 * Math.PI) {
-                        c[f] -= 2 * Math.PI
+                    if (a[i] < -0.5 * Math.PI && c[i] >= 0.5 * Math.PI) {
+                        c[i] -= 2 * Math.PI
                     }
                 }
+
                 this.Ca.set(c)
             }
+
             this.Ca.set(a, b, d)
         }
       , ge: function() {
-            var a = this.La();
+            var a = this.La()
+
             if (a[0] || a[1] || a[2]) {
                 a = Matrix.fa(Matrix.inverse(this.ab()))
                 this.s(a.translate)
