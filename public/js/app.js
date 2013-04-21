@@ -945,20 +945,20 @@ define("0/Matrix", ["require", "exports", "module"], function(require, exports, 
                 a[2] -= Math.PI
             }
 
-            for (; a[1] < -Math.PI; ) {
-                a[1] += 2 * Math.PI;
+            while (a[1] < -Math.PI) {
+                a[1] += 2 * Math.PI
             }
 
-            for (; a[1] >= Math.PI; ) {
-                a[1] -= 2 * Math.PI;
+            while (a[1] >= Math.PI) {
+                a[1] -= 2 * Math.PI
             }
 
-            for (; a[2] < -Math.PI; ) {
-                a[2] += 2 * Math.PI;
+            while (a[2] < -Math.PI) {
+                a[2] += 2 * Math.PI
             }
 
-            for (; a[2] >= Math.PI; ) {
-                a[2] -= 2 * Math.PI;
+            while (a[2] >= Math.PI) {
+                a[2] -= 2 * Math.PI
             }
 
             return a
@@ -1025,46 +1025,57 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, ex
                     for (var i = 0, ii = a.length; i < ii; i++) {
                         var w = i.toString() + "A"
                           , r = this.wc(a[i])
-                          , t
 
-                        for (t in r.$b) {
-                            d[t] = r.$b[t]
+                        for (var key in r.$b) {
+                            d[key] = r.$b[key]
                         }
 
-                        for (t in r.v) {
-                            h[t] = r.v[t]
+                        for (var key in r.v) {
+                            h[key] = r.v[key]
                         }
 
-                        for (t in r.Ob) {
-                            c[t] = r.Ob[t]
+                        for (var key in r.Ob) {
+                            c[key] = r.Ob[key]
                         }
 
-                        for (t in r.i) {
-                            e[t] = w + r.i[t]
+                        for (var key in r.i) {
+                            e[key] = w + r.i[key]
                         }
 
-                        for (t in r.Sb) {
-                            g[w + t] = r.Sb[t]
+                        for (var key in r.Sb) {
+                            g[w + key] = r.Sb[key]
                         }
 
-                        for (t in r.Qb) {
-                            j[w + t] = r.Qb[t]
+                        for (var key in r.Qb) {
+                            j[w + key] = r.Qb[key]
                         }
 
-                        for (t in r.Pb) {
-                            k[w + t] = r.Pb[t]
+                        for (var key in r.Pb) {
+                            k[w + key] = r.Pb[key]
                         }
                     }
                 } else if (a.target) {
-                    var G = a.target;
+                    var G = a.target
 
-                    t = "object" == typeof a.transform ? a.transform : Matrix.identity;
+                    if ("object" == typeof a.transform) {
+                        var t = a.transform
+                    } else {
+                         var t = Matrix.identity
+                    }
 
-                    var r = "number" == typeof a.opacity ? a.opacity : 1
-                      , A = a.group
+                    if ("number" == typeof a.opacity) {
+                        var r = a.opacity
+                    } else {
+                        var r = 1
+                    }
+
+                    var group = a.group
                       , a = a.ea
 
-                    A && (g.X = t, j.X = r);
+                    if (group) {
+                        g.X = t
+                        j.X = r
+                    }
 
                     var I = this.wc(G)
                       , G = I.v
@@ -1075,28 +1086,28 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, ex
                       , W = I.Qb
                       , I = I.Pb
 
-                    for (m in G) {
-                        if (G.hasOwnProperty(m)) {
-                            h[m] = A || M.hasOwnProperty(m) ? G[m] : Matrix.multiply(G[m], t)
-                            d[m] = A || M.hasOwnProperty(m) ? p[m] : r * p[m]
-                            c[m] = y[m] || a
-                            M.hasOwnProperty(m) ? e[m] = M[m] : A && (e[m] = "X")
+                    for (var key in G) {
+                        if (G.hasOwnProperty(key)) {
+                            h[key] = group || M.hasOwnProperty(key) ? G[key] : Matrix.multiply(G[key], t)
+                            d[key] = group || M.hasOwnProperty(key) ? p[key] : r * p[key]
+                            c[key] = y[key] || a
+                            M.hasOwnProperty(key) ? e[key] = M[key] : group && (e[key] = "X")
                         }
                     }
 
-                    for (key in O) {
+                    for (var key in O) {
                         if (O.hasOwnProperty(key)) {
                             g[key] = Matrix.multiply(O[key], t)
                         }
                     }
 
-                    for (key in W) {
+                    for (var key in W) {
                         if (W.hasOwnProperty(key)) {
                             j[key] = r * W[key]
                         }
                     }
 
-                    for (key in I) {
+                    for (var key in I) {
                         if (I.hasOwnProperty(key)) {
                             k[key] = I[key]
                         }
@@ -1320,7 +1331,9 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, ex
             for (var d in this.i)
                 for (var a = this.i[d], c = 0; c < a.length; c++)
                     delete a[c].ee, delete a[c].opacity
-        }}
+        }
+    }
+
     module.exports = Module
 })
 
