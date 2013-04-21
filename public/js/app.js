@@ -1087,6 +1087,10 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, ex
                       , W = I.Qb
                       , I = I.Pb
 
+                    for (m in G)
+                        G.hasOwnProperty(m) && (h[m] = group || M.hasOwnProperty(m) ? G[m] : Matrix.multiply(G[m], t), d[m] = group || M.hasOwnProperty(m) ? p[m] : r * p[m], c[m] = y[m] || a, M.hasOwnProperty(m) ? e[m] = M[m] : group && (e[m] = "X"));
+
+                    /*
                     for (var key in G) {
                         if (G.hasOwnProperty(key)) {
 
@@ -1115,6 +1119,7 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, ex
                             }
                         }
                     }
+                    */
 
                     for (var key in O) {
                         if (O.hasOwnProperty(key)) {
@@ -1146,6 +1151,19 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, ex
               , Pb: k
             }
         }
+
+        ,Xe: function(a) {
+            var d = {}, h = [], c;
+            for (c in a)
+                if (a.hasOwnProperty(c)) {
+                    var f = this.Oa[c];
+                    f && (d.hasOwnProperty(f) ? h.push(f) : d[f] = a[c])
+                }
+            for (c = 0; c < h.length; c++)
+                d.hasOwnProperty(h[c]) && delete d[h[c]];
+            return d
+        }
+        /*
       , Xe: function(a) {
             var d = {}
               , h = []
@@ -1172,6 +1190,25 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, ex
 
             return d
         }
+        */
+
+        ,af: function(a) {
+            for (var d in this.Oa)
+                this.Oa.hasOwnProperty(d) && (this.Oa[d] = a[this.Oa[d]]);
+            var h = {};
+            for (d in this.i)
+                if (this.i.hasOwnProperty(d))
+                    if (a.hasOwnProperty(d)) {
+                        h.hasOwnProperty(a[d]) || (h[a[d]] = []);
+                        for (var c = 0; c < this.i[d].length; c++)
+                            this.i[d][c].hb = 
+                            a[d], h[a[d]].push(this.i[d][c])
+                    } else
+                        for (c = 0; c < this.i[d].length; c++)
+                            delete this.i[d][c].hb;
+            this.i = h
+        }
+        /*
       , af: function(a) {
             var h = {}
 
@@ -1199,6 +1236,7 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, ex
 
             this.i = h
         }
+        */
       , ud: function(a, d) {
             d = d || this.a.ea
             if ("tl" == d)
