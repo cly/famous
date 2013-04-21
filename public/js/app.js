@@ -4088,18 +4088,73 @@ define("app", [
           , Matrix.rotate_y_cw(-0.06667 * a * Math.PI))
     }
 
-    function a(a, b) {
-        var d = J != a;
-        J = "undefined" != typeof a ? a : (J + 1) % 5;
-        0 <= L && h(L);
-        u.n();
-        z.Hf();
+    // Current page number.
+    var J = 4
+    function a(new_page_number, b) {
+        var page_number_changed = J != new_page_number
+        J = "undefined" != typeof new_page_number ? new_page_number : (J + 1) % 5
+        0 <= L && h(L)
+        u.n()
+        z.Hf()
+
         var e = {
             duration: 1000
           , q: M.w.ease_out_quad
         }
 
-        3 == J ? (z.Wa(g, e, b), z.Va(1, e), u.s([0, 0, 700], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), F.qb([-5000, 5000], e), F.rb([-3000, 3000], e), F.sb([-5000, 5000], e), X.setTransform(Matrix.translate(120, 0, 0), true), d && s("periodic table")) : 1 == J ? (u.s([0, 0, 700], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), z.Wa(c, e, b), z.Va(1, e), F.qb([-5000, 5000], e), F.rb([-3000, 3000], e), F.sb([-5000, 5000], e), X.setTransform(Matrix.translate(0, 0, 0), true), d && s("helix")) : 2 == J ? (u.s([0, 0, -500], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), z.Wa(f, e, b), z.Va(1, e), F.qb([-5000, 5000], e), F.rb([-3000, 3000], e), F.sb([-5000, 5000], e), X.setTransform(Matrix.translate(60, 0, 0), true), d && s("wall of fame")) : 0 == J ? (u.s([0, 0, 800], e), u.A([0, 0, 0], e), u.J([0, 0, 0], e), z.Wa(j, e, b), z.Va(1, e), F.qb([-5000, 5000], e), F.rb([-3000, 3000], e), F.sb([-5000, 5000], e), X.setTransform(Matrix.translate(-60, 0, 0), true), d && s("sphere")) : 4 == J && (u.s([0, 0, -600], e), u.A([0, -Math.PI / 11, 0], e), u.J([0, 0, 0], e), z.Wa(k, e, b), z.Va(1, e), X.setTransform(Matrix.translate(-120, 0, 0), true), d && s("paraflow"));
+        if (3 == J) {
+            z.Wa(g, e, b)
+            z.Va(1, e)
+            u.s([0, 0, 700], e)
+            u.A([0, 0, 0], e)
+            u.J([0, 0, 0], e)
+            F.qb([-5000, 5000], e)
+            F.rb([-3000, 3000], e)
+            F.sb([-5000, 5000], e)
+            X.setTransform(Matrix.translate(120, 0, 0), true)
+            page_number_changed && s("periodic table")
+        } else if (1 == J) {
+            u.s([0, 0, 700], e)
+            u.A([0, 0, 0], e)
+            u.J([0, 0, 0], e)
+            z.Wa(c, e, b)
+            z.Va(1, e)
+            F.qb([-5000, 5000], e)
+            F.rb([-3000, 3000], e)
+            F.sb([-5000, 5000], e)
+            X.setTransform(Matrix.translate(0, 0, 0), true)
+            page_number_changed && s("helix")
+        } else if (2 == J) {
+            u.s([0, 0, -500], e)
+            u.A([0, 0, 0], e)
+            u.J([0, 0, 0], e)
+            z.Wa(f, e, b)
+            z.Va(1, e)
+            F.qb([-5000, 5000], e)
+            F.rb([-3000, 3000], e)
+            F.sb([-5000, 5000], e)
+            X.setTransform(Matrix.translate(60, 0, 0), true)
+            page_number_changed && s("wall of fame")
+        } else if (0 == J) {
+            u.s([0, 0, 800], e)
+            u.A([0, 0, 0], e)
+            u.J([0, 0, 0], e)
+            z.Wa(j, e, b)
+            z.Va(1, e)
+            F.qb([-5000, 5000], e)
+            F.rb([-3000, 3000], e)
+            F.sb([-5000, 5000], e)
+            X.setTransform(Matrix.translate(-60, 0, 0), true)
+            page_number_changed && s("sphere")
+        } else if (4 == J) {
+            u.s([0, 0, -600], e)
+            u.A([0, -Math.PI / 11, 0], e)
+            u.J([0, 0, 0], e)
+            z.Wa(k, e, b)
+            z.Va(1, e)
+            X.setTransform(Matrix.translate(-120, 0, 0), true)
+            page_number_changed && s("paraflow")
+        }
 
         4 == J ? Y.enable() : Y.disable();
         Z.Aa(J)
@@ -4380,19 +4435,26 @@ define("app", [
                 } else
                     32 == b.keyCode && a()
         });
-        var J = 4, Ba = new va([new P, new Qb]);
+        var Ba = new va([new P, new Qb])
+
         Ba.on("click", function(a) {
             a.target == document.body && b()
-        });
+        })
+
         Ba.on("pinch", function() {
             b()
-        });
+        })
+
         Ba.on("keyup", function(a) {
             27 == a.keyCode ? b() : 32 == a.keyCode && ja.Mb()
-        });
-        var ba = new W(0), z = new Mb(ca);
-        z.Wa(g);
-        z.Va(0);
+        })
+
+        var ba = new W(0)
+          , z = new Mb(ca)
+
+        z.Wa(g)
+        z.Va(0)
+
         var ec = new Pb(z, 0.1)
           , Ca = new Nb(z, Rb)
           , Na = new na(0, false)
