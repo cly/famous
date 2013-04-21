@@ -2637,9 +2637,25 @@ define("1/j", ["require", "exports", "module", "./i"], function(require, exports
                     this.a.ga && (this.j[0] *= -1)
                 }
 
-                87 == a.keyCode ? a.shiftKey ? this.r[1] = -b : this.r[2] = -b : 65 == a.keyCode ? this.r[0] = -b : 83 == a.keyCode ? a.shiftKey ? this.r[1] = b : this.r[2] = b : 68 == a.keyCode && (this.r[0] = b)
-                //87 == a.keyCode ? a.shiftKey ? this.r[1] = -b : this.r[2] = -b : 65 == a.keyCode ? this.r[0] = -b : 83 == a.keyCode ? a.shiftKey ? this.r[1] = b : this.r[2] = b : 68 == a.keyCode && (this.r[0] = b)
+                if (87 == a.keyCode) {
+                    if (a.shiftKey) {
+                        this.r[1] = -b
+                    } else {
+                        this.r[2] = -b
+                    }
+                } else if (65 == a.keyCode) {
+                    this.r[0] = -b
+                } else if (83 == a.keyCode) {
+                    if (a.shiftKey) {
+                        this.r[1] = b
+                    } else {
+                        this.r[2] = b
+                    }
+                } else if (68 == a.keyCode) {
+                    this.r[0] = b
+                }
             }
+
             if ("keydown" == c) {
                 this.Nc = (new Date).getTime()
                 b.call(this, a, 1)
@@ -2901,8 +2917,12 @@ define("1/k", ["require", "exports", "module", "0/Matrix", "0/e"], function(requ
         }
       , u: function(a) {
             for (var b = [], d = 0; d < a.length; d++) {
-                var c = this.Dd(a[d].transform);
-                b.push({transform: c.transform,opacity: c.opacity * a[d].opacity,target: a[d].target})
+                var c = this.Dd(a[d].transform)
+                b.push({
+                    transform: c.transform
+                  , opacity: c.opacity * a[d].opacity
+                  , target: a[d].target
+                })
             }
             return b
         }
