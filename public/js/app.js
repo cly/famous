@@ -1517,28 +1517,28 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, 
                 this.wa = true
             }
         }
-      , Ve: function(a) {
-            for (var b in this.D) {
-                if (this.D.hasOwnProperty(b)) {
-                    a.addEventListener(b, this.listener)
+      , add_all_event_listeners: function(element) {
+            for (var key in this.D) {
+                if (this.D.hasOwnProperty(key)) {
+                    element.addEventListener(key, this.listener)
                 }
             }
 
             var event_types = g.event_types
             for (var i = 0; i < event_types.length; i++) {
-                a.addEventListener(event_types[i], this.listener)
+                element.addEventListener(event_types[i], this.listener)
             }
         }
-      , cf: function(a) {
-            for (var b in this.D) {
-                if (this.D.hasOwnProperty(b)) {
-                    a.removeEventListener(b, this.listener)
+      , remove_all_event_listeners: function(element) {
+            for (var key in this.D) {
+                if (this.D.hasOwnProperty(key)) {
+                    element.removeEventListener(key, this.listener)
                 }
             }
 
             var event_types = g.event_types
             for (var i = 0; i < event_types.length; i++) {
-                a.removeEventListener(event_types[i], this.listener)
+                element.removeEventListener(event_types[i], this.listener)
             }
         }
       , wd: function(a) {
@@ -1561,7 +1561,7 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, 
             for (var d = 0; d < b.length; d++)
                 a.classList.add(b[d]);
             this.Ld(a);
-            this.Ve(a);
+            this.add_all_event_listeners(a)
             this.wa = false;
             this.xb = a
         }
@@ -1575,7 +1575,7 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, 
             this.wd(a);
             for (var d = 0; d < b.length; d++)
                 a.classList.remove(b[d]);
-            this.cf(a);
+            this.remove_all_event_listeners(a)
             this.xb = void 0
         }
       , Ld: function(a) {
