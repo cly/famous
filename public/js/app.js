@@ -2208,7 +2208,8 @@ define("1/g", ["require", "exports", "module", "0/Matrix", "0/e"], function(requ
             }
         }
       , Sc: function() {
-            var a = this.da();
+            var a = this.da()
+
             if (a[0] || a[1] || a[2]) {
                 a = Matrix.fa(this.ab())
                 this.s([-a.translate[0], -a.translate[1], -a.translate[2]])
@@ -2217,16 +2218,23 @@ define("1/g", ["require", "exports", "module", "0/Matrix", "0/e"], function(requ
             }
         }
       , Cf: function() {
-            var a = this.La();
-            if (!a[0] && !a[1] && !a[2])
-                return this.da();
-            a = Matrix.fa(Matrix.inverse(this.ab()));
+            var a = this.La()
+
+            if (!a[0] && !a[1] && !a[2]) {
+                return this.da()
+            }
+
+            a = Matrix.fa(Matrix.inverse(this.ab()))
+
             return [-a.rotate[0], -a.rotate[1], -a.rotate[2]]
         }
       , Pf: function(a, b, d) {
-            var h = Matrix.fa(Matrix.inverse(a)), a = h.translate, h = Matrix.Sc(h.rotate);
-            this.A([0, 0, 0], b);
-            this.J([-h[0], -h[1], -h[2]], b);
+            var h = Matrix.fa(Matrix.inverse(a))
+              , a = h.translate
+              , h = Matrix.Sc(h.rotate)
+
+            this.A([0, 0, 0], b)
+            this.J([-h[0], -h[1], -h[2]], b)
             this.s([-a[0], -a[1], -a[2]], b, d)
         }
     }
@@ -2377,95 +2385,140 @@ define("1/h", ["require", "exports", "module", "./i"], function(require, exports
             this.se = false
         }
       , fd: function(a) {
-            for (var b, d = 0; d < a.changedTouches.length; d++)
-                a.changedTouches[d].identifier == this.ub && (b = a.changedTouches[d]);
+            var b
+
+            for (var i = 0; i < a.changedTouches.length; i++) {
+                if (a.changedTouches[i].identifier == this.ub) {
+                    b = a.changedTouches[i]
+                }
+            }
+
             if (b) {
-                a = b.pageX;
-                b = b.pageY;
-                var c = this.a.re, d = c * (a - this.ha), c = -c * (b - this.ia);
-                this.a.gd && (Math.abs(d) > Math.abs(c) && (c = 0), Math.abs(c) > Math.abs(d) && (d = 0));
-                this.l.rotate([-c, -d, 0]);
-                this.se = true;
-                var f = (new Date).getTime();
-                this.Ya = d / (f - this.G);
-                this.Za = c / (f - this.G);
-                this.G = f;
-                this.ha = a;
+                a = b.pageX
+                b = b.pageY
+
+                var c = this.a.re
+                  , d = c * (a - this.ha)
+                  , c = -c * (b - this.ia)
+                  , f = (new Date).getTime()
+
+                this.a.gd && (Math.abs(d) > Math.abs(c) && (c = 0), Math.abs(c) > Math.abs(d) && (d = 0))
+                this.l.rotate([-c, -d, 0])
+                this.se = true
+
+                this.Ya = d / (f - this.G)
+                this.Za = c / (f - this.G)
+                this.G = f
+                this.ha = a
                 this.ia = b
             }
         }
       , dd: function(a) {
-            for (var b, d = 0; d < a.changedTouches.length; d++)
-                a.changedTouches[d].identifier == this.ub && (b = a.changedTouches[d]);
-            if (b)
+            var b
+            for (var i = 0; i < a.changedTouches.length; i++) {
+                a.changedTouches[i].identifier == this.ub && (b = a.changedTouches[i])
+            }
+
+            if (b) {
                 if (this.se) {
-                    b = this.a.ed;
-                    a = b * this.Ya;
-                    b *= this.Za;
-                    a > this.a.S && (a = this.a.S);
-                    b > this.a.S && (b = this.a.S);
-                    a < -this.a.S && (a = -this.a.S);
-                    b < -this.a.S && (b = -this.a.S);
-                    var d = this.e.da(), c = [d[0] - b, d[1] - a, d[2]];
-                    Math.abs(c[0]) < this.a.tb && (b = d[0]);
-                    Math.abs(c[1]) < this.a.tb && (a = d[1]);
+                    b = this.a.ed
+                    a = b * this.Ya
+                    b *= this.Za
+                    a > this.a.S && (a = this.a.S)
+                    b > this.a.S && (b = this.a.S)
+                    a < -this.a.S && (a = -this.a.S)
+                    b < -this.a.S && (b = -this.a.S)
+
+                    var d = this.e.da()
+                      , c = [d[0] - b, d[1] - a, d[2]]
+
+                    Math.abs(c[0]) < this.a.tb && (b = d[0])
+                    Math.abs(c[1]) < this.a.tb && (a = d[1])
                     (a || b) && this.l.rotate([-b, -a, 0], this.a.jd)
-                } else
+                } else {
                     this.ya()
+                }
+            }
         }
       , ya: function() {
             this.e.A([0, 0, 0], {duration: this.a.cd})
         }
       , De: function(a) {
-            this.e.n();
-            var b = a.changedTouches.length - 1;
-            this.ub = a.changedTouches[b].identifier;
-            this.ha = a.changedTouches[b].pageX;
-            this.ia = a.changedTouches[b].pageY;
+            this.e.n()
+
+            var i = a.changedTouches.length - 1
+
+            this.ub = a.changedTouches[i].identifier
+            this.ha = a.changedTouches[i].pageX
+            this.ia = a.changedTouches[i].pageY
             this.Ce = false
         }
       , Be: function(a) {
-            for (var b, d = 0; d < a.changedTouches.length; d++)
-                a.changedTouches[d].identifier == this.ub && (b = a.changedTouches[d]);
+            var b
+            for (var i = 0; i < a.changedTouches.length; i++) {
+                if (a.changedTouches[i].identifier == this.ub) {
+                    b = a.changedTouches[i]
+                }
+            }
+
             if (b) {
-                a = b.pageX;
-                b = b.pageY;
-                var c = this.a.Ae, d = c * (a - this.ha), c = -c * (b - this.ia);
-                this.a.nd && (Math.abs(d) > Math.abs(c) && (c = 0), Math.abs(c) > Math.abs(d) && (d = 0));
-                this.l.p([-c, -d, 0]);
-                this.Ce = true;
-                var f = (new Date).getTime();
-                this.Ya = d / (f - this.G);
-                this.Za = c / (f - this.G);
-                this.G = f;
-                this.ha = a;
+                a = b.pageX
+                b = b.pageY
+
+                var c = this.a.Ae
+                  , d = c * (a - this.ha)
+                  , c = -c * (b - this.ia)
+                  , f = (new Date).getTime()
+
+                this.a.nd && (Math.abs(d) > Math.abs(c) && (c = 0), Math.abs(c) > Math.abs(d) && (d = 0))
+                this.l.p([-c, -d, 0])
+                this.Ce = true
+                this.Ya = d / (f - this.G)
+                this.Za = c / (f - this.G)
+                this.G = f
+                this.ha = a
                 this.ia = b
             }
         }
       , ze: function(a) {
-            for (var b, d = 0; d < a.changedTouches.length; d++)
-                a.changedTouches[d].identifier == this.ub && (b = a.changedTouches[d]);
-            if (b)
+            var b
+            for (var i = 0; i < a.changedTouches.length; i++) {
+                if (a.changedTouches[i].identifier == this.ub) {
+                    b = a.changedTouches[i]
+                }
+            }
+
+            if (b) {
                 if (this.Ce) {
-                    b = this.a.md;
-                    a = b * this.Ya;
-                    b *= this.Za;
-                    a > this.a.U && (a = this.a.U);
-                    b > this.a.U && (b = this.a.U);
-                    a < -this.a.U && (a = -this.a.U);
-                    b < -this.a.U && (b = -this.a.U);
-                    var d = this.e.La(), c = [d[0] - b, d[1] - a, d[2]];
-                    Math.abs(c[0]) < this.a.tb && (b = d[0]);
-                    Math.abs(c[1]) < this.a.tb && (a = d[1]);
+                    b = this.a.md
+                    a = b * this.Ya
+                    b *= this.Za
+                    a > this.a.U && (a = this.a.U)
+                    b > this.a.U && (b = this.a.U)
+                    a < -this.a.U && (a = -this.a.U)
+                    b < -this.a.U && (b = -this.a.U)
+
+                    var d = this.e.La()
+                      , c = [d[0] - b, d[1] - a, d[2]]
+
+                    Math.abs(c[0]) < this.a.tb && (b = d[0])
+                    Math.abs(c[1]) < this.a.tb && (a = d[1])
+
                     (a || b) && this.l.p([-b, -a, 0], this.a.Ee)
-                } else
+                } else {
                     this.Da()
+                }
+            }
         }
       , Da: function() {
             this.e.J([0, 0, 0], {duration: this.a.cd})
         }
       , Oe: function(a) {
-            var b = a.touches[0], d = a.touches[1], a = d.pageX - b.pageX, b = d.pageY - b.pageY;
+            var b = a.touches[0]
+              , d = a.touches[1]
+              , a = d.pageX - b.pageX
+              , b = d.pageY - b.pageY
+
             return Math.sqrt(a * a + b * b)
         }
       , pa: function(a) {
@@ -2481,8 +2534,8 @@ define("1/h", ["require", "exports", "module", "./i"], function(require, exports
             }
         }
       , oa: function(a) {
-            this.state == f.Fa && this.Yc(a);
-            this.state == f.ba && this.kc(a);
+            this.state == f.Fa && this.Yc(a)
+            this.state == f.ba && this.kc(a)
             this.state == f.aa && this.fd(a)
         }
       , na: function(a) {
@@ -2550,9 +2603,9 @@ define("1/p", ["require", "exports", "module", "./h"], function(require, exports
         }
     }
 
-    for (var f in c.prototype) {
-        if (c.prototype.hasOwnProperty(f) && !g.prototype.hasOwnProperty(f)) {
-            g.prototype[f] = c.prototype[f]
+    for (var key in c.prototype) {
+        if (c.prototype.hasOwnProperty(key) && !g.prototype.hasOwnProperty(key)) {
+            g.prototype[key] = c.prototype[key]
         }
     }
 
@@ -2633,9 +2686,9 @@ define("1/o", ["require", "exports", "module", "./h", "0/Matrix"], function(requ
         }
     }
 
-    for (var a in c.prototype) {
-        if (c.prototype.hasOwnProperty(a) && !g.prototype.hasOwnProperty(a)) {
-            g.prototype[a] = c.prototype[a]
+    for (var key in c.prototype) {
+        if (c.prototype.hasOwnProperty(key) && !g.prototype.hasOwnProperty(key)) {
+            g.prototype[key] = c.prototype[key]
         }
     }
 
@@ -2702,9 +2755,9 @@ define("1/n", ["require", "exports", "module", "./h"], function(require, exports
         }
     }
 
-    for (var a in c.prototype) {
-        if (c.prototype.hasOwnProperty(a) && !g.prototype.hasOwnProperty(a)) {
-            g.prototype[a] = c.prototype[a]
+    for (var key in c.prototype) {
+        if (c.prototype.hasOwnProperty(key) && !g.prototype.hasOwnProperty(key)) {
+            g.prototype[key] = c.prototype[key]
         }
     }
 
@@ -2897,9 +2950,9 @@ define("1/q", ["require", "exports", "module", "./i", "./j"], function(require, 
         }
     }
 
-    for (var f in c.prototype) {
-        if (c.prototype.hasOwnProperty(f) && !g.prototype.hasOwnProperty(f)) {
-            g.prototype[f] = c.prototype[f]
+    for (var key in c.prototype) {
+        if (c.prototype.hasOwnProperty(key) && !g.prototype.hasOwnProperty(key)) {
+            g.prototype[key] = c.prototype[key]
         }
     }
 
@@ -3068,18 +3121,23 @@ define("1/k", ["require", "exports", "module", "0/Matrix", "0/e"], function(requ
             f = Math.min(0.0050 * (g[1] - f[0]), 0.0050 * (f[1] - g[1]));
             e = Math.min(0.0050 * (g[2] - e[0]), 0.0050 * (e[1] - g[2]));
             e = Math.min(b, f, e, 1);
-            return {transform: c.move(a, t),opacity: e}
+
+            return {
+                transform: c.move(a, t)
+              , opacity: e
+            }
         }
       , Bf: function(a) {
             return this.Dd(a).transform
         }
       , u: function(a) {
-            for (var b = [], d = 0; d < a.length; d++) {
-                var c = this.Dd(a[d].transform)
+            var b = []
+            for (var i = 0; i < a.length; i++) {
+                var c = this.Dd(a[i].transform)
                 b.push({
                     transform: c.transform
-                  , opacity: c.opacity * a[d].opacity
-                  , target: a[d].target
+                  , opacity: c.opacity * a[i].opacity
+                  , target: a[i].target
                 })
             }
             return b
@@ -3210,7 +3268,7 @@ define("3/z", ["require", "exports", "module"], function(require, exports, modul
                 this.ja = 0
             }
 
-            for (; this.ja < this.ec.length && this.ec[this.ja].Ag <= c; ) {
+            while (this.ja < this.ec.length && this.ec[this.ja].Ag <= c) {
                 this.ec[this.ja].action.call(this)
                 this.ja++
             }
@@ -3229,11 +3287,16 @@ define("3/10", ["require", "exports", "module", "0/Matrix", "0/e", "0/d"], funct
       , a = require("0/d")
 
     function g(b) {
-        this.cc = b;
-        this.v = {};
-        this.Oc = {};
-        for (var d in this.cc)
-            this.v[d] = new a, this.v[d].ve({duration: 1000,q: f.w.ease_in_out_quad})
+        this.cc = b
+        this.v = {}
+        this.Oc = {}
+        for (var key in this.cc) {
+            this.v[key] = new a
+            this.v[key].ve({
+                duration: 1000
+              , q: f.w.ease_in_out_quad
+            })
+        }
     }
 
     g.prototype = {
@@ -3241,8 +3304,9 @@ define("3/10", ["require", "exports", "module", "0/Matrix", "0/e", "0/d"], funct
             this.v[a].n()
         }
       , Vd: function(a) {
-            for (var d = 0; d < a.length; d++)
-                this.n(d)
+            for (var i = 0; i < a.length; i++) {
+                this.n(i)
+            }
         }
       , Hf: function() {
             this.Vd(this.all())
@@ -3251,8 +3315,9 @@ define("3/10", ["require", "exports", "module", "0/Matrix", "0/e", "0/d"], funct
             this.v[a].setTransform(d, c, f)
         }
       , $f: function(a, d, c, f) {
-            for (var e = 0; e < a.length; e++)
-                this.set(a[e], d(e), c, 0 == e ? f : void 0)
+            for (var i = 0; i < a.length; i++) {
+                this.set(a[i], d(i), c, 0 == i ? f : void 0)
+            }
         }
       , Wa: function(a, d, c) {
             this.$f(this.all(), a, d, c)
@@ -3265,16 +3330,21 @@ define("3/10", ["require", "exports", "module", "0/Matrix", "0/e", "0/d"], funct
             this.v[a].Ua(d, c, f)
         }
       , Yf: function(a, d, c, f) {
-            for (var e = 0; e < a.length; e++)
-                this.Ua(a[e], d, c, 0 == e ? f : void 0)
+            for (var i = 0; i < a.length; i++) {
+                this.Ua(a[i], d, c, 0 == i ? f : void 0)
+            }
         }
       , Va: function(a, d, c) {
             this.Yf(this.all(), a, d, c)
         }
       , all: function() {
-            var a = [], d;
-            for (d in this.cc)
-                a.push(d);
+            // This converts all keys in this.cc to an array.
+            var a = []
+
+            for (var key in this.cc) {
+                a.push(key)
+            }
+
             return a
         }
       , O: function(a) {
@@ -3296,9 +3366,12 @@ define("3/10", ["require", "exports", "module", "0/Matrix", "0/e", "0/d"], funct
             return this.v[a].jb()
         }
       , u: function() {
-            var a = [], d;
-            for (d in this.cc)
-                a.push(this.v[d].u(this.cc[d]));
+            var a = []
+
+            for (var key in this.cc) {
+                a.push(this.v[key].u(this.cc[key]))
+            }
+
             return a
         }
     }
@@ -3328,9 +3401,12 @@ define("6/19", ["require", "exports", "module", "0/Matrix"], function(require, e
             this.update()
         }
       , kf: function(c) {
-            var a = [], b;
-            for (b in this.Ab)
-                this.Ab.hasOwnProperty(b) && 0 <= this.Ab[b].indexOf(c) && a.push(b);
+            var a = []
+
+            for (var key in this.Ab) {
+                this.Ab.hasOwnProperty(key) && 0 <= this.Ab[key].indexOf(c) && a.push(key)
+            }
+
             return a
         }
       , update: function() {
