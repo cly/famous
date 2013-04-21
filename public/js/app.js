@@ -1466,7 +1466,7 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, 
         this.classList = [];
         this.sc = [];
         var d = this;
-        this.Jb = function(a) {
+        this.listener = function(a) {
             d.b(a.type, a)
         };
         this.Dc = new c;
@@ -1481,14 +1481,14 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, 
     g.qg = function(a) {
         return g.Zd[a]
     };
-    g.He = ["touchstart", "touchmove", "touchend", "touchcancel", "click"];
+    g.event_types = ["touchstart", "touchmove", "touchend", "touchcancel", "click"]
     g.prototype = {
         g: function(a, b) {
             this.fb.on(a, b)
         }
       , b: function(a, b) {
-            b && (b.origin = this);
-            this.fb.b(a, b);
+            b && (b.origin = this)
+            this.fb.b(a, b)
             this.Dc.b(a, b)
         }
       , u: function() {
@@ -1498,29 +1498,48 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, 
             return this.Dc = new c(a)
         }
       , pb: function(a) {
-            for (n in a)
-                a.hasOwnProperty(n) && (this.Y[n] = a[n], this.wa = true)
+            for (n in a) {
+                if (a.hasOwnProperty(n)) {
+                    this.Y[n] = a[n]
+                    this.wa = true
+                }
+            }
         }
       , h: function(a) {
-            0 > this.classList.indexOf(a) && (this.classList.push(a), this.wa = true)
+            if (0 > this.classList.indexOf(a)) {
+                this.classList.push(a)
+                this.wa = true
+            }
         }
       , T: function(a) {
-            this.content != a && (this.content = a, this.wa = true)
+            if (this.content != a) {
+                this.content = a
+                this.wa = true
+            }
         }
       , Ve: function(a) {
-            for (var b in this.D)
-                this.D.hasOwnProperty(b) && a.addEventListener(b, this.Jb);
-            b = g.He;
-            for (var d = 0; d < b.length; d++)
-                a.addEventListener(b[d], 
-                this.Jb)
+            for (var b in this.D) {
+                if (this.D.hasOwnProperty(b)) {
+                    a.addEventListener(b, this.listener)
+                }
+            }
+
+            var event_types = g.event_types
+            for (var i = 0; i < event_types.length; i++) {
+                a.addEventListener(event_types[i], this.listener)
+            }
         }
       , cf: function(a) {
-            for (var b in this.D)
-                this.D.hasOwnProperty(b) && a.removeEventListener(b, this.Jb);
-            b = g.He;
-            for (var d = 0; d < b.length; d++)
-                a.removeEventListener(b[d], this.Jb)
+            for (var b in this.D) {
+                if (this.D.hasOwnProperty(b)) {
+                    a.removeEventListener(b, this.listener)
+                }
+            }
+
+            var event_types = g.event_types
+            for (var i = 0; i < event_types.length; i++) {
+                a.removeEventListener(event_types[i], this.listener)
+            }
         }
       , wd: function(a) {
             for (var b = 0; b < this.sc.length; b++)
@@ -1566,14 +1585,19 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, 
       , bd: function() {
         }
       , Kc: function() {
-            if (this.size)
-                return this.size.slice(0);
+            if (this.size) {
+                return this.size.slice(0)
+            }
+
             if (this.xb) {
-                if (this.rc)
-                    return this.rc.slice(0);
-                var a = this.xb.offsetWidth, b = this.xb.offsetHeight;
-                a && b && (this.rc = 
-                [a, b]);
+                if (this.rc) {
+                    return this.rc.slice(0)
+                }
+
+                var a = this.xb.offsetWidth
+                  , b = this.xb.offsetHeight
+
+                a && b && (this.rc = [a, b])
                 return [a, b]
             }
             return [0, 0]
@@ -1581,7 +1605,9 @@ define("0/b", ["require", "exports", "module", "./7", "./6"], function(require, 
       , ka: function(a) {
             this.size = a.slice(0, 2);
             this.wa = true
-        }};
+        }
+    }
+
     module.exports = g
 })
 
