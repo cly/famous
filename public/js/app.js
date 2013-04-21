@@ -1088,10 +1088,30 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, ex
 
                     for (var key in G) {
                         if (G.hasOwnProperty(key)) {
-                            h[key] = group || M.hasOwnProperty(key) ? G[key] : Matrix.multiply(G[key], t)
-                            d[key] = group || M.hasOwnProperty(key) ? p[key] : r * p[key]
+
+                            if (group) {
+                                h[key] = group
+                            } else if (M.hasOwnProperty(key)) {
+                                h[key] = G[key]
+                            } else {
+                                h[key] = Matrix.multiply(G[key], t)
+                            }
+
+                            if (group) {
+                                d[key] = group
+                            } else if (M.hasOwnProperty(key)) {
+                                d[key] = p[key]
+                            } else {
+                                d[key] = r * p[key]
+                            }
+
                             c[key] = y[key] || a
-                            M.hasOwnProperty(key) ? e[key] = M[key] : group && (e[key] = "X")
+
+                            if (M.hasOwnProperty(key)) {
+                                e[key] = M[key]
+                            } else if (group) {
+                                e[key] = "X"
+                            }
                         }
                     }
 
@@ -1128,40 +1148,54 @@ define("0/c", ["require", "exports", "module", "./Matrix"], function(require, ex
       , Xe: function(a) {
             var d = {}
               , h = []
-              , c
 
-            for (c in a) {
-                if (a.hasOwnProperty(c)) {
-                    var f = this.Oa[c];
-                    f && (d.hasOwnProperty(f) ? h.push(f) : d[f] = a[c])
+            for (var key in a) {
+                if (a.hasOwnProperty(key)) {
+                    var f = this.Oa[key];
+
+                    if (f) {
+                        if (d.hasOwnProperty(f)) {
+                            h.push(f)
+                        } else {
+                            d[f] = a[key]
+                        }
+                    }
                 }
             }
 
-            for (c = 0; c < h.length; c++) {
-                d.hasOwnProperty(h[c]) && delete d[h[c]];
+            for (var i = 0; i < h.length; i++) {
+                if (d.hasOwnProperty(h[i])) {
+                    delete d[h[i]]
+                }
             }
 
             return d
         }
       , af: function(a) {
-            for (var d in this.Oa) {
-                this.Oa.hasOwnProperty(d) && (this.Oa[d] = a[this.Oa[d]]);
+            var h = {}
+
+            for (var key in this.Oa) {
+                if (this.Oa.hasOwnProperty(key)) {
+                    this.Oa[key] = a[this.Oa[key]]
+                }
             }
-            var h = {};
-            for (d in this.i) {
-                if (this.i.hasOwnProperty(d)) {
-                    if (a.hasOwnProperty(d)) {
-                        h.hasOwnProperty(a[d]) || (h[a[d]] = []);
-                        for (var c = 0; c < this.i[d].length; c++) {
-                            this.i[d][c].hb = a[d], h[a[d]].push(this.i[d][c])
+
+            for (var key in this.i) {
+                if (this.i.hasOwnProperty(key)) {
+                    if (a.hasOwnProperty(key)) {
+                        h.hasOwnProperty(a[key]) || (h[a[key]] = [])
+                        for (var i = 0; i < this.i[key].length; i++) {
+                            this.i[key][i].hb = a[key]
+                            h[a[key]].push(this.i[key][i])
                         }
                     } else {
-                        for (c = 0; c < this.i[d].length; c++) {
-                            delete this.i[d][c].hb;
+                        for (var i = 0; i < this.i[key].length; i++) {
+                            delete this.i[key][i].hb
                         }
                     }
                 }
             }
+
             this.i = h
         }
       , ud: function(a, d) {
